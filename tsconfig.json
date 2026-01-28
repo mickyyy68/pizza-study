@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "@repo/*": ["./packages/*/src"]
+    }
+  },
+  "references": [
+    { "path": "./packages/utils" },
+    { "path": "./packages/contracts" },
+    { "path": "./packages/database" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/ai" },
+    { "path": "./packages/rag" },
+    { "path": "./apps/backend" },
+    { "path": "./apps/frontend" }
+  ]
+}
