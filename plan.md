@@ -149,7 +149,6 @@ For AI chat, streaming is essential - users see tokens as they arrive instead of
 ```typescript
 // apps/backend/src/routes/chat.ts
 import { streamText } from 'ai';
-import { stream } from 'hono/streaming';
 import { chatModel } from '@repo/ai';
 
 app.post('/chat', async (c) => {
@@ -158,11 +157,7 @@ app.post('/chat', async (c) => {
     model: chatModel,
     messages,
   });
-  return stream(c, async (stream) => {
-    for await (const chunk of result.textStream) {
-      await stream.write(chunk);
-    }
-  });
+  return result.toTextStreamResponse();  // Simplest approach - returns Response directly
 });
 ```
 
@@ -181,20 +176,35 @@ export function Chat() {
 
 ### Linting with Biome
 
-This project uses **Biome** for linting and formatting (replaces ESLint + Prettier).
+This project uses **Biome 2.0** for linting and formatting (replaces ESLint + Prettier).
 
 **Why Biome:**
 - Single tool for both linting and formatting
 - 10-100x faster than ESLint
 - Zero config needed for TypeScript/React
+- Native monorepo support with nested configs
 
+**Root config:**
 ```json
 // biome.json
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "organizeImports": { "enabled": true },
   "linter": { "enabled": true, "rules": { "recommended": true } },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 }
+}
+```
+
+**Package-specific overrides** (optional):
+```json
+// packages/ui/biome.json
+{
+  "extends": ["//"],  // Extends root config (Biome 2.0 monorepo syntax)
+  "linter": {
+    "rules": {
+      "a11y": { "recommended": true }  // Extra rules for UI package
+    }
+  }
 }
 ```
 
@@ -322,7 +332,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Create root `package.json` with name "pizza-study", type "module", and workspaces array `["apps/*", "packages/*"]`
 - [ ] Add root devDependencies: `typescript`, `@biomejs/biome`
 - [ ] Add root scripts: `"dev": "bun run --filter '*' dev"`, `"build": "bun run --filter '*' build"`, `"typecheck": "tsc -b"`, `"lint": "biome check ."`, `"lint:fix": "biome check --write ."`, `"format": "biome format --write ."`
-- [ ] Create `biome.json` with recommended rules, organize imports enabled, space indentation (2 spaces)
+- [ ] Create `biome.json` with Biome 2.0 schema, recommended rules, organize imports enabled, space indentation (2 spaces)
 - [ ] Pin shared dependency versions in root package.json: `"hono": "4.6.0"` (exact version for RPC compatibility)
 - [ ] Create root `tsconfig.json` with `compilerOptions`: target ES2022, module ESNext, moduleResolution bundler, strict true, skipLibCheck true, esModuleInterop true
 - [ ] Add path aliases to root tsconfig: `"@repo/*": ["./packages/*/src"]`
@@ -446,7 +456,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Create `apps/backend/src/routes/health.ts` exporting Hono route with method chaining: `new Hono().get('/', (c) => c.json({ status: 'ok' }))`
 - [ ] Create `apps/backend/src/routes/chat.ts` with streaming POST handler:
   - Use `streamText` from `ai` package with `chatModel` from `@repo/ai`
-  - Use `stream` from `hono/streaming` to stream response chunks
+  - Return `result.toTextStreamResponse()` for streaming
   - Method chaining for Hono RPC type inference
 - [ ] Create `apps/backend/src/routes/documents.ts` with CRUD endpoints using method chaining
 - [ ] Create `apps/backend/src/routes/index.ts` composing routes with `.route()` and exporting `AppType`
