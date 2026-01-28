@@ -135,8 +135,8 @@ const openrouter = createOpenRouter({
 // For embeddings
 export const embeddingModel = openrouter.textEmbeddingModel('openai/text-embedding-3-small');
 
-// For chat completions
-export const chatModel = openrouter('anthropic/claude-3.5-sonnet');
+// For chat completions (provider function returns LanguageModel)
+export const chatModel = openrouter.chat('anthropic/claude-3.5-sonnet');
 ```
 
 The database vector column must match: `vector('embedding', { dimensions: 1536 })`.
@@ -157,7 +157,7 @@ app.post('/chat', async (c) => {
     model: chatModel,
     messages,
   });
-  return result.toTextStreamResponse();  // Simplest approach - returns Response directly
+  return result.toUIMessageStreamResponse();  // Works with useChat default protocol
 });
 ```
 
@@ -188,7 +188,7 @@ This project uses **Biome 2.0** for linting and formatting (replaces ESLint + Pr
 ```json
 // biome.json
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  "$schema": "https://biomejs.dev/schemas/latest/schema.json",
   "organizeImports": { "enabled": true },
   "linter": { "enabled": true, "rules": { "recommended": true } },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 }
@@ -207,6 +207,8 @@ This project uses **Biome 2.0** for linting and formatting (replaces ESLint + Pr
   }
 }
 ```
+
+**Note:** Biome 2.0 has known issues where nested configs with `"extends": ["//"]` may sometimes be ignored. If you encounter linting inconsistencies, either skip package-level configs or check the [Biome GitHub issues](https://github.com/biomejs/biome/issues) for updates.
 
 ### Tailwind CSS v4
 
@@ -228,8 +230,8 @@ export default defineConfig({
 
 ```css
 /* styles.css */
-@import "tailwindcss";
 @config "../../packages/ui/tailwind.config.ts";
+@import "tailwindcss";
 ```
 
 ### Shared Utils Strategy
@@ -349,8 +351,18 @@ Document these early - they're needed across multiple packages:
   { "path": "./apps/frontend" }
 ]
 ```
-- [ ] Create `.gitignore` with: node_modules, dist, .env, .env.local, *.log, .DS_Store, drizzle/, *.tsbuildinfo
-- [ ] Create `.env.example` with DATABASE_URL and OPENROUTER_API_KEY placeholders
+- [ ] Create `.gitignore` with: node_modules, dist, .env, .env.local, *.log, .DS_Store, *.tsbuildinfo
+- [ ] Create `.env.example` with DATABASE_URL (`postgresql://postgres:postgres@localhost:5432/pizza_study`) and OPENROUTER_API_KEY placeholders
+- [ ] Create `docker/` directory
+- [ ] Create `docker-compose.yml` in project root with:
+  - `pgvector/pgvector:pg16` image
+  - Container name `pizza_study_db`
+  - Environment: POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=pizza_study
+  - Port 5432:5432
+  - Named volume `pizza_study_data` for persistence
+  - Mount `./docker/init.sql` to `/docker-entrypoint-initdb.d/init.sql`
+  - Health check: `pg_isready -U postgres -d pizza_study` (interval: 5s, timeout: 5s, retries: 5)
+- [ ] Create `docker/init.sql` with `CREATE EXTENSION IF NOT EXISTS vector;`
 
 ## Phase 2: Utils Package
 
@@ -365,7 +377,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Create `packages/contracts/` directory
 - [ ] Create `packages/contracts/package.json` with name `@repo/contracts`, dependencies: `zod`, `@repo/utils`
 - [ ] Add exports field: `".": "./src/index.ts"`, `"./*": "./src/*.ts"`
-- [ ] Create `packages/contracts/tsconfig.json` extending root, add `"composite": true`
+- [ ] Create `packages/contracts/tsconfig.json` extending root, add `"composite": true`, add `"references": [{ "path": "../utils" }]`
 - [ ] Create `packages/contracts/src/schemas/user.ts` with `userSchema` using Zod (id, email, name, createdAt)
 - [ ] Create `packages/contracts/src/schemas/message.ts` with `chatRequestSchema` and `chatResponseSchema`
 - [ ] Create `packages/contracts/src/schemas/document.ts` with `documentSchema` for RAG documents (id, title, content, metadata)
@@ -378,10 +390,10 @@ Document these early - they're needed across multiple packages:
 - [ ] Add dependencies: `drizzle-orm`, `postgres`, `@repo/utils`
 - [ ] Add devDependencies: `drizzle-kit`
 - [ ] Add exports field: `".": "./src/index.ts"`, `"./*": "./src/*.ts"`
-- [ ] Create `packages/database/tsconfig.json` extending root, add `"composite": true`
+- [ ] Create `packages/database/tsconfig.json` extending root, add `"composite": true`, add `"references": [{ "path": "../utils" }]`
 - [ ] Create `packages/database/drizzle.config.ts` with postgres dialect, schema path `./src/schema`, out path `./drizzle`
 - [ ] Create `packages/database/src/client.ts` importing `drizzle` from `drizzle-orm/postgres-js` and `postgres` from `postgres`
-- [ ] Configure connection pool: `postgres(process.env.DATABASE_URL!, { max: 10, idle_timeout: 20 })`
+- [ ] Configure connection pool: `postgres(process.env.DATABASE_URL!, { max: 10, idleTimeout: 20 })`
 - [ ] Create `packages/database/src/schema/users.ts` with users table using `pgTable`
 - [ ] Create `packages/database/src/schema/documents.ts` with documents table for RAG content
 - [ ] Create `packages/database/src/schema/embeddings.ts` with table definition including:
@@ -406,7 +418,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Add devDependencies: `tailwindcss@^4`, `@types/react`, `@types/react-dom`
 - [ ] Add peerDependencies: `react`, `react-dom`
 - [ ] Add exports field: `".": "./src/index.ts"`, `"./styles.css": "./src/styles.css"`, `"./tailwind.config": "./tailwind.config.ts"`
-- [ ] Create `packages/ui/tsconfig.json` extending root, add `"jsx": "react-jsx"`, `"composite": true`
+- [ ] Create `packages/ui/tsconfig.json` extending root, add `"jsx": "react-jsx"`, `"composite": true`, add `"references": [{ "path": "../utils" }]`
 - [ ] Create `packages/ui/tailwind.config.ts` with theme extensions (colors, fonts), export as ESM default
 - [ ] Create `packages/ui/src/lib/utils.ts` with `cn()` function using clsx and tailwind-merge
 - [ ] Create `packages/ui/src/components/button.tsx` - dumb Button component with variants using CVA
@@ -422,7 +434,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Create `packages/ai/package.json` with name `@repo/ai`
 - [ ] Add dependencies: `ai`, `@openrouter/ai-sdk-provider`, `@repo/utils`
 - [ ] Add exports field: `".": "./src/index.ts"`, `"./*": "./src/*.ts"`
-- [ ] Create `packages/ai/tsconfig.json` extending root, add `"composite": true`
+- [ ] Create `packages/ai/tsconfig.json` extending root, add `"composite": true`, add `"references": [{ "path": "../utils" }]`
 - [ ] Create `packages/ai/src/client.ts` with OpenRouter provider setup
 - [ ] Export `openrouter` instance: `createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY })`
 - [ ] Create `packages/ai/src/embedding.ts` with embedding model: `openrouter.textEmbeddingModel('openai/text-embedding-3-small')`
@@ -438,7 +450,7 @@ Document these early - they're needed across multiple packages:
 - [ ] Create `packages/rag/package.json` with name `@repo/rag`
 - [ ] Add dependencies: `@repo/database`, `@repo/ai`, `@repo/utils`
 - [ ] Add exports field: `".": "./src/index.ts"`, `"./*": "./src/*.ts"`
-- [ ] Create `packages/rag/tsconfig.json` extending root, add `"composite": true`
+- [ ] Create `packages/rag/tsconfig.json` extending root, add `"composite": true`, add `"references": [{ "path": "../database" }, { "path": "../ai" }, { "path": "../utils" }]`
 - [ ] Create `packages/rag/src/embeddings.ts` importing `generateEmbedding` from `@repo/ai`
 - [ ] Create `packages/rag/src/chunking.ts` with text chunking strategies (split by tokens, overlap)
 - [ ] Create `packages/rag/src/search.ts` with vector similarity search using pgvector cosine distance operator `<=>`
@@ -449,17 +461,17 @@ Document these early - they're needed across multiple packages:
 
 - [ ] Create `apps/backend/` directory
 - [ ] Create `apps/backend/package.json` with name `backend`
-- [ ] Add dependencies: `hono` (use workspace version), `@hono/zod-validator`, `@repo/ai`, `@repo/rag`, `@repo/database`, `@repo/contracts`, `@repo/utils`
+- [ ] Add dependencies: `hono` (use `"hono": "4.11.4"` matching root pinned version for RPC compatibility), `@hono/zod-validator`, `@repo/ai`, `@repo/rag`, `@repo/database`, `@repo/contracts`, `@repo/utils`
 - [ ] Add devDependencies: `@types/bun`
 - [ ] Add scripts: `"dev": "bun --watch src/index.ts"`, `"start": "bun src/index.ts"`, `"build": "tsc"`
 - [ ] Create `apps/backend/tsconfig.json` extending root with `"composite": true`, `"declaration": true`, `"declarationMap": true`
 - [ ] Create `apps/backend/src/routes/health.ts` exporting Hono route with method chaining: `new Hono().get('/', (c) => c.json({ status: 'ok' }))`
 - [ ] Create `apps/backend/src/routes/chat.ts` with streaming POST handler:
   - Use `streamText` from `ai` package with `chatModel` from `@repo/ai`
-  - Return `result.toTextStreamResponse()` for streaming
+  - Return `result.toUIMessageStreamResponse()` for streaming (works with useChat default protocol)
   - Method chaining for Hono RPC type inference
 - [ ] Create `apps/backend/src/routes/documents.ts` with CRUD endpoints using method chaining
-- [ ] Create `apps/backend/src/routes/index.ts` composing routes with `.route()` and exporting `AppType`
+- [ ] Create `apps/backend/src/routes/index.ts` composing routes with `.route()` and exporting `AppType`. Note: use `.route('/health', health)` and `.route('/api/chat', chat)` - the path in `.route()` is the prefix, individual route handlers use `/` for their paths
 - [ ] Create `apps/backend/src/middleware/cors.ts` with CORS configuration for localhost:5173
 - [ ] Create `apps/backend/src/middleware/error.ts` with error handling middleware
 - [ ] Create `apps/backend/src/middleware/logging.ts` with request logging middleware
@@ -469,7 +481,7 @@ Document these early - they're needed across multiple packages:
 
 - [ ] Create `apps/frontend/` directory
 - [ ] Create `apps/frontend/package.json` with name `frontend`
-- [ ] Add dependencies: `react`, `react-dom`, `hono` (use workspace version), `ai`, `@ai-sdk/react`, `@repo/ui`, `@repo/contracts`, `@repo/utils`
+- [ ] Add dependencies: `react`, `react-dom`, `hono` (use `"hono": "4.11.4"` matching root pinned version for RPC compatibility), `ai`, `@ai-sdk/react`, `@repo/ui`, `@repo/contracts`, `@repo/utils`
 - [ ] Add devDependencies: `vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `tailwindcss@^4`, `typescript`, `@types/react`, `@types/react-dom`, `@types/node`
 - [ ] Add scripts: `"dev": "vite"`, `"build": "vite build"`, `"preview": "vite preview"`
 - [ ] Create `apps/frontend/tsconfig.json` extending root with `"jsx": "react-jsx"`, `"composite": true`, and `"references": [{ "path": "../backend" }]`
@@ -496,8 +508,8 @@ export default defineConfig({
 - [ ] Create `apps/frontend/src/App.tsx` with basic layout placeholder
 - [ ] Create `apps/frontend/src/styles/globals.css` with Tailwind v4:
 ```css
-@import "tailwindcss";
 @config "../../packages/ui/tailwind.config.ts";
+@import "tailwindcss";
 ```
 - [ ] Import globals.css in main.tsx
 - [ ] Create `apps/frontend/src/lib/api.ts` with Hono client using relative type import:
@@ -515,8 +527,10 @@ export const client = hc<AppType>('http://localhost:3000');
 - [ ] Run `bun install` from project root
 - [ ] Verify no dependency resolution errors
 - [ ] Verify Hono versions match in backend and frontend (check bun.lock)
-- [ ] Connect to PostgreSQL and run pgvector extension: `psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"`
-- [ ] Run `bun run --filter @repo/database db:push` to sync schema (after extension is enabled)
+- [ ] Start PostgreSQL: `docker compose up -d --wait` (auto-enables pgvector extension via init.sql)
+- [ ] Create `.env` from `.env.example` with DATABASE_URL and OPENROUTER_API_KEY
+- [ ] Verify pgvector extension: `docker exec pizza_study_db psql -U postgres -d pizza_study -c "SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';"`
+- [ ] Run `bun run --filter @repo/database db:push` to sync schema
 - [ ] Build backend first for RPC types: `bun run --filter backend build`
 - [ ] Run `bun run --filter backend dev` and verify server starts on port 3000
 - [ ] Test GET http://localhost:3000/health returns `{ "status": "ok" }`
