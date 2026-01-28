@@ -2,7 +2,7 @@ import type { LanguageModelV1 } from "ai";
 import { openrouter } from "./client";
 
 // Chat model configuration
-export const CHAT_MODEL = "anthropic/claude-3.5-sonnet";
+export const CHAT_MODEL = "minimax/minimax-m2.1";
 export const chatModel: LanguageModelV1 = openrouter(CHAT_MODEL);
 
 // Default parameters for chat completions

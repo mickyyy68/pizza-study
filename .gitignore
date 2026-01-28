@@ -16,3 +16,8 @@ dist
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Compiled config files
+*.config.js
+*.config.d.ts
+*.config.d.ts.map
