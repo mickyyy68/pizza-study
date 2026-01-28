@@ -164,7 +164,7 @@ app.post('/chat', async (c) => {
 **Frontend** (useChat hook from Vercel AI SDK):
 ```typescript
 // apps/frontend/src/hooks/useChat.ts
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 
 export function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -188,7 +188,7 @@ This project uses **Biome 2.0** for linting and formatting (replaces ESLint + Pr
 ```json
 // biome.json
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "organizeImports": { "enabled": true },
   "linter": { "enabled": true, "rules": { "recommended": true } },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 }
@@ -331,9 +331,9 @@ Document these early - they're needed across multiple packages:
 
 - [ ] Create root `package.json` with name "pizza-study", type "module", and workspaces array `["apps/*", "packages/*"]`
 - [ ] Add root devDependencies: `typescript`, `@biomejs/biome`
-- [ ] Add root scripts: `"dev": "bun run --filter '*' dev"`, `"build": "bun run --filter '*' build"`, `"typecheck": "tsc -b"`, `"lint": "biome check ."`, `"lint:fix": "biome check --write ."`, `"format": "biome format --write ."`
+- [ ] Add root scripts: `"dev": "bun run --filter backend build && bun run --filter '*' dev"`, `"build": "bun run --filter '*' build"`, `"typecheck": "tsc -b"`, `"lint": "biome check ."`, `"lint:fix": "biome check --write ."`, `"format": "biome format --write ."`
 - [ ] Create `biome.json` with Biome 2.0 schema, recommended rules, organize imports enabled, space indentation (2 spaces)
-- [ ] Pin shared dependency versions in root package.json: `"hono": "4.6.0"` (exact version for RPC compatibility)
+- [ ] Pin shared dependency versions in root package.json: `"hono": "4.11.4"` (exact version for RPC compatibility)
 - [ ] Create root `tsconfig.json` with `compilerOptions`: target ES2022, module ESNext, moduleResolution bundler, strict true, skipLibCheck true, esModuleInterop true
 - [ ] Add path aliases to root tsconfig: `"@repo/*": ["./packages/*/src"]`
 - [ ] Add `references` array to root tsconfig pointing to all packages and apps for `tsc -b` to work:
@@ -349,7 +349,7 @@ Document these early - they're needed across multiple packages:
   { "path": "./apps/frontend" }
 ]
 ```
-- [ ] Create `.gitignore` with: node_modules, dist, .env, .env.local, *.log, .DS_Store, drizzle/
+- [ ] Create `.gitignore` with: node_modules, dist, .env, .env.local, *.log, .DS_Store, drizzle/, *.tsbuildinfo
 - [ ] Create `.env.example` with DATABASE_URL and OPENROUTER_API_KEY placeholders
 
 ## Phase 2: Utils Package
@@ -469,7 +469,7 @@ Document these early - they're needed across multiple packages:
 
 - [ ] Create `apps/frontend/` directory
 - [ ] Create `apps/frontend/package.json` with name `frontend`
-- [ ] Add dependencies: `react`, `react-dom`, `hono` (use workspace version), `ai`, `@repo/ui`, `@repo/contracts`, `@repo/utils`
+- [ ] Add dependencies: `react`, `react-dom`, `hono` (use workspace version), `ai`, `@ai-sdk/react`, `@repo/ui`, `@repo/contracts`, `@repo/utils`
 - [ ] Add devDependencies: `vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `tailwindcss@^4`, `typescript`, `@types/react`, `@types/react-dom`, `@types/node`
 - [ ] Add scripts: `"dev": "vite"`, `"build": "vite build"`, `"preview": "vite preview"`
 - [ ] Create `apps/frontend/tsconfig.json` extending root with `"jsx": "react-jsx"`, `"composite": true`, and `"references": [{ "path": "../backend" }]`
@@ -506,7 +506,7 @@ import { hc } from 'hono/client';
 import type { AppType } from '../../../backend/src/routes';
 export const client = hc<AppType>('http://localhost:3000');
 ```
-- [ ] Create `apps/frontend/src/hooks/useChat.ts` using `useChat` from `ai/react` with backend API URL
+- [ ] Create `apps/frontend/src/hooks/useChat.ts` using `useChat` from `@ai-sdk/react` with backend API URL
 - [ ] Create `apps/frontend/src/pages/Home.tsx` with chat interface using the useChat hook
 - [ ] Import and use Home in App.tsx
 
