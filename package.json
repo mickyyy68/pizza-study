@@ -9,13 +9,14 @@
   "scripts": {
     "dev": "bun run --filter backend build && bun run --filter '*' dev",
     "build": "bun run --filter '*' build",
-    "typecheck": "tsc -b",
+    "typecheck": "bun run --filter '*' typecheck",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
+    "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
   },
   "dependencies": {

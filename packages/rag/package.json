@@ -1,0 +1,18 @@
+{
+  "name": "@repo/rag",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.38.0",
+    "@repo/database": "workspace:*",
+    "@repo/ai": "workspace:*",
+    "@repo/utils": "workspace:*"
+  }
+}
