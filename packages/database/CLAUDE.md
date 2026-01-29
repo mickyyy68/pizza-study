@@ -59,3 +59,9 @@ const migrationSql = postgres(process.env.DATABASE_URL!, { max: 1 });
 - `bun run db:push` - Push schema directly (development)
 - `bun run db:migrate` - Run migrations (production)
 - `bun run db:studio` - Open Drizzle Studio
+- `bun run test` - Run tests in watch mode
+- `bun run test:run` - Run tests once
+
+## Testing
+
+Tests in `src/__tests__/`. Uses Vitest with node environment. Integration tests require a running database.

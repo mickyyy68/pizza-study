@@ -63,3 +63,9 @@ export async function retrieve(query: string, options?: RetrievalOptions) {
 ## Commands
 
 - `bun run typecheck` - Type check this package
+- `bun run test` - Run tests in watch mode
+- `bun run test:run` - Run tests once
+
+## Testing
+
+Tests in `src/__tests__/`. Uses Vitest with node environment. Mock database calls for unit tests.

@@ -34,3 +34,10 @@ Root configuration for the pizza-study monorepo. Manages workspace dependencies,
 - `bun run lint` - Run Biome linter
 - `bun run lint:fix` - Fix linting issues
 - `bun run format` - Format code with Biome
+- `bun run test` - Run all tests in watch mode
+- `bun run test:run` - Run all tests once
+- `bun run test:coverage` - Run tests with coverage
+
+## Testing
+
+Uses Vitest with workspace projects. Each package/app has its own `vitest.config.ts`. Tests live in `src/__tests__/`. React packages use `happy-dom` and `@testing-library/react`.

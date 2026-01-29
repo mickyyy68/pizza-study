@@ -67,3 +67,9 @@ export function Button({ className, variant, size, ...props }: ButtonProps) {
 ## Commands
 
 - `bun run typecheck` - Type check this package
+- `bun run test` - Run tests in watch mode
+- `bun run test:run` - Run tests once
+
+## Testing
+
+Tests in `src/__tests__/`. Uses Vitest with `happy-dom` and `@testing-library/react`. Setup in `vitest.setup.ts`.

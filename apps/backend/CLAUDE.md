@@ -69,3 +69,9 @@ app.post('/chat', async (c) => {
 - `bun run dev` - Start with hot reload (`bun --watch`)
 - `bun run start` - Start production server
 - `bun run build` - TypeScript build (required before frontend for RPC types)
+- `bun run test` - Run tests in watch mode
+- `bun run test:run` - Run tests once
+
+## Testing
+
+Tests in `src/__tests__/`. Uses Vitest with node environment. Test Hono routes with `app.request()`.

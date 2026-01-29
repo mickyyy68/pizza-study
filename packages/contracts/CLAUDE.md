@@ -44,3 +44,9 @@ export type User = z.infer<typeof userSchema>;
 ## Commands
 
 - `bun run typecheck` - Type check this package
+- `bun run test` - Run tests in watch mode
+- `bun run test:run` - Run tests once
+
+## Testing
+
+Tests in `src/__tests__/`. Uses Vitest with node environment. Test Zod schema validation.
