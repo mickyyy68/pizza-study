@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { Document, Folder } from "../types";
 import { mockDocuments, mockFolders } from "../mock/documents";
+import type { Document, Folder } from "../types";
 
 /**
  * Documents Store for Pizza Study.
@@ -79,7 +79,7 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
       // Tag filter (OR logic - document must have at least one selected tag)
       if (selectedTags.length > 0) {
         const hasMatchingTag = selectedTags.some((tag) =>
-          doc.tags.includes(tag)
+          doc.tags.includes(tag),
         );
         if (!hasMatchingTag) return false;
       }
@@ -89,7 +89,7 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
         const query = searchQuery.toLowerCase();
         const matchesTitle = doc.title.toLowerCase().includes(query);
         const matchesTags = doc.tags.some((tag) =>
-          tag.toLowerCase().includes(query)
+          tag.toLowerCase().includes(query),
         );
         if (!matchesTitle && !matchesTags) return false;
       }

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useState } from "react";
 import { cn } from "../lib/utils";
 
 /**
@@ -29,7 +29,7 @@ const avatarVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 export interface AvatarProps
@@ -84,7 +84,7 @@ export function Avatar({
             "absolute bottom-0 right-0",
             "h-2.5 w-2.5 rounded-full",
             "ring-2 ring-background",
-            statusColors[status]
+            statusColors[status],
           )}
         />
       )}
@@ -113,7 +113,11 @@ export function AvatarGroup({
   return (
     <div className={cn("flex -space-x-2", className)} {...props}>
       {visibleAvatars.map((child, index) => (
-        <div key={index} className="ring-2 ring-background rounded-full">
+        <div
+          // biome-ignore lint/suspicious/noArrayIndexKey: Children are static and don't reorder
+          key={index}
+          className="ring-2 ring-background rounded-full"
+        >
           {child}
         </div>
       ))}

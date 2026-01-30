@@ -1,3 +1,4 @@
+export * from "./agents";
 export { openrouter } from "./client";
 export {
   CHAT_MODEL,
@@ -9,5 +10,4 @@ export {
 export { embeddingModel, generateEmbedding } from "./embedding";
 export * from "./prompts";
 export * from "./prompts/personalities";
-export * from "./agents";
 export * from "./tools";

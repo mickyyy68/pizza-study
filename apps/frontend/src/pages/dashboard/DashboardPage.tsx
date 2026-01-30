@@ -1,26 +1,26 @@
-import { Link } from "react-router";
 import {
-  CheckCircle2,
-  Clock,
-  FileText,
-  Calendar,
-  MessageSquare,
-  Flame,
-  ArrowRight,
-} from "lucide-react";
-import {
+  Badge,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
   Checkbox,
-  Badge,
+  cn,
 } from "@repo/ui";
-import { useCalendarStore, formatDate } from "../../stores/calendar-store";
-import { useDocumentsStore } from "../../stores/documents-store";
+import {
+  ArrowRight,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Flame,
+  MessageSquare,
+} from "lucide-react";
+import { Link } from "react-router";
 import { mockStats } from "../../mock/tasks";
-import { cn } from "@repo/ui";
+import { formatDate, useCalendarStore } from "../../stores/calendar-store";
+import { useDocumentsStore } from "../../stores/documents-store";
 
 /**
  * DashboardPage - Home view for Pizza Study.
@@ -149,7 +149,8 @@ function TodayTasksList() {
             "flex items-start gap-3 p-3 rounded-lg border bg-card",
             task.priority === "high" && "border-l-4 border-l-destructive",
             task.priority === "medium" && "border-l-4 border-l-accent",
-            task.priority === "low" && "border-l-4 border-l-muted-foreground/30"
+            task.priority === "low" &&
+              "border-l-4 border-l-muted-foreground/30",
           )}
         >
           <Checkbox
@@ -161,7 +162,7 @@ function TodayTasksList() {
             <p
               className={cn(
                 "font-medium text-sm",
-                task.completed && "line-through text-muted-foreground"
+                task.completed && "line-through text-muted-foreground",
               )}
             >
               {task.title}
@@ -177,8 +178,8 @@ function TodayTasksList() {
               task.priority === "high"
                 ? "destructive"
                 : task.priority === "medium"
-                ? "accent"
-                : "muted"
+                  ? "accent"
+                  : "muted"
             }
             size="sm"
           >
@@ -225,7 +226,7 @@ function ProgressStats() {
           <div
             className={cn(
               "h-10 w-10 rounded-lg bg-muted flex items-center justify-center",
-              stat.color
+              stat.color,
             )}
           >
             <stat.icon className="h-5 w-5" />
@@ -337,7 +338,7 @@ function QuickAccessGrid() {
           <div
             className={cn(
               "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-              card.color
+              card.color,
             )}
           >
             <card.icon className="h-5 w-5" />

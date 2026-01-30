@@ -1,15 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useChat } from "@ai-sdk/react";
 import {
+  Avatar,
+  ChatInput,
+  ChatMessage,
   SlideOver,
-  SlideOverHeader,
   SlideOverContent,
   SlideOverFooter,
-  ChatMessage,
-  ChatInput,
-  Avatar,
+  SlideOverHeader,
 } from "@repo/ui";
+import { useEffect, useRef } from "react";
 import { useUIStore } from "../../stores/ui-store";
-import { useChat } from "@ai-sdk/react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -30,6 +30,7 @@ export function ChatSlideOver() {
     });
 
   // Auto-scroll to bottom when new messages arrive
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages triggers scroll when new messages arrive
   useEffect(() => {
     if (chatSlideOverOpen && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -67,7 +68,8 @@ export function ChatSlideOver() {
               How can I help you study?
             </h3>
             <p className="text-sm text-muted-foreground max-w-[250px]">
-              Ask me questions about your documents, request quizzes, or get help understanding concepts.
+              Ask me questions about your documents, request quizzes, or get
+              help understanding concepts.
             </p>
           </div>
         )}
@@ -76,7 +78,7 @@ export function ChatSlideOver() {
         {messages.map((message) => (
           <ChatMessage
             key={message.id}
-            role={message.role as "user" | "assistant"}
+            variant={message.role as "user" | "assistant"}
             content={message.content}
             avatar={
               message.role === "assistant" ? (
@@ -91,7 +93,7 @@ export function ChatSlideOver() {
         {/* Loading indicator */}
         {isLoading && (
           <ChatMessage
-            role="assistant"
+            variant="assistant"
             content=""
             isStreaming
             avatar={<Avatar size="sm" fallback="AI" />}

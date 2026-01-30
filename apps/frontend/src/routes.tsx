@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { RootLayout } from "./layouts/RootLayout";
-import { DashboardPage } from "./pages/dashboard/DashboardPage";
-import { DocumentsPage } from "./pages/documents/DocumentsPage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { ChatPage } from "./pages/chat/ChatPage";
+import { DashboardPage } from "./pages/dashboard/DashboardPage";
+import { DocumentsPage } from "./pages/documents/DocumentsPage";
 
 /**
  * Route definitions for Pizza Study.

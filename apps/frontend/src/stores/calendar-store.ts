@@ -1,17 +1,17 @@
-import { create } from "zustand";
 import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  isSameDay,
   addMonths,
-  subMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
   format,
+  isSameDay,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
 } from "date-fns";
-import type { Task, CalendarEvent } from "../types";
-import { mockTasks, mockEvents } from "../mock/tasks";
+import { create } from "zustand";
+import { mockEvents, mockTasks } from "../mock/tasks";
+import type { CalendarEvent, Task } from "../types";
 
 /**
  * Calendar Store for Pizza Study.
@@ -76,7 +76,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   toggleTaskComplete: (taskId) =>
     set((state) => ({
       tasks: state.tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
+        task.id === taskId ? { ...task, completed: !task.completed } : task,
       ),
     })),
 

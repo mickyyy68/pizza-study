@@ -2,15 +2,15 @@ import { tool } from "ai";
 import { z } from "zod";
 
 export const mockRagTool = tool({
-    description: "Search for information in the user's uploaded documents.",
-    parameters: z.object({
-        query: z.string().describe("The search query to find relevant documents"),
-    }),
-    execute: async ({ query }) => {
-        // Mock delay to simulate network call
-        await new Promise((resolve) => setTimeout(resolve, 500));
+  description: "Search for information in the user's uploaded documents.",
+  parameters: z.object({
+    query: z.string().describe("The search query to find relevant documents"),
+  }),
+  execute: async ({ query }) => {
+    // Mock delay to simulate network call
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-        return `
+    return `
       [MOCK RAG RESULTS]
       Found 2 relevant documents for query: "${query}"
       
@@ -20,5 +20,5 @@ export const mockRagTool = tool({
       Document 2 (dough_recipe.txt):
       "The secret to a good pizza dough is high hydration and a long fermentation period (at least 24 hours). Use 00 flour for best results."
     `;
-    },
+  },
 });

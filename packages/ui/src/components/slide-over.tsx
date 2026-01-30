@@ -1,6 +1,6 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib/utils";
 
 /**
@@ -38,7 +38,7 @@ const slideOverVariants = cva(
       side: "right",
       size: "md",
     },
-  }
+  },
 );
 
 export interface SlideOverProps
@@ -117,9 +117,10 @@ export function SlideOver({
 
   if (!open) return null;
 
-  const translateClass = side === "right"
-    ? "translate-x-0 data-[state=closed]:translate-x-full"
-    : "-translate-x-0 data-[state=closed]:-translate-x-full";
+  const translateClass =
+    side === "right"
+      ? "translate-x-0 data-[state=closed]:translate-x-full"
+      : "-translate-x-0 data-[state=closed]:-translate-x-full";
 
   const content = (
     <div className="fixed inset-0 z-50">
@@ -129,7 +130,7 @@ export function SlideOver({
           className={cn(
             "absolute inset-0 bg-black/20 backdrop-blur-[2px]",
             "transition-opacity duration-300",
-            "animate-in fade-in-0"
+            "animate-in fade-in-0",
           )}
           aria-hidden="true"
         />
@@ -144,7 +145,7 @@ export function SlideOver({
           translateClass,
           "animate-in",
           side === "right" ? "slide-in-from-right" : "slide-in-from-left",
-          className
+          className,
         )}
         {...props}
       >
@@ -165,7 +166,8 @@ export function SlideOver({
    SlideOver Header
    ============================================================================= */
 
-export interface SlideOverHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SlideOverHeaderProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   onClose?: () => void;
 }
 
@@ -181,20 +183,21 @@ export function SlideOverHeader({
         "flex items-center justify-between gap-4 p-4",
         "border-b border-border",
         "shrink-0",
-        className
+        className,
       )}
       {...props}
     >
       <div className="flex-1 font-semibold text-lg">{children}</div>
       {onClose && (
         <button
+          type="button"
           onClick={onClose}
           className={cn(
             "h-8 w-8 rounded-lg",
             "flex items-center justify-center",
             "text-muted-foreground hover:text-foreground",
             "hover:bg-muted transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           )}
           aria-label="Close"
         >
@@ -203,6 +206,7 @@ export function SlideOverHeader({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -221,14 +225,15 @@ export function SlideOverHeader({
    SlideOver Content
    ============================================================================= */
 
-export interface SlideOverContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SlideOverContentProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function SlideOverContent({ className, ...props }: SlideOverContentProps) {
+export function SlideOverContent({
+  className,
+  ...props
+}: SlideOverContentProps) {
   return (
-    <div
-      className={cn("flex-1 overflow-y-auto p-4", className)}
-      {...props}
-    />
+    <div className={cn("flex-1 overflow-y-auto p-4", className)} {...props} />
   );
 }
 
@@ -236,7 +241,8 @@ export function SlideOverContent({ className, ...props }: SlideOverContentProps)
    SlideOver Footer
    ============================================================================= */
 
-export interface SlideOverFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SlideOverFooterProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SlideOverFooter({ className, ...props }: SlideOverFooterProps) {
   return (
@@ -244,7 +250,7 @@ export function SlideOverFooter({ className, ...props }: SlideOverFooterProps) {
       className={cn(
         "p-4 border-t border-border",
         "shrink-0 bg-background",
-        className
+        className,
       )}
       {...props}
     />

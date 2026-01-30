@@ -48,7 +48,7 @@ export function Skeleton({
         "bg-muted",
         variantClasses[variant],
         animationClasses[animation],
-        className
+        className,
       )}
       style={{
         width: width,
@@ -90,6 +90,7 @@ export function SkeletonText({
     <div className={cn("flex flex-col", gapClasses[gap], className)}>
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
+          // biome-ignore lint/suspicious/noArrayIndexKey: Static array based on count, no reordering
           key={i}
           variant="text"
           height="0.875rem"
@@ -123,16 +124,18 @@ export function SkeletonCard({
 }: SkeletonCardProps) {
   return (
     <div
-      className={cn(
-        "rounded-xl border border-border bg-card p-4",
-        className
-      )}
+      className={cn("rounded-xl border border-border bg-card p-4", className)}
     >
       {showHeader && (
         <div className="flex items-center gap-3 mb-4">
           <Skeleton variant="circular" width={40} height={40} />
           <div className="flex-1">
-            <Skeleton variant="text" width="60%" height="1rem" className="mb-2" />
+            <Skeleton
+              variant="text"
+              width="60%"
+              height="1rem"
+              className="mb-2"
+            />
             <Skeleton variant="text" width="40%" height="0.75rem" />
           </div>
         </div>

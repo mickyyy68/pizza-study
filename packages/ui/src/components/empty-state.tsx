@@ -76,7 +76,7 @@ export function EmptyState({
       className={cn(
         "flex flex-col items-center justify-center text-center",
         sizes.container,
-        className
+        className,
       )}
     >
       {/* Icon */}
@@ -86,7 +86,7 @@ export function EmptyState({
             "rounded-full bg-muted flex items-center justify-center text-muted-foreground",
             sizes.icon,
             // If icon is a string (emoji), increase font size
-            typeof icon === "string" && "text-3xl"
+            typeof icon === "string" && "text-3xl",
           )}
         >
           {icon}
@@ -95,22 +95,14 @@ export function EmptyState({
 
       {/* Title */}
       <h3
-        className={cn(
-          "font-serif font-semibold text-foreground",
-          sizes.title
-        )}
+        className={cn("font-serif font-semibold text-foreground", sizes.title)}
       >
         {title}
       </h3>
 
       {/* Description */}
       {description && (
-        <p
-          className={cn(
-            "text-muted-foreground mt-2",
-            sizes.description
-          )}
-        >
+        <p className={cn("text-muted-foreground mt-2", sizes.description)}>
           {description}
         </p>
       )}

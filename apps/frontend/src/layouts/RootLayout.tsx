@@ -1,11 +1,11 @@
+import { cn } from "@repo/ui";
+import { Menu, X } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
-import { Menu, X } from "lucide-react";
-import { AppSidebar } from "./AppSidebar";
 import { ChatSlideOver } from "../components/chat/ChatSlideOver";
-import { useUIStore } from "../stores/ui-store";
 import { useTheme } from "../hooks/useTheme";
-import { cn } from "@repo/ui";
+import { useUIStore } from "../stores/ui-store";
+import { AppSidebar } from "./AppSidebar";
 
 /**
  * RootLayout - Main application layout for Pizza Study.
@@ -18,14 +18,19 @@ import { cn } from "@repo/ui";
  * - Theme management
  */
 export function RootLayout() {
-  const { toggleChatSlideOver, mobileMenuOpen, closeMobileMenu, toggleMobileMenu } =
-    useUIStore();
+  const {
+    toggleChatSlideOver,
+    mobileMenuOpen,
+    closeMobileMenu,
+    toggleMobileMenu,
+  } = useUIStore();
   const location = useLocation();
 
   // Initialize theme system
   useTheme();
 
   // Close mobile menu on route change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: location.pathname triggers menu close on navigation
   useEffect(() => {
     closeMobileMenu();
   }, [location.pathname, closeMobileMenu]);
@@ -61,7 +66,9 @@ export function RootLayout() {
           "fixed inset-y-0 left-0 z-50 md:relative md:z-auto",
           // Mobile: slide in/out
           "transform transition-transform duration-300 ease-in-out",
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          mobileMenuOpen
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0",
         )}
       >
         <AppSidebar onMobileClose={closeMobileMenu} />
@@ -71,6 +78,7 @@ export function RootLayout() {
       <main className="flex-1 overflow-auto relative">
         {/* Mobile menu button */}
         <button
+          type="button"
           onClick={toggleMobileMenu}
           className={cn(
             "fixed top-4 left-4 z-30 md:hidden",
@@ -78,7 +86,7 @@ export function RootLayout() {
             "bg-card border border-border shadow-sm",
             "flex items-center justify-center",
             "text-foreground hover:bg-muted",
-            "transition-colors"
+            "transition-colors",
           )}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >

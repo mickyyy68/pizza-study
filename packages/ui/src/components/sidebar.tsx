@@ -24,7 +24,7 @@ export function Sidebar({ className, collapsed, ...props }: SidebarProps) {
         "flex h-full flex-col bg-sidebar border-r border-sidebar-border",
         "transition-all duration-200 ease-out",
         collapsed ? "w-16" : "w-64",
-        className
+        className,
       )}
       {...props}
     />
@@ -35,7 +35,8 @@ export function Sidebar({ className, collapsed, ...props }: SidebarProps) {
    Sidebar Header
    ============================================================================= */
 
-export interface SidebarHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SidebarHeaderProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
   return (
@@ -43,7 +44,7 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
       className={cn(
         "h-16 flex items-center px-4 border-b border-sidebar-border",
         "shrink-0",
-        className
+        className,
       )}
       {...props}
     />
@@ -54,7 +55,8 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
    Sidebar Content
    ============================================================================= */
 
-export interface SidebarContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SidebarContentProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SidebarContent({ className, ...props }: SidebarContentProps) {
   return (
@@ -62,7 +64,7 @@ export function SidebarContent({ className, ...props }: SidebarContentProps) {
       className={cn(
         "flex-1 overflow-y-auto p-3",
         "scrollbar-thin scrollbar-thumb-sidebar-border",
-        className
+        className,
       )}
       {...props}
     />
@@ -73,7 +75,8 @@ export function SidebarContent({ className, ...props }: SidebarContentProps) {
    Sidebar Footer
    ============================================================================= */
 
-export interface SidebarFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SidebarFooterProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SidebarFooter({ className, ...props }: SidebarFooterProps) {
   return (
@@ -81,7 +84,7 @@ export function SidebarFooter({ className, ...props }: SidebarFooterProps) {
       className={cn(
         "p-3 border-t border-sidebar-border",
         "shrink-0",
-        className
+        className,
       )}
       {...props}
     />
@@ -92,11 +95,17 @@ export function SidebarFooter({ className, ...props }: SidebarFooterProps) {
    Sidebar Group
    ============================================================================= */
 
-export interface SidebarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SidebarGroupProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   label?: string;
 }
 
-export function SidebarGroup({ className, label, children, ...props }: SidebarGroupProps) {
+export function SidebarGroup({
+  className,
+  label,
+  children,
+  ...props
+}: SidebarGroupProps) {
   return (
     <div className={cn("py-2", className)} {...props}>
       {label && (
@@ -125,13 +134,14 @@ const sidebarItemVariants = cva(
     variants: {
       active: {
         true: "bg-sidebar-accent text-sidebar-accent-foreground",
-        false: "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
+        false:
+          "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
       },
     },
     defaultVariants: {
       active: false,
     },
-  }
+  },
 );
 
 export interface SidebarItemProps
@@ -188,9 +198,13 @@ export function SidebarItem({
    Sidebar Separator
    ============================================================================= */
 
-export interface SidebarSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SidebarSeparatorProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function SidebarSeparator({ className, ...props }: SidebarSeparatorProps) {
+export function SidebarSeparator({
+  className,
+  ...props
+}: SidebarSeparatorProps) {
   return (
     <div
       className={cn("h-px mx-3 my-2 bg-sidebar-border", className)}

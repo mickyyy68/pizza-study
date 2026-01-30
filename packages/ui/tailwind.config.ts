@@ -9,10 +9,7 @@ import type { Config } from "tailwindcss";
  * This config only handles content paths and any plugin configuration.
  */
 export default {
-  content: [
-    "./src/**/*.{ts,tsx}",
-    "../../apps/frontend/src/**/*.{ts,tsx}",
-  ],
+  content: ["./src/**/*.{ts,tsx}", "../../apps/frontend/src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
     extend: {

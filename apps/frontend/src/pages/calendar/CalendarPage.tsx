@@ -1,36 +1,26 @@
-import { useState, useEffect } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  CheckCircle2,
-  Clock,
-  BookOpen,
-  AlertCircle,
-} from "lucide-react";
-import {
-  isSameMonth,
-  isSameDay,
-  isToday,
-  format,
-} from "date-fns";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Button,
   Badge,
-  Checkbox,
+  Button,
+  cn,
   EmptyState,
   Input,
   SlideOver,
-  SlideOverHeader,
   SlideOverContent,
   SlideOverFooter,
-  cn,
+  SlideOverHeader,
 } from "@repo/ui";
-import { useCalendarStore, formatDate } from "../../stores/calendar-store";
+import { format, isSameDay, isSameMonth, isToday } from "date-fns";
+import {
+  AlertCircle,
+  BookOpen,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Plus,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import type { Task } from "../../types";
 
 /**
@@ -44,21 +34,26 @@ import type { Task } from "../../types";
  */
 export function CalendarPage() {
   const {
+    tasks,
+    events,
     currentMonth,
     selectedDate,
     navigateMonth,
     goToToday,
     getCalendarDays,
-    getTasksForDate,
-    getEventsForDate,
     addTask,
   } = useCalendarStore();
 
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
   const days = getCalendarDays();
-  const selectedTasks = getTasksForDate(selectedDate);
-  const selectedEvents = getEventsForDate(selectedDate);
+  // Filter tasks/events for selected date - subscribing to tasks/events ensures re-renders
+  const selectedTasks = tasks.filter((task) =>
+    isSameDay(task.dueDate, selectedDate),
+  );
+  const selectedEvents = events.filter((event) =>
+    isSameDay(event.date, selectedDate),
+  );
 
   return (
     <div className="flex h-full">
@@ -206,31 +201,30 @@ export function CalendarPage() {
  * Day cell component for calendar grid.
  */
 function DayCell({ date }: { date: Date }) {
-  const {
-    currentMonth,
-    selectedDate,
-    setSelectedDate,
-    getTasksForDate,
-    getEventsForDate,
-  } = useCalendarStore();
+  const { tasks, events, currentMonth, selectedDate, setSelectedDate } =
+    useCalendarStore();
 
   const isCurrentMonth = isSameMonth(date, currentMonth);
   const isSelected = isSameDay(date, selectedDate);
   const isTodayDate = isToday(date);
 
-  const tasks = getTasksForDate(date);
-  const events = getEventsForDate(date);
-  const hasItems = tasks.length > 0 || events.length > 0;
+  // Filter tasks/events for this specific date
+  const dayTasks = tasks.filter((task) => isSameDay(task.dueDate, date));
+  const dayEvents = events.filter((event) => isSameDay(event.date, date));
+  const hasItems = dayTasks.length > 0 || dayEvents.length > 0;
 
   return (
     <button
+      type="button"
       onClick={() => setSelectedDate(date)}
       className={cn(
         "relative p-2 rounded-lg text-sm transition-all duration-150",
         "hover:bg-accent/50",
         !isCurrentMonth && "text-muted-foreground/40",
         isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-        isTodayDate && !isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+        isTodayDate &&
+          !isSelected &&
+          "ring-2 ring-primary ring-offset-2 ring-offset-background",
       )}
     >
       <span className="font-medium">{format(date, "d")}</span>
@@ -238,10 +232,10 @@ function DayCell({ date }: { date: Date }) {
       {/* Event/task indicators */}
       {hasItems && !isSelected && (
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {tasks.length > 0 && (
+          {dayTasks.length > 0 && (
             <span className="w-1.5 h-1.5 rounded-full bg-primary" />
           )}
-          {events.length > 0 && (
+          {dayEvents.length > 0 && (
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           )}
         </div>
@@ -266,23 +260,50 @@ function TaskItem({
     low: "border-l-muted-foreground/30",
   };
 
+  const handleToggle = () => {
+    toggleTaskComplete(task.id);
+  };
+
   return (
     <li
       className={cn(
         "flex items-start gap-3 p-3 rounded-lg border bg-card border-l-4",
-        priorityStyles[task.priority]
+        priorityStyles[task.priority],
       )}
     >
-      <Checkbox
-        checked={task.completed}
-        onChange={() => toggleTaskComplete(task.id)}
-        className="mt-0.5"
-      />
+      <button
+        type="button"
+        onClick={handleToggle}
+        className={cn(
+          "h-5 w-5 shrink-0 rounded border-2 flex items-center justify-center",
+          "border-border bg-background cursor-pointer",
+          "hover:border-primary/50 transition-all duration-150",
+          task.completed && "bg-primary border-primary",
+        )}
+        aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
+      >
+        {task.completed && (
+          <svg
+            aria-hidden="true"
+            className="h-3 w-3 text-primary-foreground"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth={3}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </button>
       <div className="flex-1 min-w-0">
         <p
           className={cn(
             "text-sm font-medium",
-            task.completed && "line-through text-muted-foreground"
+            task.completed && "line-through text-muted-foreground",
           )}
         >
           {task.title}
@@ -326,7 +347,7 @@ function EventItem({
       <div
         className={cn(
           "h-8 w-8 rounded-lg flex items-center justify-center",
-          typeColors[event.type]
+          typeColors[event.type],
         )}
       >
         <Icon className="h-4 w-4" />
@@ -427,7 +448,9 @@ function AddTaskSlideOver({
                 if (error) setError("");
               }}
               placeholder="Enter task title"
-              className={cn(error && "border-destructive focus:border-destructive")}
+              className={cn(
+                error && "border-destructive focus:border-destructive",
+              )}
             />
             {error && <p className="text-xs text-destructive">{error}</p>}
           </div>
@@ -459,8 +482,8 @@ function AddTaskSlideOver({
           </div>
 
           {/* Priority */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Priority</label>
+          <fieldset className="space-y-1.5">
+            <legend className="text-sm font-medium">Priority</legend>
             <div className="flex gap-2">
               {priorityOptions.map((option) => (
                 <Button
@@ -471,20 +494,31 @@ function AddTaskSlideOver({
                   onClick={() => setPriority(option.value)}
                   className={cn(
                     "flex-1",
-                    priority === option.value && option.value === "high" && "bg-destructive hover:bg-destructive/90",
-                    priority === option.value && option.value === "medium" && "bg-accent text-accent-foreground hover:bg-accent/90",
-                    priority === option.value && option.value === "low" && "bg-muted text-muted-foreground hover:bg-muted/90"
+                    priority === option.value &&
+                      option.value === "high" &&
+                      "bg-destructive hover:bg-destructive/90",
+                    priority === option.value &&
+                      option.value === "medium" &&
+                      "bg-accent text-accent-foreground hover:bg-accent/90",
+                    priority === option.value &&
+                      option.value === "low" &&
+                      "bg-muted text-muted-foreground hover:bg-muted/90",
                   )}
                 >
                   {option.label}
                 </Button>
               ))}
             </div>
-          </div>
+          </fieldset>
         </SlideOverContent>
 
         <SlideOverFooter className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
             Cancel
           </Button>
           <Button type="submit" className="flex-1">

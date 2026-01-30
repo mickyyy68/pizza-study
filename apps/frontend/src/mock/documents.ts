@@ -55,7 +55,8 @@ export const mockDocuments: Document[] = [
     folderId: "folder-calculus",
     tags: ["calculus", "integration", "midterm"],
     type: "note",
-    content: "Notes on integration techniques including substitution and parts...",
+    content:
+      "Notes on integration techniques including substitution and parts...",
     createdAt: new Date("2024-01-15"),
     updatedAt: new Date("2024-01-20"),
   },

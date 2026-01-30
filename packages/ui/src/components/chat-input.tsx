@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useEffect, useCallback } from "react";
+import { forwardRef, useCallback, useEffect, useRef } from "react";
 import { cn } from "../lib/utils";
 
 /**
@@ -38,10 +38,11 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     const internalRef = useRef<HTMLTextAreaElement>(null);
-    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+    const textareaRef =
+      (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
     // Auto-resize textarea
     const adjustHeight = useCallback(() => {
@@ -52,7 +53,8 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       textarea.style.height = "auto";
 
       // Calculate max height based on maxRows
-      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight) || 24;
+      const lineHeight =
+        parseInt(getComputedStyle(textarea).lineHeight, 10) || 24;
       const maxHeight = lineHeight * maxRows;
 
       // Set new height, capped at maxHeight
@@ -61,6 +63,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
     }, [maxRows, textareaRef]);
 
     // Adjust height when value changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: value triggers height adjustment
     useEffect(() => {
       adjustHeight();
     }, [value, adjustHeight]);
@@ -86,7 +89,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
           "focus-within:ring-2 focus-within:ring-ring/30 focus-within:border-primary",
           "transition-all duration-200",
           isDisabled && "opacity-50",
-          className
+          className,
         )}
       >
         {/* Textarea */}
@@ -104,7 +107,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
             "focus:outline-none",
             "disabled:cursor-not-allowed",
             "py-2 px-2",
-            "max-h-32 overflow-y-auto"
+            "max-h-32 overflow-y-auto",
           )}
           {...props}
         />
@@ -122,7 +125,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
               "transition-all duration-150",
               "hover:bg-primary/90 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             )}
             aria-label="Send message"
           >
@@ -132,6 +135,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 className="h-4 w-4 animate-spin"
                 fill="none"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <circle
                   className="opacity-25"
@@ -155,6 +159,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -167,7 +172,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 ChatInput.displayName = "ChatInput";

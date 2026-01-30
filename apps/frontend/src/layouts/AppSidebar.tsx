@@ -1,25 +1,25 @@
-import { NavLink } from "react-router";
 import {
-  LayoutDashboard,
-  FileText,
-  Calendar,
-  MessageSquare,
-  Sparkles,
-  X,
-} from "lucide-react";
-import {
+  Button,
+  cn,
+  Separator,
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  Button,
   ThemeToggle,
-  Separator,
 } from "@repo/ui";
-import { useUIStore } from "../stores/ui-store";
+import {
+  Calendar,
+  FileText,
+  LayoutDashboard,
+  MessageSquare,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { NavLink } from "react-router";
 import { useTheme } from "../hooks/useTheme";
-import { cn } from "@repo/ui";
+import { useUIStore } from "../stores/ui-store";
 
 /**
  * Navigation items for the sidebar.
@@ -90,6 +90,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
           {/* Mobile close button */}
           {onMobileClose && (
             <button
+              type="button"
               onClick={onMobileClose}
               className="md:hidden p-2 -mr-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
               aria-label="Close menu"
@@ -114,7 +115,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
                     "text-sm font-medium transition-colors duration-150",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
                   )
                 }
               >
@@ -132,7 +133,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
         <div
           className={cn(
             "flex items-center mb-3",
-            sidebarCollapsed ? "justify-center" : "justify-between px-1"
+            sidebarCollapsed ? "justify-center" : "justify-between px-1",
           )}
         >
           {!sidebarCollapsed && (
@@ -154,7 +155,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
           variant="outline"
           className={cn(
             "w-full justify-start gap-2",
-            sidebarCollapsed && "justify-center px-0"
+            sidebarCollapsed && "justify-center px-0",
           )}
         >
           <Sparkles className="h-4 w-4" />

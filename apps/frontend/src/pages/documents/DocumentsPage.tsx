@@ -1,14 +1,7 @@
-import { Search, Grid, List, FolderOpen, File, X } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  Input,
-  Button,
-  Badge,
-} from "@repo/ui";
-import { useDocumentsStore } from "../../stores/documents-store";
+import { Badge, Button, Card, CardContent, cn, Input } from "@repo/ui";
+import { File, FolderOpen, Grid, List, Search, X } from "lucide-react";
 import { allTags } from "../../mock/documents";
-import { cn } from "@repo/ui";
+import { useDocumentsStore } from "../../stores/documents-store";
 
 /**
  * DocumentsPage - Document library for Pizza Study.
@@ -47,13 +40,14 @@ export function DocumentsPage() {
             Folders
           </h3>
           <button
+            type="button"
             onClick={() => setSelectedFolder(null)}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm",
               "transition-colors duration-150",
               selectedFolderId === null
                 ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <FolderOpen className="h-4 w-4" />
@@ -87,6 +81,7 @@ export function DocumentsPage() {
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
@@ -98,24 +93,26 @@ export function DocumentsPage() {
             {/* View toggle */}
             <div className="flex items-center gap-1 border border-border rounded-lg p-1">
               <button
+                type="button"
                 onClick={() => setViewMode("grid")}
                 className={cn(
                   "p-1.5 rounded",
                   viewMode === "grid"
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label="Grid view"
               >
                 <Grid className="h-4 w-4" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("list")}
                 className={cn(
                   "p-1.5 rounded",
                   viewMode === "list"
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label="List view"
               >
@@ -128,6 +125,7 @@ export function DocumentsPage() {
           {folderPath.length > 0 && (
             <nav className="flex items-center gap-1 mt-3 text-sm">
               <button
+                type="button"
                 onClick={() => setSelectedFolder(null)}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -137,11 +135,12 @@ export function DocumentsPage() {
                 <span key={folder.id} className="flex items-center gap-1">
                   <span className="text-muted-foreground">/</span>
                   <button
+                    type="button"
                     onClick={() => setSelectedFolder(folder.id)}
                     className={cn(
                       index === folderPath.length - 1
                         ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {folder.name}
@@ -154,7 +153,9 @@ export function DocumentsPage() {
           {/* Active filters */}
           {selectedTags.length > 0 && (
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-muted-foreground">Filtering by:</span>
+              <span className="text-xs text-muted-foreground">
+                Filtering by:
+              </span>
               {selectedTags.map((tag) => (
                 <ActiveTagBadge key={tag} tag={tag} />
               ))}
@@ -206,13 +207,14 @@ function FolderTree({
         return (
           <div key={folder.id}>
             <button
+              type="button"
               onClick={() => setSelectedFolder(folder.id)}
               className={cn(
                 "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm",
                 "transition-colors duration-150",
                 selectedFolderId === folder.id
                   ? "bg-primary/10 text-primary font-medium"
-                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground",
               )}
             >
               <FolderOpen className="h-4 w-4" />
@@ -238,13 +240,14 @@ function TagCloud() {
     <div className="flex flex-wrap gap-1.5">
       {allTags.slice(0, 12).map((tag) => (
         <button
+          type="button"
           key={tag}
           onClick={() => toggleTag(tag)}
           className={cn(
             "px-2 py-1 rounded-full text-xs font-medium transition-colors",
             selectedTags.includes(tag)
               ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80"
+              : "bg-muted text-muted-foreground hover:bg-muted/80",
           )}
         >
           {tag}
@@ -337,8 +340,7 @@ function DocumentRow({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{document.title}</p>
         <p className="text-xs text-muted-foreground">
-          {document.type} • Updated{" "}
-          {document.updatedAt.toLocaleDateString()}
+          {document.type} • Updated {document.updatedAt.toLocaleDateString()}
         </p>
       </div>
       <div className="flex gap-1">
@@ -364,7 +366,9 @@ function EmptyState() {
       <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
         <File className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="font-serif text-lg font-semibold mb-2">No documents found</h3>
+      <h3 className="font-serif text-lg font-semibold mb-2">
+        No documents found
+      </h3>
       <p className="text-sm text-muted-foreground max-w-[300px] mb-4">
         {searchQuery || selectedTags.length > 0
           ? "Try adjusting your search or filters"

@@ -48,7 +48,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               "transition-all duration-150",
               // Error state
               error && "border-destructive",
-              className
+              className,
             )}
             {...props}
           />
@@ -58,12 +58,13 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               "absolute h-3.5 w-3.5 text-primary-foreground",
               "pointer-events-none",
               "opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100",
-              "transition-all duration-150"
+              "transition-all duration-150",
             )}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
             strokeWidth={3}
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -81,7 +82,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 className={cn(
                   "text-sm font-medium leading-none cursor-pointer",
                   "peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-                  error && "text-destructive"
+                  error && "text-destructive",
                 )}
               >
                 {label}
@@ -94,7 +95,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Checkbox.displayName = "Checkbox";

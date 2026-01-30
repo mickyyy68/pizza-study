@@ -23,11 +23,7 @@ const chatMessageVariants = cva(
           "rounded-br-md",
           "ml-auto",
         ],
-        assistant: [
-          "bg-muted text-foreground",
-          "rounded-bl-md",
-          "mr-auto",
-        ],
+        assistant: ["bg-muted text-foreground", "rounded-bl-md", "mr-auto"],
         system: [
           "bg-accent/30 text-accent-foreground",
           "mx-auto text-center",
@@ -38,7 +34,7 @@ const chatMessageVariants = cva(
     defaultVariants: {
       variant: "assistant",
     },
-  }
+  },
 );
 
 export interface ChatMessageProps
@@ -74,7 +70,7 @@ export function ChatMessage({
       className={cn(
         "flex gap-3",
         messageVariant === "user" ? "flex-row-reverse" : "flex-row",
-        messageVariant === "system" && "justify-center"
+        messageVariant === "system" && "justify-center",
       )}
     >
       {/* Avatar */}
@@ -84,7 +80,10 @@ export function ChatMessage({
 
       {/* Message bubble */}
       <div
-        className={cn(chatMessageVariants({ variant: messageVariant }), className)}
+        className={cn(
+          chatMessageVariants({ variant: messageVariant }),
+          className,
+        )}
         {...props}
       >
         {/* Content */}
@@ -104,7 +103,7 @@ export function ChatMessage({
           <div
             className={cn(
               "mt-1 text-xs opacity-60",
-              messageVariant === "user" ? "text-right" : "text-left"
+              messageVariant === "user" ? "text-right" : "text-left",
             )}
           >
             {formatTime(timestamp)}

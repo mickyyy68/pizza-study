@@ -17,12 +17,12 @@ const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   throw new Error(
-    "Root element not found. Make sure there is a <div id='root'></div> in your HTML."
+    "Root element not found. Make sure there is a <div id='root'></div> in your HTML.",
   );
 }
 
 createRoot(rootElement).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>
+  </StrictMode>,
 );

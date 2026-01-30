@@ -1,13 +1,7 @@
-import { useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
-import {
-  ChatMessage,
-  ChatInput,
-  Avatar,
-  Card,
-  cn,
-} from "@repo/ui";
-import { Sparkles, Lightbulb, BookOpen, HelpCircle } from "lucide-react";
+import { Avatar, ChatInput, ChatMessage, cn } from "@repo/ui";
+import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -27,7 +21,8 @@ export function ChatPage() {
       api: `${API_URL}/api/chat`,
     });
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom when messages change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages triggers scroll when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -49,7 +44,7 @@ export function ChatPage() {
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
-                role={message.role as "user" | "assistant"}
+                variant={message.role as "user" | "assistant"}
                 content={message.content}
                 avatar={
                   message.role === "assistant" ? (
@@ -64,7 +59,7 @@ export function ChatPage() {
             {/* Loading indicator */}
             {isLoading && (
               <ChatMessage
-                role="assistant"
+                variant="assistant"
                 content=""
                 isStreaming
                 avatar={<Avatar size="md" fallback="AI" />}
@@ -92,8 +87,15 @@ export function ChatPage() {
             isLoading={isLoading}
           />
           <p className="text-xs text-muted-foreground text-center mt-2">
-            Press <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">Enter</kbd> to send,{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">Shift + Enter</kbd> for new line
+            Press{" "}
+            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
+              Enter
+            </kbd>{" "}
+            to send,{" "}
+            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
+              Shift + Enter
+            </kbd>{" "}
+            for new line
           </p>
         </div>
       </div>
@@ -148,13 +150,15 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
         How can I help you study?
       </h1>
       <p className="text-muted-foreground max-w-md mb-8">
-        Ask me questions, request explanations, get quizzed on topics, or explore concepts from your documents.
+        Ask me questions, request explanations, get quizzed on topics, or
+        explore concepts from your documents.
       </p>
 
       {/* Suggestions */}
       <div className="grid gap-4 sm:grid-cols-3 max-w-2xl w-full">
         {suggestions.map((suggestion) => (
           <button
+            type="button"
             key={suggestion.title}
             onClick={() => handleSuggestionClick(suggestion.prompt)}
             className="group p-4 rounded-xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left"
@@ -162,7 +166,7 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
             <div
               className={cn(
                 "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-                suggestion.color
+                suggestion.color,
               )}
             >
               <suggestion.icon className="h-5 w-5" />
