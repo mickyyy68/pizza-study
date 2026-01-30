@@ -1,12 +1,19 @@
 import { cn } from "../lib/utils";
 
+/**
+ * Card components using Pizza Study theme tokens.
+ *
+ * Cards have a warm, paper-like appearance with subtle shadows.
+ * In dark mode, they appear like leather-bound surfaces.
+ */
+
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Card({ className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-gray-200 bg-white shadow-sm",
+        "rounded-xl border border-border bg-card text-card-foreground shadow-sm",
         className,
       )}
       {...props}
@@ -32,9 +39,21 @@ export function CardTitle({ className, ...props }: CardTitleProps) {
   return (
     <h3
       className={cn(
-        "text-lg font-semibold leading-none tracking-tight",
+        "font-serif text-xl font-semibold leading-none tracking-tight",
         className,
       )}
+      {...props}
+    />
+  );
+}
+
+export interface CardDescriptionProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+export function CardDescription({ className, ...props }: CardDescriptionProps) {
+  return (
+    <p
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   );
@@ -45,4 +64,15 @@ export interface CardContentProps
 
 export function CardContent({ className, ...props }: CardContentProps) {
   return <div className={cn("p-6 pt-0", className)} {...props} />;
+}
+
+export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function CardFooter({ className, ...props }: CardFooterProps) {
+  return (
+    <div
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
+  );
 }

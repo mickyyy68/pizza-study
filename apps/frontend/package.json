@@ -11,14 +11,18 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/react": "^1.0.0",
+    "@repo/contracts": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@repo/utils": "workspace:*",
+    "ai": "^4.0.0",
+    "date-fns": "^4.1.0",
+    "hono": "4.11.4",
+    "lucide-react": "^0.563.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "hono": "4.11.4",
-    "ai": "^4.0.0",
-    "@ai-sdk/react": "^1.0.0",
-    "@repo/ui": "workspace:*",
-    "@repo/contracts": "workspace:*",
-    "@repo/utils": "workspace:*"
+    "react-router": "^7.13.0",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

@@ -1,1 +1,333 @@
 @import "tailwindcss";
+
+/*
+ * Pizza Study Theme - "Trattoria Study Hall"
+ *
+ * A warm, scholarly aesthetic combining Italian café warmth
+ * with focused study environments. Terracotta reds, golden wheat,
+ * cream parchment - like studying in a sun-drenched Tuscan library.
+ *
+ * shadcn/ui compatible - all variables follow shadcn conventions.
+ */
+
+@theme inline {
+  /* Core semantic colors mapped from CSS variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart colors for data visualization */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar-specific colors */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography - scholarly yet approachable */
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+
+  /* Border radius - soft, approachable, not clinical */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Shadows - warm-tinted, not cold gray */
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+/*
+ * Light Theme - Sun-Drenched Parchment
+ *
+ * Cream backgrounds like aged paper, terracotta accents,
+ * golden highlights. Warm and inviting for long study sessions.
+ */
+:root {
+  /* Base - warm cream parchment */
+  --background: oklch(0.97 0.01 75);
+  --foreground: oklch(0.20 0.02 30);
+
+  /* Cards - slightly warmer than background, like stacked papers */
+  --card: oklch(0.98 0.008 75);
+  --card-foreground: oklch(0.20 0.02 30);
+
+  /* Popovers - crisp, elevated surfaces */
+  --popover: oklch(0.99 0.005 75);
+  --popover-foreground: oklch(0.20 0.02 30);
+
+  /* Primary - rich terracotta red, the heart of the palette */
+  --primary: oklch(0.50 0.16 25);
+  --primary-foreground: oklch(0.98 0.01 75);
+
+  /* Secondary - warm wheat/golden, like aged book pages */
+  --secondary: oklch(0.92 0.06 85);
+  --secondary-foreground: oklch(0.35 0.08 70);
+
+  /* Muted - soft warm gray, understated */
+  --muted: oklch(0.94 0.01 75);
+  --muted-foreground: oklch(0.45 0.02 60);
+
+  /* Accent - bright golden, for highlights and celebrations */
+  --accent: oklch(0.90 0.10 90);
+  --accent-foreground: oklch(0.35 0.12 30);
+
+  /* Destructive - deeper, more serious red */
+  --destructive: oklch(0.45 0.20 25);
+  --destructive-foreground: oklch(0.98 0.01 75);
+
+  /* Borders & inputs - warm, not cold gray */
+  --border: oklch(0.90 0.03 80);
+  --input: oklch(0.90 0.03 80);
+  --ring: oklch(0.50 0.16 25);
+
+  /* Charts - warm palette progression */
+  --chart-1: oklch(0.55 0.18 25);
+  --chart-2: oklch(0.50 0.16 25);
+  --chart-3: oklch(0.42 0.14 25);
+  --chart-4: oklch(0.58 0.16 55);
+  --chart-5: oklch(0.50 0.14 50);
+
+  /* Sidebar - slightly more textured, like a bookshelf */
+  --sidebar: oklch(0.95 0.015 75);
+  --sidebar-foreground: oklch(0.20 0.02 30);
+  --sidebar-primary: oklch(0.50 0.16 25);
+  --sidebar-primary-foreground: oklch(0.98 0.01 75);
+  --sidebar-accent: oklch(0.90 0.10 90);
+  --sidebar-accent-foreground: oklch(0.35 0.12 30);
+  --sidebar-border: oklch(0.88 0.03 80);
+  --sidebar-ring: oklch(0.50 0.16 25);
+
+  /* Typography */
+  --font-sans: "Poppins", system-ui, sans-serif;
+  --font-serif: "Libre Baskerville", "Georgia", serif;
+  --font-mono: "IBM Plex Mono", "Menlo", monospace;
+
+  /* Radius - friendly, not sharp */
+  --radius: 0.5rem;
+
+  /* Shadows - warm-tinted with terracotta undertones */
+  --shadow-color: 25 40% 20%;
+  --shadow-2xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.05);
+  --shadow-xs: 0 1px 3px 0 hsl(var(--shadow-color) / 0.06);
+  --shadow-sm: 0 2px 4px -1px hsl(var(--shadow-color) / 0.08);
+  --shadow: 0 4px 6px -2px hsl(var(--shadow-color) / 0.08), 0 2px 4px -2px hsl(var(--shadow-color) / 0.06);
+  --shadow-md: 0 6px 10px -3px hsl(var(--shadow-color) / 0.10), 0 4px 6px -4px hsl(var(--shadow-color) / 0.08);
+  --shadow-lg: 0 10px 15px -3px hsl(var(--shadow-color) / 0.12), 0 4px 6px -4px hsl(var(--shadow-color) / 0.08);
+  --shadow-xl: 0 20px 25px -5px hsl(var(--shadow-color) / 0.14), 0 8px 10px -6px hsl(var(--shadow-color) / 0.10);
+  --shadow-2xl: 0 25px 50px -12px hsl(var(--shadow-color) / 0.25);
+}
+
+/*
+ * Dark Theme - Evening Study
+ *
+ * Deep warm browns like a dimly-lit study,
+ * terracotta accents glow like candlelight,
+ * golden highlights for emphasis.
+ */
+.dark {
+  /* Base - deep warm brown, not cold black */
+  --background: oklch(0.18 0.02 50);
+  --foreground: oklch(0.93 0.01 80);
+
+  /* Cards - slightly elevated, like leather-bound surfaces */
+  --card: oklch(0.22 0.02 50);
+  --card-foreground: oklch(0.93 0.01 80);
+
+  /* Popovers - floating above */
+  --popover: oklch(0.24 0.02 50);
+  --popover-foreground: oklch(0.93 0.01 80);
+
+  /* Primary - brighter terracotta for dark mode visibility */
+  --primary: oklch(0.60 0.18 25);
+  --primary-foreground: oklch(0.98 0.01 75);
+
+  /* Secondary - muted amber/bronze */
+  --secondary: oklch(0.40 0.10 55);
+  --secondary-foreground: oklch(0.90 0.08 85);
+
+  /* Muted - warm dark gray */
+  --muted: oklch(0.25 0.015 50);
+  --muted-foreground: oklch(0.70 0.02 70);
+
+  /* Accent - rich gold, like gilded book edges */
+  --accent: oklch(0.55 0.14 70);
+  --accent-foreground: oklch(0.92 0.06 85);
+
+  /* Destructive - vivid but not harsh */
+  --destructive: oklch(0.60 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 75);
+
+  /* Borders & inputs - subtle warm edges */
+  --border: oklch(0.32 0.02 50);
+  --input: oklch(0.32 0.02 50);
+  --ring: oklch(0.60 0.18 25);
+
+  /* Charts - adjusted for dark mode contrast */
+  --chart-1: oklch(0.70 0.18 25);
+  --chart-2: oklch(0.62 0.20 30);
+  --chart-3: oklch(0.55 0.16 25);
+  --chart-4: oklch(0.72 0.16 80);
+  --chart-5: oklch(0.65 0.14 70);
+
+  /* Sidebar - deep, cozy */
+  --sidebar: oklch(0.16 0.02 50);
+  --sidebar-foreground: oklch(0.93 0.01 80);
+  --sidebar-primary: oklch(0.60 0.18 25);
+  --sidebar-primary-foreground: oklch(0.98 0.01 75);
+  --sidebar-accent: oklch(0.55 0.14 70);
+  --sidebar-accent-foreground: oklch(0.92 0.06 85);
+  --sidebar-border: oklch(0.28 0.02 50);
+  --sidebar-ring: oklch(0.60 0.18 25);
+
+  /* Shadows - deeper, more dramatic in dark mode */
+  --shadow-color: 25 50% 5%;
+  --shadow-2xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.3);
+  --shadow-xs: 0 1px 3px 0 hsl(var(--shadow-color) / 0.35);
+  --shadow-sm: 0 2px 4px -1px hsl(var(--shadow-color) / 0.4);
+  --shadow: 0 4px 6px -2px hsl(var(--shadow-color) / 0.4), 0 2px 4px -2px hsl(var(--shadow-color) / 0.3);
+  --shadow-md: 0 6px 10px -3px hsl(var(--shadow-color) / 0.45), 0 4px 6px -4px hsl(var(--shadow-color) / 0.35);
+  --shadow-lg: 0 10px 15px -3px hsl(var(--shadow-color) / 0.5), 0 4px 6px -4px hsl(var(--shadow-color) / 0.4);
+  --shadow-xl: 0 20px 25px -5px hsl(var(--shadow-color) / 0.55), 0 8px 10px -6px hsl(var(--shadow-color) / 0.45);
+  --shadow-2xl: 0 25px 50px -12px hsl(var(--shadow-color) / 0.7);
+}
+
+/*
+ * Base layer styles
+ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Heading hierarchy with serif for scholarly feel */
+  h1, h2, h3 {
+    @apply font-serif tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  /* Code blocks with character */
+  code, pre {
+    @apply font-mono;
+  }
+
+  /* Focus styles - warm ring, not default blue */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Selection highlight - golden like a highlighter */
+  ::selection {
+    @apply bg-accent/40 text-accent-foreground;
+  }
+
+  /* Scrollbar styling for webkit browsers */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted-foreground/30;
+  }
+}
+
+/*
+ * Utility classes for the theme
+ */
+@layer utilities {
+  /* Text gradient for special headings */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
+  /* Warm glow effect for focused elements */
+  .glow-primary {
+    box-shadow: 0 0 20px -5px oklch(0.50 0.16 25 / 0.3);
+  }
+
+  .dark .glow-primary {
+    box-shadow: 0 0 25px -5px oklch(0.60 0.18 25 / 0.4);
+  }
+
+  /* Paper texture overlay - use sparingly */
+  .paper-texture {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-blend-mode: soft-light;
+    opacity: 0.03;
+  }
+
+  /* Subtle animation for interactive elements */
+  .hover-lift {
+    @apply transition-all duration-200;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+
+  /* Priority indicators for tasks */
+  .priority-high {
+    @apply border-l-4 border-l-destructive;
+  }
+
+  .priority-medium {
+    @apply border-l-4 border-l-accent;
+  }
+
+  .priority-low {
+    @apply border-l-4 border-l-muted-foreground/30;
+  }
+}
