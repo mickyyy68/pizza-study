@@ -8,3 +8,6 @@ export {
 } from "./config";
 export { embeddingModel, generateEmbedding } from "./embedding";
 export * from "./prompts";
+export * from "./prompts/personalities";
+export * from "./agents";
+export * from "./tools";
