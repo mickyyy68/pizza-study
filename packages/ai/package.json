@@ -9,13 +9,15 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "build": "tsc"
   },
   "dependencies": {
     "ai": "^4.0.0",
     "@openrouter/ai-sdk-provider": "^0.4.0",
     "@ai-sdk/openai": "^1.0.0",
-    "@repo/utils": "workspace:*"
+    "@repo/utils": "workspace:*",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"

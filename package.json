@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter backend build && bun run --filter '*' dev",
+    "dev": "bun run --filter './packages/*' build && bun run --filter '*' dev",
     "build": "bun run --filter '*' build",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "biome check .",
@@ -15,7 +15,8 @@
     "format": "biome format --write .",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:setup": "bun run --env-file=.env --filter @repo/database db:generate && bun run --env-file=.env --filter @repo/database db:migrate"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
@@ -25,6 +26,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "hono": "4.11.4"
+    "hono": "4.11.4",
+    "drizzle-orm": "^0.38.0"
   }
 }
