@@ -72,9 +72,8 @@ bun install
 cp .env.example .env
 # Edit .env with your DATABASE_URL and OPENROUTER_API_KEY
 
-# Run database migrations
-bun run --filter database migrate
-
+# Setup database
+bun run db:setup
 # Start development servers
 bun run dev
 ```
