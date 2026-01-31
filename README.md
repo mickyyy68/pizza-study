@@ -1,10 +1,14 @@
 # pizza-study
 
+<p align="center">
+  <img src="apps/frontend/public/logo_nobg_compressed.png" alt="pizza-study logo" width="400">
+</p>
+
 A RAG (Retrieval-Augmented Generation) chat application for document Q&A.
 
-## Current Stage: Scaffolded Infrastructure
+## Current Stage: Core Features Integrated
 
-The foundation is complete but features are not yet integrated.
+The foundation is complete with tasks and calendar features fully integrated.
 
 | Layer | Status |
 |-------|--------|
@@ -14,12 +18,16 @@ The foundation is complete but features are not yet integrated.
 | RAG pipeline | Done |
 | Backend API | Done |
 | Frontend shell | Done |
-| Feature integration | Not started |
+| Tasks & Calendar | Done |
+| Feature integration | In progress |
 
 ### What works today
 
 - Basic chat with MiniMax M2.1 (streaming)
 - Document CRUD via API (no UI)
+- Tasks management (create, list, complete, delete)
+- Calendar events (create, list, delete)
+- Dashboard with study stats
 
 ### What doesn't work yet
 
@@ -72,8 +80,12 @@ bun install
 cp .env.example .env
 # Edit .env with your DATABASE_URL and OPENROUTER_API_KEY
 
-# Setup database
-bun run db:setup
+# Start PostgreSQL (uses port 5433 to avoid conflicts)
+docker compose up -d
+
+# Run database migrations
+bun run db:migrate
+
 # Start development servers
 bun run dev
 ```
@@ -88,6 +100,9 @@ bun run dev
 | `bun run lint` | Run Biome linter |
 | `bun run lint:fix` | Fix linting issues |
 | `bun run format` | Format code with Biome |
+| `bun run db:generate` | Generate database migrations |
+| `bun run db:migrate` | Apply database migrations |
+| `bun run db:studio` | Open Drizzle Studio |
 
 ## API Endpoints
 
@@ -99,6 +114,17 @@ bun run dev
 | `/api/documents/:id` | GET | Get document |
 | `/api/documents` | POST | Create document + embeddings |
 | `/api/documents/:id` | DELETE | Delete document |
+| `/api/tasks` | GET | List tasks (optional date filters) |
+| `/api/tasks` | POST | Create task |
+| `/api/tasks/stats` | GET | Get study stats |
+| `/api/tasks/:id` | GET | Get task |
+| `/api/tasks/:id` | PATCH | Update task |
+| `/api/tasks/:id` | DELETE | Delete task |
+| `/api/events` | GET | List calendar events |
+| `/api/events` | POST | Create event |
+| `/api/events/:id` | GET | Get event |
+| `/api/events/:id` | PATCH | Update event |
+| `/api/events/:id` | DELETE | Delete event |
 
 ## Next Steps
 
