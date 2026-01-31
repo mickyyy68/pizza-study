@@ -1,42 +1,57 @@
-
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { streamRagChat, streamPersonalityChat } from "../agents";
 import { convertToCoreMessages } from "ai";
 
-// We'll use a mocked AI provider in testing normally, but here we can just verify the function signatures
-// and maybe run a quick integration test if the environment allows, or just unit test the logic.
-// Since we don't have a real openrouter key in this environment likely valid for tests, 
-// we will focus on calling the function and ensuring it constructs properly.
+// Mock the 'ai' module, but handle importOriginal correctly for Bun/Vitest
+vi.mock("ai", async () => {
+    return {
+        streamText: vi.fn(),
+        convertToCoreMessages: (msgs: any) => msgs,
+        tool: (t: any) => t
+    };
+});
+
+import { streamText } from "ai";
 
 describe("AI Agents Language Support", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
 
-    it("should accept language parameter in RAG chat", async () => {
-        try {
-            const messages = convertToCoreMessages([
-                { role: "user", content: "Who invented pizza?" }
-            ]);
-
-            // Just calling it to ensure no runtime errors with the new signature
-            // We might not get a real stream back without a valid API key but the function should execute
-            const result = await streamRagChat(messages, "Italian");
-            expect(result).toBeDefined();
-        } catch (e) {
-            // If it fails due to API key, that's expected in this environment if not set
-            // We mostly want to ensure the code compiles and runs the new parameter logic
-            console.log("API Call failed (expected if no key):", e);
-        }
+        // Setup default mock return using simple casting
+        (streamText as any).mockReturnValue({
+            textStream: (async function* () { yield ""; })(),
+            toDataStreamResponse: () => new Response()
+        });
     });
 
-    it("should accept language parameter in Personality chat", async () => {
-        try {
-            const messages = convertToCoreMessages([
-                { role: "user", content: "Explain quantum physics" }
-            ]);
+    describe("RAG Chat", () => {
+        it("should inject Italian language instruction into system prompt", async () => {
+            // Since we mocked convertToCoreMessages to identity, we pass array directly
+            const messages = [{ role: "user", content: "Test" }] as any;
+            await streamRagChat(messages, "Italian");
 
-            const result = await streamPersonalityChat(messages, "professor", "Spanish");
-            expect(result).toBeDefined();
-        } catch (e) {
-            console.log("API Call failed (expected if no key):", e);
-        }
+            expect(streamText).toHaveBeenCalledTimes(1);
+            const callArgs = (streamText as any).mock.calls[0][0];
+
+            expect(callArgs.system).toContain("ALWAYS Answer in Italian");
+        });
+
+        it("should default to English language instruction", async () => {
+            const messages = [{ role: "user", content: "Test" }] as any;
+            await streamRagChat(messages);
+
+            const callArgs = (streamText as any).mock.calls[0][0];
+            expect(callArgs.system).toContain("ALWAYS Answer in English");
+        });
+    });
+
+    describe("Personality Chat", () => {
+        it("should inject Spanish language instruction for personalities", async () => {
+            const messages = [{ role: "user", content: "Test" }] as any;
+            await streamPersonalityChat(messages, "professor", "Spanish");
+
+            const callArgs = (streamText as any).mock.calls[0][0];
+            expect(callArgs.system).toContain("IMPORTANT: You must Answer in Spanish");
+        });
     });
 });
