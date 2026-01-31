@@ -42,6 +42,10 @@ export function CalendarPage() {
     goToToday,
     getCalendarDays,
     addTask,
+    error,
+    clearError,
+    fetchTasks,
+    fetchEvents,
   } = useCalendarStore();
 
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -55,8 +59,32 @@ export function CalendarPage() {
     isSameDay(event.date, selectedDate),
   );
 
+  const handleRetry = () => {
+    clearError();
+    fetchTasks();
+    fetchEvents();
+  };
+
   return (
     <div className="flex h-full">
+      {/* Error Banner */}
+      {error && (
+        <div className="absolute top-0 left-0 right-0 z-50 bg-destructive/10 border-b border-destructive/20 p-3 flex items-center justify-between">
+          <p className="text-sm text-destructive flex items-center gap-2">
+            <AlertCircle className="h-4 w-4" />
+            {error}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={clearError}>
+              Dismiss
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleRetry}>
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Calendar Grid */}
       <div className="flex-1 flex flex-col p-6 overflow-hidden">
         {/* Header */}
@@ -380,7 +408,9 @@ function AddTaskSlideOver({
   open: boolean;
   onClose: () => void;
   defaultDate: Date;
-  onAddTask: (task: Omit<Task, "id" | "completed">) => void;
+  onAddTask: (
+    task: Omit<Task, "id" | "completed" | "createdAt" | "updatedAt">,
+  ) => Promise<void>;
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

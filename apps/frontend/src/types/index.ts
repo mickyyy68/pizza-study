@@ -43,6 +43,8 @@ export interface Task {
   tags: string[];
   /** Link to related document */
   documentId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CalendarEvent {
@@ -53,8 +55,10 @@ export interface CalendarEvent {
   endTime?: string;
   type: "study-session" | "exam" | "deadline" | "review";
   /** Related document IDs */
-  documentIds?: string[];
+  documentIds: string[];
   color?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /* =============================================================================

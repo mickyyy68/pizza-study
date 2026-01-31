@@ -18,7 +18,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Link } from "react-router";
-import { mockStats } from "../../mock/tasks";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import { useDocumentsStore } from "../../stores/documents-store";
 
@@ -195,33 +194,51 @@ function TodayTasksList() {
  * Progress stats component.
  */
 function ProgressStats() {
-  const stats = [
+  const { stats, statsLoading } = useCalendarStore();
+
+  const statItems = [
     {
       label: "Study Streak",
-      value: mockStats.studyStreak,
+      value: stats?.studyStreak ?? 0,
       unit: "days",
       icon: Flame,
       color: "text-orange-500",
     },
     {
       label: "Completed Today",
-      value: mockStats.tasksCompletedToday,
+      value: stats?.tasksCompletedToday ?? 0,
       unit: "tasks",
       icon: CheckCircle2,
       color: "text-emerald-500",
     },
     {
       label: "This Week",
-      value: mockStats.tasksCompletedThisWeek,
+      value: stats?.tasksCompletedThisWeek ?? 0,
       unit: "tasks",
       icon: Clock,
       color: "text-primary",
     },
   ];
 
+  if (statsLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-4 animate-pulse">
+            <div className="h-10 w-10 rounded-lg bg-muted" />
+            <div className="space-y-2">
+              <div className="h-6 w-16 bg-muted rounded" />
+              <div className="h-3 w-20 bg-muted rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {stats.map((stat) => (
+      {statItems.map((stat) => (
         <div key={stat.label} className="flex items-center gap-4">
           <div
             className={cn(

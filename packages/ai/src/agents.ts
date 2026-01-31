@@ -1,5 +1,4 @@
 import { type CoreMessage, streamText } from "ai";
-import { openrouter } from "./client";
 import { chatModel, DEFAULT_CHAT_OPTIONS } from "./config";
 import { PERSONALITIES, type PersonalityId } from "./prompts/personalities";
 import { mockRagTool } from "./tools";

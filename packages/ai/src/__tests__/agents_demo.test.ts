@@ -1,9 +1,8 @@
-import { convertToCoreMessages } from "ai";
 import { describe, expect, it } from "vitest";
 import { streamPersonalityChat, streamRagChat } from "../agents";
 
 // Helper to accumulate stream
-async function collectStream(result: any) {
+async function collectStream(result: { textStream: AsyncIterable<string> }) {
   let text = "";
   for await (const chunk of result.textStream) {
     process.stdout.write(chunk); // Stream to console to verify
@@ -28,7 +27,7 @@ describe("AI Agents Demo", () => {
         },
       ];
 
-      // @ts-expect-error
+      // @ts-expect-error - test messages format
       const result = await streamRagChat(messages);
       const text = await collectStream(result);
 
@@ -43,7 +42,7 @@ describe("AI Agents Demo", () => {
       console.log("--- TESTING BUDDY AGENT ---");
       const messages = [{ role: "user", content: "Explain what an API is." }];
 
-      // @ts-expect-error
+      // @ts-expect-error - test messages format
       const result = await streamPersonalityChat(messages, "buddy");
       const text = await collectStream(result);
 
@@ -61,7 +60,7 @@ describe("AI Agents Demo", () => {
         { role: "user", content: "Is HTML a programming language?" },
       ];
 
-      // @ts-expect-error
+      // @ts-expect-error - test messages format
       const result = await streamPersonalityChat(messages, "sarcastic");
       const text = await collectStream(result);
 

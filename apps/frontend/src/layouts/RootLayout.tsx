@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import { ChatSlideOver } from "../components/chat/ChatSlideOver";
+import { useInitialize } from "../hooks/useInitialize";
 import { useTheme } from "../hooks/useTheme";
 import { useUIStore } from "../stores/ui-store";
 import { AppSidebar } from "./AppSidebar";
@@ -25,6 +26,9 @@ export function RootLayout() {
     toggleMobileMenu,
   } = useUIStore();
   const location = useLocation();
+
+  // Initialize app data (tasks, events, stats)
+  useInitialize();
 
   // Initialize theme system
   useTheme();

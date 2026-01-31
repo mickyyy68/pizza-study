@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED: Task and event data is now fetched from the API.
+ * This file is kept for reference only.
+ */
+
 import type { CalendarEvent, StudyStats, Task } from "../types";
 
 /**
@@ -10,8 +15,10 @@ function daysFromNow(days: number): Date {
   return date;
 }
 
+const now = new Date();
+
 /**
- * Mock tasks for Pizza Study.
+ * @deprecated - Data now fetched from API
  */
 export const mockTasks: Task[] = [
   // Today's tasks
@@ -24,6 +31,8 @@ export const mockTasks: Task[] = [
     priority: "high",
     tags: ["calculus", "study"],
     documentId: "doc-1",
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "task-2",
@@ -33,6 +42,8 @@ export const mockTasks: Task[] = [
     completed: true,
     priority: "medium",
     tags: ["physics", "homework"],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "task-3",
@@ -42,6 +53,8 @@ export const mockTasks: Task[] = [
     priority: "low",
     tags: ["linear-algebra"],
     documentId: "doc-3",
+    createdAt: now,
+    updatedAt: now,
   },
 
   // Tomorrow's tasks
@@ -54,6 +67,8 @@ export const mockTasks: Task[] = [
     priority: "medium",
     tags: ["linear-algebra", "practice"],
     documentId: "doc-8",
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "task-5",
@@ -63,6 +78,8 @@ export const mockTasks: Task[] = [
     priority: "high",
     tags: ["physics", "reading"],
     documentId: "doc-7",
+    createdAt: now,
+    updatedAt: now,
   },
 
   // This week
@@ -73,6 +90,8 @@ export const mockTasks: Task[] = [
     completed: false,
     priority: "medium",
     tags: ["history", "writing"],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "task-7",
@@ -83,6 +102,8 @@ export const mockTasks: Task[] = [
     priority: "high",
     tags: ["calculus", "exam"],
     documentId: "doc-1",
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "task-8",
@@ -92,11 +113,13 @@ export const mockTasks: Task[] = [
     priority: "low",
     tags: ["physics", "review"],
     documentId: "doc-4",
+    createdAt: now,
+    updatedAt: now,
   },
 ];
 
 /**
- * Mock calendar events for Pizza Study.
+ * @deprecated - Data now fetched from API
  */
 export const mockEvents: CalendarEvent[] = [
   // Today
@@ -108,6 +131,8 @@ export const mockEvents: CalendarEvent[] = [
     endTime: "16:00",
     type: "study-session",
     documentIds: ["doc-1"],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "event-2",
@@ -116,6 +141,9 @@ export const mockEvents: CalendarEvent[] = [
     startTime: "17:00",
     endTime: "18:00",
     type: "review",
+    documentIds: [],
+    createdAt: now,
+    updatedAt: now,
   },
 
   // Tomorrow
@@ -127,6 +155,8 @@ export const mockEvents: CalendarEvent[] = [
     endTime: "11:00",
     type: "exam",
     documentIds: ["doc-3", "doc-8"],
+    createdAt: now,
+    updatedAt: now,
   },
 
   // This week
@@ -135,6 +165,9 @@ export const mockEvents: CalendarEvent[] = [
     title: "History Essay Deadline",
     date: daysFromNow(3),
     type: "deadline",
+    documentIds: [],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "event-5",
@@ -144,6 +177,8 @@ export const mockEvents: CalendarEvent[] = [
     endTime: "17:00",
     type: "study-session",
     documentIds: ["doc-2", "doc-4"],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "event-6",
@@ -153,6 +188,8 @@ export const mockEvents: CalendarEvent[] = [
     endTime: "11:00",
     type: "exam",
     documentIds: ["doc-1", "doc-6"],
+    createdAt: now,
+    updatedAt: now,
   },
 
   // Next week
@@ -161,6 +198,9 @@ export const mockEvents: CalendarEvent[] = [
     title: "Physics Lab Report Due",
     date: daysFromNow(10),
     type: "deadline",
+    documentIds: [],
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: "event-8",
@@ -170,11 +210,13 @@ export const mockEvents: CalendarEvent[] = [
     endTime: "14:00",
     type: "exam",
     documentIds: ["doc-5"],
+    createdAt: now,
+    updatedAt: now,
   },
 ];
 
 /**
- * Mock study statistics.
+ * @deprecated - Stats now fetched from API
  */
 export const mockStats: StudyStats = {
   tasksCompletedToday: 3,
