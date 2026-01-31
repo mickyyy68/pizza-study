@@ -1,0 +1,29 @@
+{
+    "files": [],
+    "references": [
+        {
+            "path": "./packages/utils"
+        },
+        {
+            "path": "./packages/database"
+        },
+        {
+            "path": "./packages/contracts"
+        },
+        {
+            "path": "./packages/ai"
+        },
+        {
+            "path": "./packages/rag"
+        },
+        {
+            "path": "./packages/ui"
+        },
+        {
+            "path": "./apps/backend"
+        },
+        {
+            "path": "./apps/frontend"
+        }
+    ]
+}
