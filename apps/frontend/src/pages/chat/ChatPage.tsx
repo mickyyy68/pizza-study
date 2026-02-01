@@ -1,7 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { Avatar, ChatInput, ChatMessage, cn } from "@repo/ui";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { type ChangeEvent, useEffect, useRef } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -34,53 +34,55 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
+    <div className="flex flex-col h-full min-h-0">
       {/* Messages area */}
-      <div className="flex-1 overflow-auto p-6">
-        {messages.length === 0 ? (
-          <WelcomeScreen onSuggestionClick={handleInputChange} />
-        ) : (
-          <div className="space-y-6">
-            {messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                variant={message.role as "user" | "assistant"}
-                content={message.content}
-                avatar={
-                  message.role === "assistant" ? (
-                    <Avatar size="md" fallback="AI" />
-                  ) : (
-                    <Avatar size="md" fallback="You" />
-                  )
-                }
-              />
-            ))}
+      <div className="flex-1 min-h-0 overflow-auto px-4 py-6">
+        <div className="mx-auto w-full max-w-4xl">
+          {messages.length === 0 ? (
+            <WelcomeScreen onSuggestionClick={handleInputChange} />
+          ) : (
+            <div className="space-y-6 pb-6">
+              {messages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  variant={message.role as "user" | "assistant"}
+                  content={message.content}
+                  avatar={
+                    message.role === "assistant" ? (
+                      <Avatar size="md" fallback="AI" />
+                    ) : (
+                      <Avatar size="md" fallback="You" />
+                    )
+                  }
+                />
+              ))}
 
-            {/* Loading indicator */}
-            {isLoading && (
-              <ChatMessage
-                variant="assistant"
-                content=""
-                isStreaming
-                avatar={<Avatar size="md" fallback="AI" />}
-              />
-            )}
+              {/* Loading indicator */}
+              {isLoading && (
+                <ChatMessage
+                  variant="assistant"
+                  content=""
+                  isStreaming
+                  avatar={<Avatar size="md" fallback="AI" />}
+                />
+              )}
 
-            {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Input area */}
-      <div className="border-t border-border bg-background p-4">
-        <div className="max-w-3xl mx-auto">
+      <div className="border-t border-border bg-background px-4 py-4">
+        <div className="mx-auto w-full max-w-4xl">
           <ChatInput
             value={input}
             onChange={(value) =>
               handleInputChange({
                 target: { value },
-              } as React.ChangeEvent<HTMLTextAreaElement>)
+              } as ChangeEvent<HTMLTextAreaElement>)
             }
             onSubmit={onSubmit}
             placeholder="Ask anything about your studies..."
@@ -104,7 +106,7 @@ export function ChatPage() {
 }
 
 interface WelcomeScreenProps {
-  onSuggestionClick: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onSuggestionClick: (e: ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 /**
@@ -135,11 +137,11 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
   const handleSuggestionClick = (prompt: string) => {
     onSuggestionClick({
       target: { value: prompt },
-    } as React.ChangeEvent<HTMLTextAreaElement>);
+    } as ChangeEvent<HTMLTextAreaElement>);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center px-4">
+    <div className="flex flex-col items-center justify-center text-center px-4 py-10">
       {/* Logo/Icon */}
       <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
         <Sparkles className="h-10 w-10 text-primary" />
@@ -155,7 +157,7 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
       </p>
 
       {/* Suggestions */}
-      <div className="grid gap-4 sm:grid-cols-3 max-w-2xl w-full">
+      <div className="grid gap-4 sm:grid-cols-3 max-w-3xl w-full">
         {suggestions.map((suggestion) => (
           <button
             type="button"
