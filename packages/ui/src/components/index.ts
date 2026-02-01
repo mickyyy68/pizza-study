@@ -1,5 +1,40 @@
 // Utilities
 export { cn } from "../lib/utils";
+// Chat Layout
+export {
+  ChatLayout,
+  type ChatLayoutProps,
+  ChatLayoutSidebar,
+  type ChatLayoutSidebarProps,
+  ChatLayoutMain,
+  type ChatLayoutMainProps,
+  ChatLayoutMessages,
+  type ChatLayoutMessagesProps,
+  ChatLayoutFooter,
+  type ChatLayoutFooterProps,
+} from "./chat-layout";
+export {
+  ChatSidebarHeader,
+  type ChatSidebarHeaderProps,
+  ChatSidebarSection,
+  type ChatSidebarSectionProps,
+  ChatSidebarSearch,
+  type ChatSidebarSearchProps,
+  ChatSidebarNewButton,
+  type ChatSidebarNewButtonProps,
+  MobileSidebarTrigger,
+  type MobileSidebarTriggerProps,
+} from "./chat-sidebar";
+export {
+  ChatHistoryList,
+  type ChatHistoryListProps,
+  type ChatHistoryItemData,
+} from "./chat-history-list";
+export {
+  DocumentList,
+  type DocumentListProps,
+  type DocumentItem,
+} from "./document-list";
 // Data Display
 export {
   Avatar,

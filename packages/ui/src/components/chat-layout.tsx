@@ -1,0 +1,220 @@
+import * as React from "react";
+import { cn } from "../lib/utils";
+
+/* =============================================================================
+   ChatLayout - Two-panel layout for chat interface
+   ============================================================================= */
+
+export interface ChatLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+/**
+ * Root container for the two-panel chat layout.
+ * Contains sidebar and main content area.
+ */
+export function ChatLayout({ className, children, ...props }: ChatLayoutProps) {
+  return (
+    <div
+      className={cn("flex h-full min-h-0 overflow-hidden", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* =============================================================================
+   ChatLayoutSidebar - Left sidebar panel
+   ============================================================================= */
+
+export interface ChatLayoutSidebarProps
+  extends React.HTMLAttributes<HTMLElement> {
+  collapsed?: boolean;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+  children: React.ReactNode;
+}
+
+/**
+ * Sidebar panel for documents and chat history.
+ * Collapsible on desktop, overlay on mobile.
+ */
+export function ChatLayoutSidebar({
+  className,
+  collapsed = false,
+  mobileOpen = false,
+  onMobileClose,
+  children,
+  ...props
+}: ChatLayoutSidebarProps) {
+  // Handle escape key to close mobile sidebar
+  React.useEffect(() => {
+    if (!mobileOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onMobileClose?.();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [mobileOpen, onMobileClose]);
+
+  // Prevent body scroll when mobile sidebar is open
+  React.useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  return (
+    <>
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onMobileClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        role="complementary"
+        aria-label="Chat sidebar"
+        aria-modal={mobileOpen ? "true" : undefined}
+        className={cn(
+          // Base styles
+          "flex flex-col border-r border-border bg-muted/30",
+          // Desktop: inline, collapsible
+          "hidden lg:flex",
+          collapsed ? "lg:w-0 lg:overflow-hidden" : "lg:w-[280px]",
+          // Transition
+          "transition-[width] duration-200 ease-out",
+          className
+        )}
+        style={{ "--sidebar-width": "280px" } as React.CSSProperties}
+        {...props}
+      >
+        {children}
+      </aside>
+
+      {/* Mobile sidebar (overlay) */}
+      <aside
+        role="complementary"
+        aria-label="Chat sidebar"
+        aria-modal="true"
+        className={cn(
+          // Base styles
+          "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-background",
+          // Mobile only
+          "lg:hidden",
+          // Slide animation
+          "transition-transform duration-200 ease-out",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {children}
+      </aside>
+    </>
+  );
+}
+
+/* =============================================================================
+   ChatLayoutMain - Main content area
+   ============================================================================= */
+
+export interface ChatLayoutMainProps
+  extends React.HTMLAttributes<HTMLElement> {
+  children: React.ReactNode;
+}
+
+/**
+ * Main content area containing messages and input.
+ */
+export function ChatLayoutMain({
+  className,
+  children,
+  ...props
+}: ChatLayoutMainProps) {
+  return (
+    <main
+      role="main"
+      className={cn("flex flex-1 flex-col min-h-0 min-w-0", className)}
+      {...props}
+    >
+      {children}
+    </main>
+  );
+}
+
+/* =============================================================================
+   ChatLayoutMessages - Scrollable messages area
+   ============================================================================= */
+
+export interface ChatLayoutMessagesProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+/**
+ * Scrollable container for chat messages.
+ * Designed to support virtualization.
+ */
+export const ChatLayoutMessages = React.forwardRef<
+  HTMLDivElement,
+  ChatLayoutMessagesProps
+>(({ className, children, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "flex-1 overflow-y-auto px-4 py-6",
+        // Scroll shadows (CSS-only)
+        "scroll-shadow",
+        className
+      )}
+      {...props}
+    >
+      <div className="mx-auto w-full max-w-[720px]">{children}</div>
+    </div>
+  );
+});
+ChatLayoutMessages.displayName = "ChatLayoutMessages";
+
+/* =============================================================================
+   ChatLayoutFooter - Sticky input area
+   ============================================================================= */
+
+export interface ChatLayoutFooterProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+/**
+ * Sticky footer for chat input.
+ */
+export function ChatLayoutFooter({
+  className,
+  children,
+  ...props
+}: ChatLayoutFooterProps) {
+  return (
+    <div
+      className={cn(
+        "border-t border-border bg-background px-4 py-4",
+        className
+      )}
+      {...props}
+    >
+      <div className="mx-auto w-full max-w-[720px]">{children}</div>
+    </div>
+  );
+}

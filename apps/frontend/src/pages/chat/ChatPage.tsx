@@ -1,28 +1,128 @@
 import { useChat } from "@ai-sdk/react";
-import { Avatar, ChatInput, ChatMessage, cn } from "@repo/ui";
+import {
+  Avatar,
+  ChatInput,
+  ChatLayout,
+  ChatLayoutFooter,
+  ChatLayoutMain,
+  ChatLayoutMessages,
+  ChatLayoutSidebar,
+  ChatMessage,
+  ChatSidebarHeader,
+  ChatSidebarNewButton,
+  ChatSidebarSearch,
+  ChatSidebarSection,
+  ChatHistoryList,
+  cn,
+  DocumentList,
+  MobileSidebarTrigger,
+} from "@repo/ui";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
 import { type ChangeEvent, useEffect, useRef } from "react";
+import { useChatStore } from "../../stores/chat-store";
+import type { ChatDocument, ChatHistoryItem } from "../../stores/chat-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+// Mock data for development
+const MOCK_DOCUMENTS: ChatDocument[] = [
+  {
+    id: "1",
+    name: "Introduction to Calculus.pdf",
+    pageCount: 45,
+    isSelected: true,
+    recentlyCited: true,
+  },
+  {
+    id: "2",
+    name: "Physics 101 Notes.pdf",
+    pageCount: 23,
+    isSelected: true,
+    recentlyCited: false,
+  },
+  {
+    id: "3",
+    name: "Chemistry Lab Manual.pdf",
+    pageCount: 78,
+    isSelected: false,
+    recentlyCited: false,
+  },
+];
+
+const MOCK_HISTORY: ChatHistoryItem[] = [
+  {
+    id: "1",
+    preview: "Explain integration by parts",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
+    messageCount: 4,
+  },
+  {
+    id: "2",
+    preview: "What is Newton's second law?",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+    messageCount: 6,
+  },
+  {
+    id: "3",
+    preview: "Help with chemistry homework",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // yesterday
+    messageCount: 12,
+  },
+];
+
 /**
- * ChatPage - Full-page chat for Pizza Study.
+ * ChatPage - Full-page chat with sidebar for Pizza Study.
  *
  * Features:
- * - Full conversation history
+ * - Two-panel layout (sidebar + chat)
+ * - Document selection for RAG context
+ * - Chat history navigation
  * - Rich message rendering
  * - Suggested prompts when empty
  */
 export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Chat store state
+  const {
+    sidebarCollapsed,
+    sidebarMobileOpen,
+    documentsSectionCollapsed,
+    historySectionCollapsed,
+    documents,
+    history,
+    currentChatId,
+    historySearchQuery,
+    toggleSidebar,
+    openMobileSidebar,
+    closeMobileSidebar,
+    toggleDocumentsSection,
+    toggleHistorySection,
+    toggleDocumentSelection,
+    setDocuments,
+    setHistory,
+    setCurrentChat,
+    setHistorySearchQuery,
+    getFilteredHistory,
+  } = useChatStore();
+
+  // Initialize with mock data
+  useEffect(() => {
+    if (documents.length === 0) {
+      setDocuments(MOCK_DOCUMENTS);
+    }
+    if (history.length === 0) {
+      setHistory(MOCK_HISTORY);
+    }
+  }, [documents.length, history.length, setDocuments, setHistory]);
+
+  // Vercel AI SDK chat hook
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: `${API_URL}/api/chat`,
     });
 
   // Auto-scroll to bottom when messages change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: messages triggers scroll when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -33,11 +133,93 @@ export function ChatPage() {
     }
   };
 
+  const handleNewChat = () => {
+    setCurrentChat(null);
+    // TODO: Clear messages when backend supports multiple conversations
+  };
+
+  const handleSelectChat = (chatId: string) => {
+    setCurrentChat(chatId);
+    closeMobileSidebar();
+    // TODO: Load conversation when backend supports it
+  };
+
+  const filteredHistory = getFilteredHistory();
+
   return (
-    <div className="flex flex-col h-full min-h-0">
-      {/* Messages area */}
-      <div className="flex-1 min-h-0 overflow-auto px-4 py-6">
-        <div className="mx-auto w-full max-w-4xl">
+    <ChatLayout>
+      {/* Sidebar */}
+      <ChatLayoutSidebar
+        collapsed={sidebarCollapsed}
+        mobileOpen={sidebarMobileOpen}
+        onMobileClose={closeMobileSidebar}
+      >
+        {/* Sidebar header */}
+        <ChatSidebarHeader
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
+          onMobileClose={closeMobileSidebar}
+          showMobileClose={sidebarMobileOpen}
+        >
+          <Sparkles className="h-4 w-4 text-primary" />
+          Study Chat
+        </ChatSidebarHeader>
+
+        {/* Sidebar content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* New Chat button */}
+          <div className="p-2">
+            <ChatSidebarNewButton onClick={handleNewChat} />
+          </div>
+
+          {/* Documents section */}
+          <ChatSidebarSection
+            title="Documents"
+            collapsed={documentsSectionCollapsed}
+            onToggleCollapse={toggleDocumentsSection}
+          >
+            <DocumentList
+              documents={documents}
+              onToggleSelection={toggleDocumentSelection}
+              onUploadClick={() => {
+                // TODO: Implement upload
+                console.log("Upload clicked");
+              }}
+            />
+          </ChatSidebarSection>
+
+          {/* History section */}
+          <ChatSidebarSection
+            title="History"
+            collapsed={historySectionCollapsed}
+            onToggleCollapse={toggleHistorySection}
+          >
+            <div className="space-y-2">
+              <ChatSidebarSearch
+                value={historySearchQuery}
+                onChange={setHistorySearchQuery}
+                placeholder="Search conversations..."
+              />
+              <ChatHistoryList
+                items={filteredHistory}
+                currentChatId={currentChatId}
+                onSelectChat={handleSelectChat}
+              />
+            </div>
+          </ChatSidebarSection>
+        </div>
+      </ChatLayoutSidebar>
+
+      {/* Main content */}
+      <ChatLayoutMain>
+        {/* Mobile header with hamburger */}
+        <div className="flex items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
+          <MobileSidebarTrigger onClick={openMobileSidebar} />
+          <span className="font-medium">Chat</span>
+        </div>
+
+        {/* Messages area */}
+        <ChatLayoutMessages>
           {messages.length === 0 ? (
             <WelcomeScreen onSuggestionClick={handleInputChange} />
           ) : (
@@ -71,12 +253,10 @@ export function ChatPage() {
               <div ref={messagesEndRef} />
             </div>
           )}
-        </div>
-      </div>
+        </ChatLayoutMessages>
 
-      {/* Input area */}
-      <div className="border-t border-border bg-background px-4 py-4">
-        <div className="mx-auto w-full max-w-4xl">
+        {/* Input area */}
+        <ChatLayoutFooter>
           <ChatInput
             value={input}
             onChange={(value) =>
@@ -99,19 +279,20 @@ export function ChatPage() {
             </kbd>{" "}
             for new line
           </p>
-        </div>
-      </div>
-    </div>
+        </ChatLayoutFooter>
+      </ChatLayoutMain>
+    </ChatLayout>
   );
 }
+
+/* =============================================================================
+   WelcomeScreen - Shown when chat is empty
+   ============================================================================= */
 
 interface WelcomeScreenProps {
   onSuggestionClick: (e: ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-/**
- * Welcome screen shown when chat is empty.
- */
 function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
   const suggestions = [
     {
@@ -168,7 +349,7 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
             <div
               className={cn(
                 "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-                suggestion.color,
+                suggestion.color
               )}
             >
               <suggestion.icon className="h-5 w-5" />
