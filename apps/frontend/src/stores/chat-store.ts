@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 /**
  * Chat Store for the redesigned chat interface.
  *
@@ -56,6 +58,7 @@ interface ChatState {
   // Chat history
   history: ChatHistoryItem[];
   currentChatId: string | null;
+  currentConversationId: string | null;
   historySearchQuery: string;
 
   // Input state
@@ -80,8 +83,11 @@ interface ChatState {
   // History actions
   setHistory: (history: ChatHistoryItem[]) => void;
   setCurrentChat: (chatId: string | null) => void;
+  setCurrentConversationId: (id: string | null) => void;
   setHistorySearchQuery: (query: string) => void;
   getFilteredHistory: () => ChatHistoryItem[];
+  fetchConversations: () => Promise<void>;
+  deleteConversation: (id: string) => Promise<void>;
 
   // Input actions
   addMentionedDoc: (docId: string) => void;
@@ -114,6 +120,7 @@ export const useChatStore = create<ChatState>()(
       documents: [],
       history: [],
       currentChatId: null,
+      currentConversationId: null,
       historySearchQuery: "",
 
       // Initial input state
@@ -167,6 +174,7 @@ export const useChatStore = create<ChatState>()(
       // History actions
       setHistory: (history) => set({ history }),
       setCurrentChat: (chatId) => set({ currentChatId: chatId }),
+      setCurrentConversationId: (id) => set({ currentConversationId: id }),
       setHistorySearchQuery: (query) => set({ historySearchQuery: query }),
       getFilteredHistory: () => {
         const { history, historySearchQuery } = get();
@@ -175,6 +183,50 @@ export const useChatStore = create<ChatState>()(
         return history.filter((item) =>
           item.preview.toLowerCase().includes(query)
         );
+      },
+      fetchConversations: async () => {
+        try {
+          const response = await fetch(`${API_URL}/api/conversations`);
+          if (!response.ok) throw new Error("Failed to fetch conversations");
+          const convos = await response.json();
+          set({
+            history: convos.map(
+              (c: {
+                id: string;
+                title: string;
+                updatedAt: string;
+                messageCount: number;
+              }) => ({
+                id: c.id,
+                preview: c.title,
+                timestamp: new Date(c.updatedAt),
+                messageCount: c.messageCount,
+              })
+            ),
+          });
+        } catch (error) {
+          console.error("Failed to fetch conversations:", error);
+        }
+      },
+      deleteConversation: async (id) => {
+        try {
+          const response = await fetch(`${API_URL}/api/conversations/${id}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Failed to delete conversation");
+          // Remove from history
+          set((state) => ({
+            history: state.history.filter((h) => h.id !== id),
+            currentChatId:
+              state.currentChatId === id ? null : state.currentChatId,
+            currentConversationId:
+              state.currentConversationId === id
+                ? null
+                : state.currentConversationId,
+          }));
+        } catch (error) {
+          console.error("Failed to delete conversation:", error);
+        }
       },
 
       // Input actions

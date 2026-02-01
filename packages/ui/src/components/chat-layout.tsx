@@ -91,11 +91,9 @@ export function ChatLayoutSidebar({
         aria-label="Chat sidebar"
         aria-modal={mobileOpen ? "true" : undefined}
         className={cn(
-          // Base styles
+          // Base styles - always show on desktop
           "flex flex-col border-r border-border bg-muted/30",
-          // Desktop: inline, collapsible
-          "hidden lg:flex",
-          collapsed ? "lg:w-0 lg:overflow-hidden" : "lg:w-[280px]",
+          collapsed ? "w-0 overflow-hidden" : "w-[280px] min-w-[280px]",
           // Transition
           "transition-[width] duration-200 ease-out",
           className
@@ -114,8 +112,8 @@ export function ChatLayoutSidebar({
         className={cn(
           // Base styles
           "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-background",
-          // Mobile only
-          "lg:hidden",
+          // Mobile only (hidden on md+ screens)
+          "md:hidden",
           // Slide animation
           "transition-transform duration-200 ease-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full"

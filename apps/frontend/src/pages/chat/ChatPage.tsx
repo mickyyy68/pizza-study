@@ -26,55 +26,9 @@ import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
 import { type ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAutoScroll } from "../../hooks/useAutoScroll";
 import { useChatStore } from "../../stores/chat-store";
-import type { ChatDocument, ChatHistoryItem, Attachment } from "../../stores/chat-store";
+import type { ChatDocument, Attachment } from "../../stores/chat-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-// Mock data for development
-const MOCK_DOCUMENTS: ChatDocument[] = [
-  {
-    id: "1",
-    name: "Introduction to Calculus.pdf",
-    pageCount: 45,
-    isSelected: true,
-    recentlyCited: true,
-  },
-  {
-    id: "2",
-    name: "Physics 101 Notes.pdf",
-    pageCount: 23,
-    isSelected: true,
-    recentlyCited: false,
-  },
-  {
-    id: "3",
-    name: "Chemistry Lab Manual.pdf",
-    pageCount: 78,
-    isSelected: false,
-    recentlyCited: false,
-  },
-];
-
-const MOCK_HISTORY: ChatHistoryItem[] = [
-  {
-    id: "1",
-    preview: "Explain integration by parts",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    messageCount: 4,
-  },
-  {
-    id: "2",
-    preview: "What is Newton's second law?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    messageCount: 6,
-  },
-  {
-    id: "3",
-    preview: "Help with chemistry homework",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    messageCount: 12,
-  },
-];
 
 /**
  * ChatPage - Full-page chat with sidebar for Pizza Study.
@@ -101,6 +55,7 @@ export function ChatPage() {
     documents,
     history,
     currentChatId,
+    currentConversationId,
     historySearchQuery,
     mentionedDocIds,
     attachments,
@@ -111,10 +66,11 @@ export function ChatPage() {
     toggleHistorySection,
     toggleDocumentSelection,
     setDocuments,
-    setHistory,
     setCurrentChat,
+    setCurrentConversationId,
     setHistorySearchQuery,
     getFilteredHistory,
+    fetchConversations,
     addMentionedDoc,
     removeMentionedDoc,
     clearMentionedDocs,
@@ -128,24 +84,51 @@ export function ChatPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
 
-  // Initialize with mock data
+  // Fetch documents and conversations from API on mount
   useEffect(() => {
-    if (documents.length === 0) {
-      setDocuments(MOCK_DOCUMENTS);
-    }
-    if (history.length === 0) {
-      setHistory(MOCK_HISTORY);
-    }
-  }, [documents.length, history.length, setDocuments, setHistory]);
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/documents`);
+        if (!response.ok) throw new Error("Failed to fetch documents");
+        const docs = await response.json();
+        setDocuments(
+          docs.map((d: { id: string; title: string; metadata?: { pageCount?: number } }) => ({
+            id: d.id,
+            name: d.title,
+            pageCount: d.metadata?.pageCount || 0,
+            isSelected: true,
+            recentlyCited: false,
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to load documents:", error);
+        // Keep empty state - user can upload documents
+      }
+    };
+    fetchDocuments();
+    fetchConversations();
+  }, [setDocuments, fetchConversations]);
 
-  // Vercel AI SDK chat hook with error handling
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+  // Vercel AI SDK chat hook with error handling and conversation persistence
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } =
     useChat({
       api: `${API_URL}/api/chat`,
-      onResponse: () => {
+      body: {
+        conversationId: currentConversationId,
+      },
+      onResponse: (response) => {
         // First token received, stop thinking
         setIsThinking(false);
         setChatError(null);
+
+        // Get conversation ID from response header for new conversations
+        const newConvoId = response.headers.get("X-Conversation-Id");
+        if (newConvoId && !currentConversationId) {
+          setCurrentConversationId(newConvoId);
+          setCurrentChat(newConvoId);
+          // Refresh conversation list to include the new conversation
+          fetchConversations();
+        }
       },
       onError: (error) => {
         setIsThinking(false);
@@ -217,13 +200,36 @@ export function ChatPage() {
 
   const handleNewChat = () => {
     setCurrentChat(null);
+    setCurrentConversationId(null);
+    setMessages([]);
     clearMentionedDocs();
     clearAttachments();
   };
 
-  const handleSelectChat = (chatId: string) => {
+  const handleSelectChat = async (chatId: string) => {
     setCurrentChat(chatId);
+    setCurrentConversationId(chatId);
     closeMobileSidebar();
+
+    // Load conversation messages from API
+    try {
+      const response = await fetch(`${API_URL}/api/conversations/${chatId}`);
+      if (!response.ok) throw new Error("Failed to load conversation");
+      const conversation = await response.json();
+
+      // Convert to useChat message format
+      setMessages(
+        conversation.messages.map((msg: { id: string; role: string; content: string }) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to load conversation:", error);
+      setChatError("Failed to load conversation. Please try again.");
+      setTimeout(() => setChatError(null), 5000);
+    }
   };
 
   // Handle @ mention
@@ -285,7 +291,7 @@ export function ChatPage() {
   const filteredHistory = getFilteredHistory();
 
   return (
-    <ChatLayout>
+    <ChatLayout className="absolute inset-0">
       {/* Sidebar */}
       <ChatLayoutSidebar
         collapsed={sidebarCollapsed}
@@ -342,7 +348,7 @@ export function ChatPage() {
 
       {/* Main content */}
       <ChatLayoutMain>
-        <div className="flex items-center gap-2 border-b border-border px-4 py-2 lg:hidden">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-2 md:hidden">
           <MobileSidebarTrigger onClick={openMobileSidebar} />
           <span className="font-medium">Chat</span>
         </div>

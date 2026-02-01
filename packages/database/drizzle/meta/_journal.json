@@ -15,6 +15,13 @@
       "when": 1769883609284,
       "tag": "0001_broken_dakota_north",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769981186528,
+      "tag": "0002_last_randall_flagg",
+      "breakpoints": true
     }
   ]
 }

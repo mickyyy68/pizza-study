@@ -1,7 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
 import { chatModel, SYSTEM_PROMPT } from "@repo/ai";
 import { chatRequestSchema } from "@repo/contracts";
+import { conversations, db, messages } from "@repo/database";
 import { retrieveContext } from "@repo/rag";
+import { eq } from "drizzle-orm";
 import { streamText } from "ai";
 import { Hono } from "hono";
 
@@ -41,14 +43,36 @@ const chat = new Hono().post(
   "/",
   zValidator("json", chatRequestSchema),
   async (c) => {
-    const { messages } = c.req.valid("json");
+    const { messages: chatMessages, conversationId: providedConvoId } = c.req.valid("json");
 
-    // Extract the latest user message for RAG
-    const userMessage = getLatestUserMessage(messages);
+    // Get or create conversation
+    let conversationId = providedConvoId;
+    if (!conversationId) {
+      // Extract first user message for title
+      const firstUserMsg = chatMessages.find((m) => m.role === "user");
+      const title = firstUserMsg?.content.slice(0, 50) || "New conversation";
+
+      const [newConvo] = await db
+        .insert(conversations)
+        .values({ title })
+        .returning();
+      conversationId = newConvo.id;
+      console.log("[Chat] Created new conversation:", conversationId);
+    }
+
+    // Extract the latest user message for RAG and persistence
+    const userMessage = getLatestUserMessage(chatMessages);
     let ragContext: string | null = null;
 
     if (userMessage) {
       console.log("[Chat] Processing message:", userMessage.slice(0, 100) + (userMessage.length > 100 ? "..." : ""));
+
+      // Save user message to database
+      await db.insert(messages).values({
+        conversationId,
+        role: "user",
+        content: userMessage,
+      });
 
       try {
         console.log("[Chat] Retrieving context...");
@@ -80,11 +104,30 @@ const chat = new Hono().post(
     const result = streamText({
       model: chatModel,
       system: systemPrompt,
-      messages,
+      messages: chatMessages,
       maxRetries: 0,
+      onFinish: async ({ text }) => {
+        // Save assistant message after streaming completes
+        if (text && conversationId) {
+          await db.insert(messages).values({
+            conversationId,
+            role: "assistant",
+            content: text,
+          });
+
+          // Update conversation timestamp
+          await db
+            .update(conversations)
+            .set({ updatedAt: new Date() })
+            .where(eq(conversations.id, conversationId));
+
+          console.log("[Chat] Saved assistant response to conversation:", conversationId);
+        }
+      },
     });
 
-    return result.toDataStreamResponse({
+    // Create response with conversation ID header
+    const response = result.toDataStreamResponse({
       getErrorMessage: (error) => {
         console.error("AI chat error:", error);
         if (error instanceof Error) {
@@ -97,6 +140,11 @@ const chat = new Hono().post(
         }
       },
     });
+
+    // Add conversation ID header
+    response.headers.set("X-Conversation-Id", conversationId);
+
+    return response;
   },
 );
 

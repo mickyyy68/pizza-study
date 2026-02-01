@@ -46,7 +46,7 @@ export function ChatSidebarHeader({
             variant="ghost"
             size="sm"
             onClick={onMobileClose}
-            className="lg:hidden"
+            className="md:hidden"
             aria-label="Close sidebar"
           >
             <X className="h-4 w-4" />
@@ -58,7 +58,7 @@ export function ChatSidebarHeader({
             variant="ghost"
             size="sm"
             onClick={onToggleCollapse}
-            className="hidden lg:flex"
+            className="hidden md:flex"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!collapsed}
           >
