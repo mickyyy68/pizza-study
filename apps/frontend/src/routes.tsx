@@ -4,6 +4,7 @@ import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { ChatPage } from "./pages/chat/ChatPage";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { DocumentsPage } from "./pages/documents/DocumentsPage";
+import { UploadDocumentPage } from "./pages/documents/UploadDocumentPage";
 
 /**
  * Route definitions for Pizza Study.
@@ -32,6 +33,11 @@ export const router = createBrowserRouter([
       {
         path: "documents",
         element: <DocumentsPage />,
+      },
+      // Upload documents
+      {
+        path: "documents/upload",
+        element: <UploadDocumentPage />,
       },
       // Calendar - day-focused planning
       {
