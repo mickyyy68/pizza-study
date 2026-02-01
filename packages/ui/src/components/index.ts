@@ -1,40 +1,5 @@
 // Utilities
 export { cn } from "../lib/utils";
-// Chat Layout
-export {
-  ChatLayout,
-  type ChatLayoutProps,
-  ChatLayoutSidebar,
-  type ChatLayoutSidebarProps,
-  ChatLayoutMain,
-  type ChatLayoutMainProps,
-  ChatLayoutMessages,
-  type ChatLayoutMessagesProps,
-  ChatLayoutFooter,
-  type ChatLayoutFooterProps,
-} from "./chat-layout";
-export {
-  ChatSidebarHeader,
-  type ChatSidebarHeaderProps,
-  ChatSidebarSection,
-  type ChatSidebarSectionProps,
-  ChatSidebarSearch,
-  type ChatSidebarSearchProps,
-  ChatSidebarNewButton,
-  type ChatSidebarNewButtonProps,
-  MobileSidebarTrigger,
-  type MobileSidebarTriggerProps,
-} from "./chat-sidebar";
-export {
-  ChatHistoryList,
-  type ChatHistoryListProps,
-  type ChatHistoryItemData,
-} from "./chat-history-list";
-export {
-  DocumentList,
-  type DocumentListProps,
-  type DocumentItem,
-} from "./document-list";
 // Data Display
 export {
   Avatar,
@@ -62,34 +27,29 @@ export {
   type CardTitleProps,
 } from "./card";
 export {
+  type ChatHistoryItemData,
+  ChatHistoryList,
+  type ChatHistoryListProps,
+} from "./chat-history-list";
+export {
+  type AttachedFile,
   ChatInput,
   type ChatInputProps,
   type MentionedDocument,
-  type AttachedFile,
 } from "./chat-input";
+// Chat Layout
 export {
-  DocumentPicker,
-  type DocumentPickerProps,
-  type PickerDocument,
-} from "./document-picker";
-export {
-  DocumentChip,
-  type DocumentChipProps,
-  AttachmentChip,
-  type AttachmentChipProps,
-  ChipsContainer,
-  type ChipsContainerProps,
-} from "./input-chips";
-export {
-  MessageSkeleton,
-  type MessageSkeletonProps,
-  MessageSkeletonList,
-  ThinkingIndicator,
-} from "./message-skeleton";
-export {
-  ScrollToBottom,
-  type ScrollToBottomProps,
-} from "./scroll-to-bottom";
+  ChatLayout,
+  ChatLayoutFooter,
+  type ChatLayoutFooterProps,
+  ChatLayoutMain,
+  type ChatLayoutMainProps,
+  ChatLayoutMessages,
+  type ChatLayoutMessagesProps,
+  type ChatLayoutProps,
+  ChatLayoutSidebar,
+  type ChatLayoutSidebarProps,
+} from "./chat-layout";
 // Chat
 export {
   ChatMessage,
@@ -98,15 +58,18 @@ export {
   chatMessageVariants,
 } from "./chat-message";
 export {
-  MarkdownRenderer,
-  type MarkdownRendererProps,
-} from "./markdown-renderer";
-export { CodeBlock, InlineCode, type CodeBlockProps } from "./code-block";
-export {
-  MessageActions,
-  type MessageActionsProps,
-} from "./message-actions";
-export { MessageErrorBoundary } from "./message-error-boundary";
+  ChatSidebarHeader,
+  type ChatSidebarHeaderProps,
+  ChatSidebarNewButton,
+  type ChatSidebarNewButtonProps,
+  ChatSidebarSearch,
+  type ChatSidebarSearchProps,
+  ChatSidebarSection,
+  type ChatSidebarSectionProps,
+  MobileSidebarTrigger,
+  type MobileSidebarTriggerProps,
+} from "./chat-sidebar";
+export { Checkbox, type CheckboxProps } from "./checkbox";
 export {
   type Citation,
   CitationBadge,
@@ -118,7 +81,17 @@ export {
   parseCitations,
   renderWithCitations,
 } from "./citation";
-export { Checkbox, type CheckboxProps } from "./checkbox";
+export { CodeBlock, type CodeBlockProps, InlineCode } from "./code-block";
+export {
+  type DocumentItem,
+  DocumentList,
+  type DocumentListProps,
+} from "./document-list";
+export {
+  DocumentPicker,
+  type DocumentPickerProps,
+  type PickerDocument,
+} from "./document-picker";
 export {
   EmptyState,
   type EmptyStateAction,
@@ -132,6 +105,33 @@ export {
 } from "./file-dropzone";
 // Form Elements
 export { Input, type InputProps } from "./input";
+export {
+  AttachmentChip,
+  type AttachmentChipProps,
+  ChipsContainer,
+  type ChipsContainerProps,
+  DocumentChip,
+  type DocumentChipProps,
+} from "./input-chips";
+export {
+  MarkdownRenderer,
+  type MarkdownRendererProps,
+} from "./markdown-renderer";
+export {
+  MessageActions,
+  type MessageActionsProps,
+} from "./message-actions";
+export { MessageErrorBoundary } from "./message-error-boundary";
+export {
+  MessageSkeleton,
+  MessageSkeletonList,
+  type MessageSkeletonProps,
+  ThinkingIndicator,
+} from "./message-skeleton";
+export {
+  ScrollToBottom,
+  type ScrollToBottomProps,
+} from "./scroll-to-bottom";
 export { Separator, type SeparatorProps } from "./separator";
 // Layout - Sidebar
 export {

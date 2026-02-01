@@ -11,12 +11,19 @@ const EMBEDDING_MODEL = "openai/text-embedding-3-small";
 
 // Log configuration on module load
 console.log("[Embedding] Initializing embedding module...");
-console.log("[Embedding] API Key configured:", OPENROUTER_API_KEY ? "Yes (length: " + OPENROUTER_API_KEY.length + ")" : "NO - MISSING!");
+console.log(
+  "[Embedding] API Key configured:",
+  OPENROUTER_API_KEY
+    ? "Yes (length: " + OPENROUTER_API_KEY.length + ")"
+    : "NO - MISSING!",
+);
 console.log("[Embedding] Base URL:", OPENROUTER_BASE_URL);
 console.log("[Embedding] Model:", EMBEDDING_MODEL);
 
 if (!OPENROUTER_API_KEY) {
-  console.error("[Embedding] ⚠️  WARNING: OPENROUTER_API_KEY is not set! Embeddings will fail.");
+  console.error(
+    "[Embedding] ⚠️  WARNING: OPENROUTER_API_KEY is not set! Embeddings will fail.",
+  );
 }
 
 /**
@@ -57,14 +64,23 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     });
 
     const duration = Date.now() - startTime;
-    console.log("[Embedding] ✓ Success! Generated", embedding.length, "dimensions in", duration, "ms");
+    console.log(
+      "[Embedding] ✓ Success! Generated",
+      embedding.length,
+      "dimensions in",
+      duration,
+      "ms",
+    );
 
     return embedding;
   } catch (error) {
     const duration = Date.now() - startTime;
     console.error("[Embedding] ✗ Failed after", duration, "ms");
     console.error("[Embedding] Error type:", error?.constructor?.name);
-    console.error("[Embedding] Error message:", error instanceof Error ? error.message : String(error));
+    console.error(
+      "[Embedding] Error message:",
+      error instanceof Error ? error.message : String(error),
+    );
 
     // Log full error details for debugging
     if (error && typeof error === "object") {
@@ -74,7 +90,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     // Re-throw with more context
     throw new Error(
       `Embedding generation failed: ${error instanceof Error ? error.message : "Unknown error"}. ` +
-      `Model: ${EMBEDDING_MODEL}, Text length: ${text.length} chars`
+        `Model: ${EMBEDDING_MODEL}, Text length: ${text.length} chars`,
     );
   }
 }

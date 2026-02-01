@@ -1,6 +1,15 @@
 import { useChat } from "@ai-sdk/react";
 import {
+  BookOpen01Icon,
+  BulbIcon,
+  HelpCircleIcon,
+  SparklesIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import {
+  type AttachedFile,
   Avatar,
+  ChatHistoryList,
   ChatInput,
   ChatLayout,
   ChatLayoutFooter,
@@ -12,21 +21,24 @@ import {
   ChatSidebarNewButton,
   ChatSidebarSearch,
   ChatSidebarSection,
-  ChatHistoryList,
   cn,
   DocumentList,
+  type MentionedDocument,
   MobileSidebarTrigger,
+  type PickerDocument,
   ScrollToBottom,
   ThinkingIndicator,
-  type PickerDocument,
-  type MentionedDocument,
-  type AttachedFile,
 } from "@repo/ui";
-import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
-import { type ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useAutoScroll } from "../../hooks/useAutoScroll";
+import type { Attachment, ChatDocument } from "../../stores/chat-store";
 import { useChatStore } from "../../stores/chat-store";
-import type { ChatDocument, Attachment } from "../../stores/chat-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -92,13 +104,19 @@ export function ChatPage() {
         if (!response.ok) throw new Error("Failed to fetch documents");
         const docs = await response.json();
         setDocuments(
-          docs.map((d: { id: string; title: string; metadata?: { pageCount?: number } }) => ({
-            id: d.id,
-            name: d.title,
-            pageCount: d.metadata?.pageCount || 0,
-            isSelected: true,
-            recentlyCited: false,
-          }))
+          docs.map(
+            (d: {
+              id: string;
+              title: string;
+              metadata?: { pageCount?: number };
+            }) => ({
+              id: d.id,
+              name: d.title,
+              pageCount: d.metadata?.pageCount || 0,
+              isSelected: true,
+              recentlyCited: false,
+            }),
+          ),
         );
       } catch (error) {
         console.error("Failed to load documents:", error);
@@ -110,33 +128,41 @@ export function ChatPage() {
   }, [setDocuments, fetchConversations]);
 
   // Vercel AI SDK chat hook with error handling and conversation persistence
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } =
-    useChat({
-      api: `${API_URL}/api/chat`,
-      body: {
-        conversationId: currentConversationId,
-      },
-      onResponse: (response) => {
-        // First token received, stop thinking
-        setIsThinking(false);
-        setChatError(null);
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    setMessages,
+  } = useChat({
+    api: `${API_URL}/api/chat`,
+    body: {
+      conversationId: currentConversationId,
+    },
+    onResponse: (response) => {
+      // First token received, stop thinking
+      setIsThinking(false);
+      setChatError(null);
 
-        // Get conversation ID from response header for new conversations
-        const newConvoId = response.headers.get("X-Conversation-Id");
-        if (newConvoId && !currentConversationId) {
-          setCurrentConversationId(newConvoId);
-          setCurrentChat(newConvoId);
-          // Refresh conversation list to include the new conversation
-          fetchConversations();
-        }
-      },
-      onError: (error) => {
-        setIsThinking(false);
-        setChatError(error.message || "Failed to send message. Please try again.");
-        // Auto-clear error after 5 seconds
-        setTimeout(() => setChatError(null), 5000);
-      },
-    });
+      // Get conversation ID from response header for new conversations
+      const newConvoId = response.headers.get("X-Conversation-Id");
+      if (newConvoId && !currentConversationId) {
+        setCurrentConversationId(newConvoId);
+        setCurrentChat(newConvoId);
+        // Refresh conversation list to include the new conversation
+        fetchConversations();
+      }
+    },
+    onError: (error) => {
+      setIsThinking(false);
+      setChatError(
+        error.message || "Failed to send message. Please try again.",
+      );
+      // Auto-clear error after 5 seconds
+      setTimeout(() => setChatError(null), 5000);
+    },
+  });
 
   // Smart auto-scroll hook - triggers when message count changes
   const {
@@ -152,7 +178,9 @@ export function ChatPage() {
     if (messages.length > prevMessageCountRef.current) {
       // New message arrived
       if (!isAtBottom) {
-        setNewMessageCount((prev) => prev + (messages.length - prevMessageCountRef.current));
+        setNewMessageCount(
+          (prev) => prev + (messages.length - prevMessageCountRef.current),
+        );
       }
     }
     prevMessageCountRef.current = messages.length;
@@ -196,7 +224,13 @@ export function ChatPage() {
       clearMentionedDocs();
       clearAttachments();
     }
-  }, [input, attachments.length, handleSubmit, clearMentionedDocs, clearAttachments]);
+  }, [
+    input,
+    attachments.length,
+    handleSubmit,
+    clearMentionedDocs,
+    clearAttachments,
+  ]);
 
   const handleNewChat = () => {
     setCurrentChat(null);
@@ -219,11 +253,13 @@ export function ChatPage() {
 
       // Convert to useChat message format
       setMessages(
-        conversation.messages.map((msg: { id: string; role: string; content: string }) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-        }))
+        conversation.messages.map(
+          (msg: { id: string; role: string; content: string }) => ({
+            id: msg.id,
+            role: msg.role,
+            content: msg.content,
+          }),
+        ),
       );
     } catch (error) {
       console.error("Failed to load conversation:", error);
@@ -237,7 +273,7 @@ export function ChatPage() {
     (doc: PickerDocument) => {
       addMentionedDoc(doc.id);
     },
-    [addMentionedDoc]
+    [addMentionedDoc],
   );
 
   // Handle file attachment with real API upload
@@ -285,7 +321,7 @@ export function ChatPage() {
         }
       }
     },
-    [addAttachment, updateAttachment]
+    [addAttachment, updateAttachment],
   );
 
   const filteredHistory = getFilteredHistory();
@@ -304,7 +340,11 @@ export function ChatPage() {
           onMobileClose={closeMobileSidebar}
           showMobileClose={sidebarMobileOpen}
         >
-          <Sparkles className="h-4 w-4 text-primary" />
+          <HugeiconsIcon
+            icon={SparklesIcon}
+            size={16}
+            className="text-primary"
+          />
           Study Chat
         </ChatSidebarHeader>
 
@@ -432,9 +472,16 @@ export function ChatPage() {
             onAttachmentRemove={removeAttachment}
           />
           <p className="text-xs text-muted-foreground text-center mt-2">
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">@</kbd> mention docs ·{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">Enter</kbd> send ·{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">Shift+Enter</kbd> new line
+            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">@</kbd>{" "}
+            mention docs ·{" "}
+            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
+              Enter
+            </kbd>{" "}
+            send ·{" "}
+            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
+              Shift+Enter
+            </kbd>{" "}
+            new line
           </p>
         </ChatLayoutFooter>
       </ChatLayoutMain>
@@ -451,21 +498,26 @@ interface WelcomeScreenProps {
 }
 
 function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
-  const suggestions = [
+  const suggestions: {
+    icon: IconSvgElement;
+    title: string;
+    prompt: string;
+    color: string;
+  }[] = [
     {
-      icon: Lightbulb,
+      icon: BulbIcon,
       title: "Explain a concept",
       prompt: "Can you explain the concept of integration by parts?",
       color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
     },
     {
-      icon: BookOpen,
+      icon: BookOpen01Icon,
       title: "Quiz me",
       prompt: "Quiz me on Newton's Laws of Motion",
       color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     },
     {
-      icon: HelpCircle,
+      icon: HelpCircleIcon,
       title: "Help with homework",
       prompt: "I'm stuck on a calculus problem. Can you help?",
       color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -481,7 +533,7 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center text-center px-4 py-10">
       <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-        <Sparkles className="h-10 w-10 text-primary" />
+        <HugeiconsIcon icon={SparklesIcon} size={40} className="text-primary" />
       </div>
 
       <h1 className="font-serif text-3xl font-bold mb-2">
@@ -503,10 +555,10 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
             <div
               className={cn(
                 "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-                suggestion.color
+                suggestion.color,
               )}
             >
-              <suggestion.icon className="h-5 w-5" />
+              <HugeiconsIcon icon={suggestion.icon} size={20} />
             </div>
             <p className="font-medium text-sm group-hover:text-primary transition-colors">
               {suggestion.title}

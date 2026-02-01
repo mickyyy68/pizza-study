@@ -1,4 +1,14 @@
 import {
+  ArrowRight01Icon,
+  Calendar03Icon,
+  Chat01Icon,
+  CheckmarkCircle02Icon,
+  Clock01Icon,
+  File02Icon,
+  FireIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import {
   Badge,
   Card,
   CardContent,
@@ -8,15 +18,6 @@ import {
   Checkbox,
   cn,
 } from "@repo/ui";
-import {
-  ArrowRight,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  FileText,
-  Flame,
-  MessageSquare,
-} from "lucide-react";
 import { Link } from "react-router";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import { useDocumentsStore } from "../../stores/documents-store";
@@ -60,7 +61,7 @@ export function DashboardPage() {
               to="/calendar"
               className="text-sm text-primary hover:underline flex items-center gap-1"
             >
-              View all <ArrowRight className="h-3 w-3" />
+              View all <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
             </Link>
           </CardHeader>
           <CardContent>
@@ -90,7 +91,7 @@ export function DashboardPage() {
               to="/calendar"
               className="text-sm text-primary hover:underline flex items-center gap-1"
             >
-              Calendar <ArrowRight className="h-3 w-3" />
+              Calendar <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
             </Link>
           </CardHeader>
           <CardContent>
@@ -133,7 +134,11 @@ function TodayTasksList() {
   if (tasks.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <CheckCircle2 className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <HugeiconsIcon
+          icon={CheckmarkCircle02Icon}
+          size={48}
+          className="mx-auto mb-3 opacity-30"
+        />
         <p>No tasks for today. Enjoy your free time! 🎉</p>
       </div>
     );
@@ -196,26 +201,32 @@ function TodayTasksList() {
 function ProgressStats() {
   const { stats, statsLoading } = useCalendarStore();
 
-  const statItems = [
+  const statItems: {
+    label: string;
+    value: number;
+    unit: string;
+    icon: IconSvgElement;
+    color: string;
+  }[] = [
     {
       label: "Study Streak",
       value: stats?.studyStreak ?? 0,
       unit: "days",
-      icon: Flame,
+      icon: FireIcon,
       color: "text-orange-500",
     },
     {
       label: "Completed Today",
       value: stats?.tasksCompletedToday ?? 0,
       unit: "tasks",
-      icon: CheckCircle2,
+      icon: CheckmarkCircle02Icon,
       color: "text-emerald-500",
     },
     {
       label: "This Week",
       value: stats?.tasksCompletedThisWeek ?? 0,
       unit: "tasks",
-      icon: Clock,
+      icon: Clock01Icon,
       color: "text-primary",
     },
   ];
@@ -246,7 +257,7 @@ function ProgressStats() {
               stat.color,
             )}
           >
-            <stat.icon className="h-5 w-5" />
+            <HugeiconsIcon icon={stat.icon} size={20} />
           </div>
           <div>
             <p className="text-2xl font-serif font-bold">
@@ -273,7 +284,11 @@ function UpcomingEventsList() {
   if (events.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <Calendar className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <HugeiconsIcon
+          icon={Calendar03Icon}
+          size={48}
+          className="mx-auto mb-3 opacity-30"
+        />
         <p>No upcoming events</p>
       </div>
     );
@@ -320,24 +335,30 @@ function UpcomingEventsList() {
 function QuickAccessGrid() {
   const { documents } = useDocumentsStore();
 
-  const cards = [
+  const cards: {
+    to: string;
+    icon: IconSvgElement;
+    label: string;
+    description: string;
+    color: string;
+  }[] = [
     {
       to: "/documents",
-      icon: FileText,
+      icon: File02Icon,
       label: "Documents",
       description: `${documents.length} files`,
       color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     },
     {
       to: "/calendar",
-      icon: Calendar,
+      icon: Calendar03Icon,
       label: "Calendar",
       description: "Plan your week",
       color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
     },
     {
       to: "/chat",
-      icon: MessageSquare,
+      icon: Chat01Icon,
       label: "Start Chat",
       description: "Ask anything",
       color: "bg-primary/10 text-primary",
@@ -358,7 +379,7 @@ function QuickAccessGrid() {
               card.color,
             )}
           >
-            <card.icon className="h-5 w-5" />
+            <HugeiconsIcon icon={card.icon} size={20} />
           </div>
           <p className="font-medium text-sm group-hover:text-primary transition-colors">
             {card.label}

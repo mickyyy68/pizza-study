@@ -29,7 +29,7 @@ interface UseAutoScrollReturn {
 
 export function useAutoScroll(
   triggerValue: unknown = 0,
-  options: UseAutoScrollOptions = {}
+  options: UseAutoScrollOptions = {},
 ): UseAutoScrollReturn {
   const { threshold = 100, behavior = "smooth" } = options;
 
@@ -87,7 +87,9 @@ export function useAutoScroll(
     // Initial check
     checkScrollPosition();
 
-    container.addEventListener("scroll", checkScrollPosition, { passive: true });
+    container.addEventListener("scroll", checkScrollPosition, {
+      passive: true,
+    });
     return () => container.removeEventListener("scroll", checkScrollPosition);
   }, [checkScrollPosition]);
 

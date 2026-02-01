@@ -1,5 +1,6 @@
+import { Cancel01Icon, Menu02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@repo/ui";
-import { Menu, X } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import { ChatSlideOver } from "../components/chat/ChatSlideOver";
@@ -95,9 +96,9 @@ export function RootLayout() {
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {mobileMenuOpen ? (
-            <X className="h-5 w-5" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} />
           ) : (
-            <Menu className="h-5 w-5" />
+            <HugeiconsIcon icon={Menu02Icon} size={20} />
           )}
         </button>
 

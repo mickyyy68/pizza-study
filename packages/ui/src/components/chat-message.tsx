@@ -1,10 +1,15 @@
-import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 import { cn } from "../lib/utils";
+import {
+  type Citation,
+  CitationBadge,
+  CitationSources,
+  parseCitations,
+} from "./citation";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { MessageActions } from "./message-actions";
 import { MessageErrorBoundary } from "./message-error-boundary";
-import { Citation, CitationSources, parseCitations, CitationBadge } from "./citation";
 
 /**
  * ChatMessage component for Pizza Study.
@@ -50,7 +55,7 @@ const chatMessageVariants = cva(
     defaultVariants: {
       variant: "assistant",
     },
-  }
+  },
 );
 
 export interface ChatMessageProps
@@ -91,7 +96,9 @@ export function ChatMessage({
   ...props
 }: ChatMessageProps) {
   const [showTimestamp, setShowTimestamp] = React.useState(false);
-  const [highlightedCitation, setHighlightedCitation] = React.useState<string | null>(null);
+  const [highlightedCitation, setHighlightedCitation] = React.useState<
+    string | null
+  >(null);
   const messageRef = React.useRef<HTMLDivElement>(null);
 
   // Use role as variant if variant not specified
@@ -125,7 +132,7 @@ export function ChatMessage({
     citationMatches.forEach((match, i) => {
       processedContent = processedContent.replace(
         `[[cite:${match.id}]]`,
-        `‹CITE:${match.id}:${i}›`
+        `‹CITE:${match.id}:${i}›`,
       );
     });
 
@@ -151,7 +158,7 @@ export function ChatMessage({
       className={cn(
         "group relative flex gap-3",
         isUser ? "flex-row-reverse" : "flex-row",
-        isSystem && "justify-center"
+        isSystem && "justify-center",
       )}
       onMouseEnter={() => setShowTimestamp(true)}
       onMouseLeave={() => setShowTimestamp(false)}
@@ -159,15 +166,13 @@ export function ChatMessage({
       aria-label={`${messageVariant} message`}
     >
       {/* Avatar */}
-      {avatar && !isSystem && (
-        <div className="shrink-0 mt-1">{avatar}</div>
-      )}
+      {avatar && !isSystem && <div className="shrink-0 mt-1">{avatar}</div>}
 
       {/* Message bubble */}
       <div
         className={cn(
           chatMessageVariants({ variant: messageVariant }),
-          className
+          className,
         )}
         {...props}
       >
@@ -200,7 +205,7 @@ export function ChatMessage({
               "absolute -bottom-5 text-xs text-muted-foreground",
               "transition-opacity duration-150",
               showTimestamp ? "opacity-100" : "opacity-0",
-              isUser ? "right-0" : "left-0"
+              isUser ? "right-0" : "left-0",
             )}
           >
             {formatTime(timestamp)}

@@ -1,5 +1,6 @@
-import * as React from "react";
-import { ExternalLink, FileText } from "lucide-react";
+import { File02Icon, LinkSquare02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type * as React from "react";
 import { cn } from "../lib/utils";
 
 /* =============================================================================
@@ -51,7 +52,7 @@ export function CitationBadge({
         "bg-primary/20 text-primary hover:bg-primary/30",
         "transition-colors cursor-pointer",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        className
+        className,
       )}
       aria-label={`Citation ${number}, click to view source`}
     >
@@ -83,13 +84,9 @@ export function CitationPreview({
       className={cn(
         "absolute z-50 w-72 p-3 rounded-lg border bg-popover text-popover-foreground shadow-lg",
         "animate-in fade-in-0 zoom-in-95 duration-150",
-        className
+        className,
       )}
-      style={
-        position
-          ? { left: position.x, top: position.y }
-          : undefined
-      }
+      style={position ? { left: position.x, top: position.y } : undefined}
     >
       {/* Quote */}
       {citation.quote && (
@@ -100,7 +97,7 @@ export function CitationPreview({
 
       {/* Source info */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <FileText className="h-3.5 w-3.5" />
+        <HugeiconsIcon icon={File02Icon} size={14} />
         <span className="truncate flex-1">{citation.documentName}</span>
         <span>p. {citation.pageNumber}</span>
       </div>
@@ -157,7 +154,12 @@ interface SourceItemProps {
   highlighted?: boolean;
 }
 
-function SourceItem({ citation, number, onClick, highlighted }: SourceItemProps) {
+function SourceItem({
+  citation,
+  number,
+  onClick,
+  highlighted,
+}: SourceItemProps) {
   return (
     <button
       type="button"
@@ -168,7 +170,7 @@ function SourceItem({ citation, number, onClick, highlighted }: SourceItemProps)
         "transition-all duration-200",
         "hover:bg-muted",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        highlighted && "bg-primary/10 ring-1 ring-primary/30"
+        highlighted && "bg-primary/10 ring-1 ring-primary/30",
       )}
     >
       {/* Number */}
@@ -187,7 +189,11 @@ function SourceItem({ citation, number, onClick, highlighted }: SourceItemProps)
       </div>
 
       {/* External link icon */}
-      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+      <HugeiconsIcon
+        icon={LinkSquare02Icon}
+        size={14}
+        className="text-muted-foreground flex-shrink-0"
+      />
     </button>
   );
 }
@@ -201,7 +207,7 @@ function SourceItem({ citation, number, onClick, highlighted }: SourceItemProps)
  * Matches [[cite:N]] patterns and returns positions.
  */
 export function parseCitations(
-  text: string
+  text: string,
 ): { start: number; end: number; id: string }[] {
   const regex = /\[\[cite:(\d+)\]\]/g;
   const matches: { start: number; end: number; id: string }[] = [];
@@ -225,7 +231,7 @@ export function parseCitations(
 export function renderWithCitations(
   text: string,
   citations: Citation[],
-  onCitationClick?: (id: string) => void
+  onCitationClick?: (id: string) => void,
 ): React.ReactNode[] {
   const matches = parseCitations(text);
   if (matches.length === 0) return [text];
@@ -241,7 +247,8 @@ export function renderWithCitations(
 
     // Find citation data
     const citationIndex = citations.findIndex((c) => c.id === match.id);
-    const citationNumber = citationIndex >= 0 ? citationIndex + 1 : parseInt(match.id);
+    const citationNumber =
+      citationIndex >= 0 ? citationIndex + 1 : parseInt(match.id);
 
     // Add citation badge
     result.push(
@@ -249,7 +256,7 @@ export function renderWithCitations(
         key={`cite-${i}`}
         number={citationNumber}
         onClick={() => onCitationClick?.(match.id)}
-      />
+      />,
     );
 
     lastIndex = match.end;

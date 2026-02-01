@@ -1,5 +1,13 @@
-import * as React from "react";
-import { ChevronDown, ChevronLeft, Menu, Plus, Search, X } from "lucide-react";
+import {
+  Add01Icon,
+  ArrowDown01Icon,
+  ArrowLeft01Icon,
+  Cancel01Icon,
+  Menu02Icon,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type * as React from "react";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -32,7 +40,7 @@ export function ChatSidebarHeader({
     <div
       className={cn(
         "flex items-center justify-between border-b border-border px-3 py-2",
-        className
+        className,
       )}
       {...props}
     >
@@ -49,7 +57,7 @@ export function ChatSidebarHeader({
             className="md:hidden"
             aria-label="Close sidebar"
           >
-            <X className="h-4 w-4" />
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
           </Button>
         )}
         {/* Desktop collapse button */}
@@ -62,11 +70,10 @@ export function ChatSidebarHeader({
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!collapsed}
           >
-            <ChevronLeft
-              className={cn(
-                "h-4 w-4 transition-transform",
-                collapsed && "rotate-180"
-              )}
+            <HugeiconsIcon
+              icon={ArrowLeft01Icon}
+              size={16}
+              className={cn("transition-transform", collapsed && "rotate-180")}
             />
           </Button>
         )}
@@ -109,24 +116,21 @@ export function ChatSidebarSection({
         aria-expanded={!collapsed}
       >
         <span className="flex items-center gap-2">
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 transition-transform",
-              collapsed && "-rotate-90"
-            )}
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            size={16}
+            className={cn("transition-transform", collapsed && "-rotate-90")}
           />
           {title}
         </span>
-        {action && (
-          <span onClick={(e) => e.stopPropagation()}>{action}</span>
-        )}
+        {action && <span onClick={(e) => e.stopPropagation()}>{action}</span>}
       </button>
 
       {/* Section content */}
       <div
         className={cn(
           "overflow-hidden transition-all duration-200",
-          collapsed ? "max-h-0" : "max-h-[500px]"
+          collapsed ? "max-h-0" : "max-h-[500px]",
         )}
       >
         <div className="px-2 pb-2">{children}</div>
@@ -157,7 +161,11 @@ export function ChatSidebarSearch({
 }: ChatSidebarSearchProps) {
   return (
     <div className={cn("relative", className)}>
-      <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <HugeiconsIcon
+        icon={Search01Icon}
+        size={16}
+        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+      />
       <Input
         type="search"
         value={value}
@@ -173,7 +181,7 @@ export function ChatSidebarSearch({
           className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           aria-label="Clear search"
         >
-          <X className="h-4 w-4" />
+          <HugeiconsIcon icon={Cancel01Icon} size={16} />
         </button>
       )}
     </div>
@@ -202,7 +210,7 @@ export function ChatSidebarNewButton({
       className={cn("w-full justify-start gap-2", className)}
       size="sm"
     >
-      <Plus className="h-4 w-4" />
+      <HugeiconsIcon icon={Add01Icon} size={16} />
       New Chat
     </Button>
   );
@@ -232,7 +240,7 @@ export function MobileSidebarTrigger({
       className={cn("lg:hidden", className)}
       aria-label="Open sidebar"
     >
-      <Menu className="h-5 w-5" />
+      <HugeiconsIcon icon={Menu02Icon} size={20} />
     </Button>
   );
 }

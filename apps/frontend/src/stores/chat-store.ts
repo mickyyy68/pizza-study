@@ -147,7 +147,7 @@ export const useChatStore = create<ChatState>()(
       toggleDocumentSelection: (docId) =>
         set((state) => ({
           documents: state.documents.map((doc) =>
-            doc.id === docId ? { ...doc, isSelected: !doc.isSelected } : doc
+            doc.id === docId ? { ...doc, isSelected: !doc.isSelected } : doc,
           ),
         })),
       selectAllDocuments: () =>
@@ -167,7 +167,7 @@ export const useChatStore = create<ChatState>()(
       markDocumentCited: (docId) =>
         set((state) => ({
           documents: state.documents.map((doc) =>
-            doc.id === docId ? { ...doc, recentlyCited: true } : doc
+            doc.id === docId ? { ...doc, recentlyCited: true } : doc,
           ),
         })),
 
@@ -181,7 +181,7 @@ export const useChatStore = create<ChatState>()(
         if (!historySearchQuery.trim()) return history;
         const query = historySearchQuery.toLowerCase();
         return history.filter((item) =>
-          item.preview.toLowerCase().includes(query)
+          item.preview.toLowerCase().includes(query),
         );
       },
       fetchConversations: async () => {
@@ -201,7 +201,7 @@ export const useChatStore = create<ChatState>()(
                 preview: c.title,
                 timestamp: new Date(c.updatedAt),
                 messageCount: c.messageCount,
-              })
+              }),
             ),
           });
         } catch (error) {
@@ -246,7 +246,7 @@ export const useChatStore = create<ChatState>()(
       updateAttachment: (id, updates) =>
         set((state) => ({
           attachments: state.attachments.map((att) =>
-            att.id === id ? { ...att, ...updates } : att
+            att.id === id ? { ...att, ...updates } : att,
           ),
         })),
       removeAttachment: (id) =>
@@ -273,8 +273,8 @@ export const useChatStore = create<ChatState>()(
         documentsSectionCollapsed: state.documentsSectionCollapsed,
         historySectionCollapsed: state.historySectionCollapsed,
       }),
-    }
-  )
+    },
+  ),
 );
 
 /* =============================================================================

@@ -3,8 +3,8 @@ import { chatModel, SYSTEM_PROMPT } from "@repo/ai";
 import { chatRequestSchema } from "@repo/contracts";
 import { conversations, db, messages } from "@repo/database";
 import { retrieveContext } from "@repo/rag";
-import { eq } from "drizzle-orm";
 import { streamText } from "ai";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 /**
@@ -25,7 +25,10 @@ function getLatestUserMessage(
 /**
  * Build system prompt with optional RAG context.
  */
-function buildSystemPrompt(basePrompt: string, ragContext: string | null): string {
+function buildSystemPrompt(
+  basePrompt: string,
+  ragContext: string | null,
+): string {
   if (!ragContext) {
     return basePrompt;
   }
@@ -43,7 +46,8 @@ const chat = new Hono().post(
   "/",
   zValidator("json", chatRequestSchema),
   async (c) => {
-    const { messages: chatMessages, conversationId: providedConvoId } = c.req.valid("json");
+    const { messages: chatMessages, conversationId: providedConvoId } =
+      c.req.valid("json");
 
     // Get or create conversation
     let conversationId = providedConvoId;
@@ -65,7 +69,10 @@ const chat = new Hono().post(
     let ragContext: string | null = null;
 
     if (userMessage) {
-      console.log("[Chat] Processing message:", userMessage.slice(0, 100) + (userMessage.length > 100 ? "..." : ""));
+      console.log(
+        "[Chat] Processing message:",
+        userMessage.slice(0, 100) + (userMessage.length > 100 ? "..." : ""),
+      );
 
       // Save user message to database
       await db.insert(messages).values({
@@ -92,7 +99,10 @@ const chat = new Hono().post(
         }
       } catch (error) {
         // Log the error but continue without RAG context
-        console.error("[Chat] ✗ RAG retrieval failed:", error instanceof Error ? error.message : error);
+        console.error(
+          "[Chat] ✗ RAG retrieval failed:",
+          error instanceof Error ? error.message : error,
+        );
       }
     } else {
       console.log("[Chat] No user message found, skipping RAG");
@@ -121,7 +131,10 @@ const chat = new Hono().post(
             .set({ updatedAt: new Date() })
             .where(eq(conversations.id, conversationId));
 
-          console.log("[Chat] Saved assistant response to conversation:", conversationId);
+          console.log(
+            "[Chat] Saved assistant response to conversation:",
+            conversationId,
+          );
         }
       },
     });

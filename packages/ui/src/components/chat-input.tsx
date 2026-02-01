@@ -1,12 +1,9 @@
+import { Attachment01Icon, SentIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { Paperclip, Send } from "lucide-react";
 import { cn } from "../lib/utils";
 import { DocumentPicker, type PickerDocument } from "./document-picker";
-import {
-  AttachmentChip,
-  ChipsContainer,
-  DocumentChip,
-} from "./input-chips";
+import { AttachmentChip, ChipsContainer, DocumentChip } from "./input-chips";
 
 /**
  * ChatInput component for Pizza Study.
@@ -90,10 +87,11 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       acceptedFileTypes = ".pdf,.doc,.docx,.txt,.md",
       ...props
     },
-    ref
+    ref,
   ) => {
     const internalRef = React.useRef<HTMLTextAreaElement>(null);
-    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+    const textareaRef =
+      (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -112,7 +110,8 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       if (!textarea) return;
 
       textarea.style.height = "auto";
-      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight, 10) || 24;
+      const lineHeight =
+        parseInt(getComputedStyle(textarea).lineHeight, 10) || 24;
       const maxHeight = lineHeight * maxRows;
       const newHeight = Math.min(textarea.scrollHeight, maxHeight);
       textarea.style.height = `${newHeight}px`;
@@ -157,7 +156,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         // Replace @query with empty (we show chips instead)
         const before = value.slice(0, mentionStartIndex);
         const after = value.slice(
-          mentionStartIndex + mentionQuery.length + 1 // +1 for @
+          mentionStartIndex + mentionQuery.length + 1, // +1 for @
         );
         onChange(before + after);
       }
@@ -174,13 +173,13 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       // Picker navigation
       if (showPicker) {
         const filteredCount = availableDocs.filter((d) =>
-          d.name.toLowerCase().includes(mentionQuery.toLowerCase())
+          d.name.toLowerCase().includes(mentionQuery.toLowerCase()),
         ).length;
 
         if (e.key === "ArrowDown") {
           e.preventDefault();
           setSelectedPickerIndex((prev) =>
-            prev < filteredCount - 1 ? prev + 1 : prev
+            prev < filteredCount - 1 ? prev + 1 : prev,
           );
           return;
         }
@@ -192,7 +191,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         if (e.key === "Enter" || e.key === "Tab") {
           e.preventDefault();
           const filtered = availableDocs.filter((d) =>
-            d.name.toLowerCase().includes(mentionQuery.toLowerCase())
+            d.name.toLowerCase().includes(mentionQuery.toLowerCase()),
           );
           if (filtered[selectedPickerIndex]) {
             handleDocumentSelect(filtered[selectedPickerIndex]);
@@ -276,7 +275,8 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
     };
 
     const isDisabled = disabled || isLoading;
-    const canSubmit = (value.trim().length > 0 || attachments.length > 0) && !isDisabled;
+    const canSubmit =
+      (value.trim().length > 0 || attachments.length > 0) && !isDisabled;
     const hasChips = mentionedDocs.length > 0 || attachments.length > 0;
 
     return (
@@ -289,7 +289,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           "focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary",
           isDragging && "ring-2 ring-primary border-primary bg-primary/5",
           isDisabled && "opacity-50",
-          className
+          className,
         )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -346,11 +346,11 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                   "text-muted-foreground hover:text-foreground hover:bg-muted",
                   "transition-colors",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                 )}
                 aria-label="Attach file"
               >
-                <Paperclip className="h-4 w-4" />
+                <HugeiconsIcon icon={Attachment01Icon} size={16} />
               </button>
               <input
                 ref={fileInputRef}
@@ -378,7 +378,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               "focus:outline-none",
               "disabled:cursor-not-allowed",
               "py-2 px-2",
-              "max-h-32 overflow-y-auto"
+              "max-h-32 overflow-y-auto",
             )}
             aria-label="Message input"
             {...props}
@@ -396,7 +396,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               "transition-all duration-150",
               "hover:bg-primary/90 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             )}
             aria-label="Send message"
           >
@@ -422,7 +422,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 />
               </svg>
             ) : (
-              <Send className="h-4 w-4" />
+              <HugeiconsIcon icon={SentIcon} size={16} />
             )}
           </button>
         </div>
@@ -440,7 +440,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 ChatInput.displayName = "ChatInput";

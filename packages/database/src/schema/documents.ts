@@ -6,7 +6,9 @@ export const documents = pgTable("documents", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   metadata: jsonb("metadata"),
-  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
+  folderId: uuid("folder_id").references(() => folders.id, {
+    onDelete: "set null",
+  }),
   tags: jsonb("tags").$type<string[]>().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

@@ -1,15 +1,15 @@
 import {
-  AlertCircle,
-  Check,
-  File,
-  FileCode,
-  FileJson,
-  FileSpreadsheet,
-  FileText,
-  Loader2,
-  RefreshCw,
-  X,
-} from "lucide-react";
+  AlertCircleIcon,
+  Cancel01Icon,
+  File01Icon,
+  File02Icon,
+  FileAttachmentIcon,
+  FileScriptIcon,
+  Loading01Icon,
+  Refresh01Icon,
+  Tick01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "../lib/utils";
 import {
   formatFileSize,
@@ -55,7 +55,7 @@ export interface UploadListItemProps {
   className?: string;
 }
 
-// Map file extensions to Lucide icons
+// Map file extensions to Hugeicons
 function getFileIcon(extension: string) {
   const ext = extension.startsWith(".")
     ? extension.toLowerCase()
@@ -63,22 +63,54 @@ function getFileIcon(extension: string) {
 
   switch (ext) {
     case ".pdf":
-      return <FileText className="h-5 w-5 text-rose-600 dark:text-rose-400" />;
+      return (
+        <HugeiconsIcon
+          icon={File02Icon}
+          size={20}
+          className="text-rose-600 dark:text-rose-400"
+        />
+      );
     case ".json":
       return (
-        <FileJson className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        <HugeiconsIcon
+          icon={FileScriptIcon}
+          size={20}
+          className="text-amber-600 dark:text-amber-400"
+        />
       );
     case ".md":
     case ".markdown":
-      return <FileCode className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
+      return (
+        <HugeiconsIcon
+          icon={FileScriptIcon}
+          size={20}
+          className="text-blue-600 dark:text-blue-400"
+        />
+      );
     case ".csv":
       return (
-        <FileSpreadsheet className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        <HugeiconsIcon
+          icon={FileAttachmentIcon}
+          size={20}
+          className="text-emerald-600 dark:text-emerald-400"
+        />
       );
     case ".txt":
-      return <FileText className="h-5 w-5 text-muted-foreground" />;
+      return (
+        <HugeiconsIcon
+          icon={File02Icon}
+          size={20}
+          className="text-muted-foreground"
+        />
+      );
     default:
-      return <File className="h-5 w-5 text-muted-foreground" />;
+      return (
+        <HugeiconsIcon
+          icon={File01Icon}
+          size={20}
+          className="text-muted-foreground"
+        />
+      );
   }
 }
 
@@ -98,22 +130,26 @@ const statusConfig: Record<
   uploading: {
     label: "Uploading",
     variant: "warning",
-    icon: <Loader2 className="h-3 w-3 animate-spin" />,
+    icon: (
+      <HugeiconsIcon icon={Loading01Icon} size={12} className="animate-spin" />
+    ),
   },
   processing: {
     label: "Processing",
     variant: "secondary",
-    icon: <Loader2 className="h-3 w-3 animate-spin" />,
+    icon: (
+      <HugeiconsIcon icon={Loading01Icon} size={12} className="animate-spin" />
+    ),
   },
   complete: {
     label: "Complete",
     variant: "success",
-    icon: <Check className="h-3 w-3" />,
+    icon: <HugeiconsIcon icon={Tick01Icon} size={12} />,
   },
   error: {
     label: "Failed",
     variant: "destructive",
-    icon: <AlertCircle className="h-3 w-3" />,
+    icon: <HugeiconsIcon icon={AlertCircleIcon} size={12} />,
   },
 };
 
@@ -230,7 +266,7 @@ export function UploadListItem({
             )}
             aria-label="Retry upload"
           >
-            <RefreshCw className="h-4 w-4" />
+            <HugeiconsIcon icon={Refresh01Icon} size={16} />
           </button>
         )}
 
@@ -251,7 +287,7 @@ export function UploadListItem({
             )}
             aria-label="Remove file"
           >
-            <X className="h-4 w-4" />
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
           </button>
         )}
       </div>

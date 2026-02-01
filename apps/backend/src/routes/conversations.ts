@@ -43,7 +43,7 @@ const conversationsRoute = new Hono()
           ...conv,
           messageCount: countResult ? 1 : 0, // Basic count
         };
-      })
+      }),
     );
 
     return c.json(withCounts);

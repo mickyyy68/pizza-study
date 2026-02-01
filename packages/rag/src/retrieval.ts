@@ -27,7 +27,9 @@ export async function hasDocuments(): Promise<boolean> {
   console.log("[RAG] Checking if documents exist...");
   const [result] = await db.select({ count: count() }).from(documents);
   const exists = (result?.count ?? 0) > 0;
-  console.log(`[RAG] Documents exist: ${exists} (count: ${result?.count ?? 0})`);
+  console.log(
+    `[RAG] Documents exist: ${exists} (count: ${result?.count ?? 0})`,
+  );
   return exists;
 }
 
@@ -63,7 +65,9 @@ function formatContext(
 
     // Check if adding this chunk would exceed max length
     if (totalLength + formattedChunk.length > maxLength) {
-      console.log(`[RAG] Context truncated at ${chunks.length} chunks (max length: ${maxLength})`);
+      console.log(
+        `[RAG] Context truncated at ${chunks.length} chunks (max length: ${maxLength})`,
+      );
       break;
     }
 
@@ -87,7 +91,10 @@ export async function retrieve(
   options: RetrievalOptions = {},
 ): Promise<RetrievalResult> {
   const startTime = Date.now();
-  console.log("[RAG] Starting retrieval for query:", query.slice(0, 100) + (query.length > 100 ? "..." : ""));
+  console.log(
+    "[RAG] Starting retrieval for query:",
+    query.slice(0, 100) + (query.length > 100 ? "..." : ""),
+  );
 
   // Check if there are any documents first
   const docsExist = await hasDocuments();
@@ -104,7 +111,9 @@ export async function retrieve(
   // Generate embedding for query
   console.log("[RAG] Generating embedding for query...");
   const queryEmbedding = await generateEmbedding(query);
-  console.log(`[RAG] Embedding generated (${queryEmbedding.length} dimensions)`);
+  console.log(
+    `[RAG] Embedding generated (${queryEmbedding.length} dimensions)`,
+  );
 
   // Search for similar chunks
   console.log("[RAG] Searching for similar chunks...");
@@ -120,7 +129,9 @@ export async function retrieve(
   const { context, sources } = formatContext(results, maxLength);
 
   const duration = Date.now() - startTime;
-  console.log(`[RAG] Retrieval complete in ${duration}ms (hasContext: ${results.length > 0})`);
+  console.log(
+    `[RAG] Retrieval complete in ${duration}ms (hasContext: ${results.length > 0})`,
+  );
 
   return {
     context,

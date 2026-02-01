@@ -1,5 +1,6 @@
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { AlertTriangle } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 
@@ -64,7 +65,9 @@ export class MessageErrorBoundary extends React.Component<
 
       return (
         <MessageErrorFallback
-          onShowRaw={this.props.fallbackContent ? this.handleShowRaw : undefined}
+          onShowRaw={
+            this.props.fallbackContent ? this.handleShowRaw : undefined
+          }
           onRetry={this.handleRetry}
         />
       );
@@ -79,16 +82,19 @@ interface MessageErrorFallbackProps {
   onRetry?: () => void;
 }
 
-function MessageErrorFallback({ onShowRaw, onRetry }: MessageErrorFallbackProps) {
+function MessageErrorFallback({
+  onShowRaw,
+  onRetry,
+}: MessageErrorFallbackProps) {
   return (
     <div
       className={cn(
         "flex flex-col items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3",
-        "text-sm text-destructive"
+        "text-sm text-destructive",
       )}
     >
       <div className="flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4" />
+        <HugeiconsIcon icon={Alert02Icon} size={16} />
         <span>Failed to render message</span>
       </div>
       <div className="flex gap-2">

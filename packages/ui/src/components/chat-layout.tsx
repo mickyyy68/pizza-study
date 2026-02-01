@@ -96,7 +96,7 @@ export function ChatLayoutSidebar({
           collapsed ? "w-0 overflow-hidden" : "w-[280px] min-w-[280px]",
           // Transition
           "transition-[width] duration-200 ease-out",
-          className
+          className,
         )}
         style={{ "--sidebar-width": "280px" } as React.CSSProperties}
         {...props}
@@ -116,7 +116,7 @@ export function ChatLayoutSidebar({
           "md:hidden",
           // Slide animation
           "transition-transform duration-200 ease-out",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {children}
@@ -129,8 +129,7 @@ export function ChatLayoutSidebar({
    ChatLayoutMain - Main content area
    ============================================================================= */
 
-export interface ChatLayoutMainProps
-  extends React.HTMLAttributes<HTMLElement> {
+export interface ChatLayoutMainProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
@@ -178,10 +177,7 @@ export const ChatLayoutMessages = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cn(
-        "relative flex-1 overflow-y-auto px-4 py-6",
-        className
-      )}
+      className={cn("relative flex-1 overflow-y-auto px-4 py-6", className)}
       {...props}
     >
       {/* Top scroll shadow */}
@@ -190,7 +186,7 @@ export const ChatLayoutMessages = React.forwardRef<
           "pointer-events-none sticky top-0 -mt-6 h-6 w-full",
           "bg-gradient-to-b from-background to-transparent",
           "transition-opacity duration-200",
-          showTopShadow ? "opacity-100" : "opacity-0"
+          showTopShadow ? "opacity-100" : "opacity-0",
         )}
         aria-hidden="true"
       />
@@ -203,7 +199,7 @@ export const ChatLayoutMessages = React.forwardRef<
           "pointer-events-none sticky bottom-0 -mb-6 h-6 w-full",
           "bg-gradient-to-t from-background to-transparent",
           "transition-opacity duration-200",
-          showBottomShadow ? "opacity-100" : "opacity-0"
+          showBottomShadow ? "opacity-100" : "opacity-0",
         )}
         aria-hidden="true"
       />
@@ -233,7 +229,7 @@ export function ChatLayoutFooter({
     <div
       className={cn(
         "border-t border-border bg-background px-4 py-4",
-        className
+        className,
       )}
       {...props}
     >

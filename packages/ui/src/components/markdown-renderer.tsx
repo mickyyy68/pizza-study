@@ -13,7 +13,10 @@ export interface MarkdownRendererProps {
  * Renders markdown content with styled elements.
  * Supports GFM (tables, strikethrough, autolinks, task lists).
  */
-export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+export function MarkdownRenderer({
+  content,
+  className,
+}: MarkdownRendererProps) {
   return (
     <div className={cn("prose-custom", className)}>
       <ReactMarkdown
@@ -21,19 +24,29 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
         components={{
           // Headings
           h1: ({ children }) => (
-            <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0">{children}</h1>
+            <h1 className="text-2xl font-bold mt-6 mb-4 first:mt-0">
+              {children}
+            </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-xl font-bold mt-5 mb-3 first:mt-0">{children}</h2>
+            <h2 className="text-xl font-bold mt-5 mb-3 first:mt-0">
+              {children}
+            </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-lg font-semibold mt-4 mb-2 first:mt-0">{children}</h3>
+            <h3 className="text-lg font-semibold mt-4 mb-2 first:mt-0">
+              {children}
+            </h3>
           ),
           h4: ({ children }) => (
-            <h4 className="text-base font-semibold mt-4 mb-2 first:mt-0">{children}</h4>
+            <h4 className="text-base font-semibold mt-4 mb-2 first:mt-0">
+              {children}
+            </h4>
           ),
           h5: ({ children }) => (
-            <h5 className="text-sm font-semibold mt-3 mb-1 first:mt-0">{children}</h5>
+            <h5 className="text-sm font-semibold mt-3 mb-1 first:mt-0">
+              {children}
+            </h5>
           ),
           h6: ({ children }) => (
             <h6 className="text-sm font-medium mt-3 mb-1 first:mt-0 text-muted-foreground">
@@ -48,10 +61,14 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
 
           // Lists
           ul: ({ children }) => (
-            <ul className="mb-4 last:mb-0 ml-6 list-disc space-y-1">{children}</ul>
+            <ul className="mb-4 last:mb-0 ml-6 list-disc space-y-1">
+              {children}
+            </ul>
           ),
           ol: ({ children }) => (
-            <ol className="mb-4 last:mb-0 ml-6 list-decimal space-y-1">{children}</ol>
+            <ol className="mb-4 last:mb-0 ml-6 list-decimal space-y-1">
+              {children}
+            </ol>
           ),
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
 
@@ -92,7 +109,9 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           code: ({ className, children, ...props }) => {
             // Check if this is a code block (has language class) or inline
             const match = /language-(\w+)/.exec(className || "");
-            const isBlock = match || (typeof children === "string" && children.includes("\n"));
+            const isBlock =
+              match ||
+              (typeof children === "string" && children.includes("\n"));
 
             if (isBlock) {
               return (
@@ -142,14 +161,37 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             />
           ),
 
-          // Task list items (GFM)
+          // Task list items (GFM) - styled checkboxes
           input: ({ checked }) => (
-            <input
-              type="checkbox"
-              checked={checked}
-              disabled
-              className="mr-2 rounded border-border"
-            />
+            <span
+              className={cn(
+                "inline-flex items-center justify-center mr-2 align-text-bottom",
+                "h-4 w-4 rounded border-2 shrink-0",
+                "transition-colors duration-150",
+                checked
+                  ? "bg-primary border-primary"
+                  : "bg-background border-border",
+              )}
+              aria-checked={checked}
+              role="checkbox"
+            >
+              {checked && (
+                <svg
+                  aria-hidden="true"
+                  className="h-3 w-3 text-primary-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
+            </span>
           ),
         }}
       >

@@ -21,11 +21,15 @@ export async function embedDocument(
 
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
-    console.log(`[RAG] Processing chunk ${i + 1}/${chunks.length} (${chunk.length} chars)`);
+    console.log(
+      `[RAG] Processing chunk ${i + 1}/${chunks.length} (${chunk.length} chars)`,
+    );
 
     try {
       const embedding = await generateEmbedding(chunk);
-      console.log(`[RAG] ✓ Got embedding for chunk ${i + 1} (${embedding.length} dimensions)`);
+      console.log(
+        `[RAG] ✓ Got embedding for chunk ${i + 1} (${embedding.length} dimensions)`,
+      );
 
       await db.insert(embeddings).values({
         documentId: options.documentId,
@@ -40,7 +44,10 @@ export async function embedDocument(
     }
   }
 
-  console.log("[RAG] ✓ All embeddings stored for document:", options.documentId);
+  console.log(
+    "[RAG] ✓ All embeddings stored for document:",
+    options.documentId,
+  );
 }
 
 /**
@@ -67,7 +74,10 @@ export async function createDocumentWithEmbeddings(
     console.log("[RAG] ✓ Document inserted with ID:", doc.id);
   } catch (error) {
     console.error("[RAG] ✗ Failed to insert document");
-    console.error("[RAG] Database error:", error instanceof Error ? error.message : error);
+    console.error(
+      "[RAG] Database error:",
+      error instanceof Error ? error.message : error,
+    );
     throw error;
   }
 
@@ -77,8 +87,14 @@ export async function createDocumentWithEmbeddings(
     await embedDocument(content, { documentId: doc.id });
     console.log("[RAG] ✓ Embeddings complete for document:", doc.id);
   } catch (error) {
-    console.error("[RAG] ✗ Failed to generate embeddings for document:", doc.id);
-    console.error("[RAG] Embedding error:", error instanceof Error ? error.message : error);
+    console.error(
+      "[RAG] ✗ Failed to generate embeddings for document:",
+      doc.id,
+    );
+    console.error(
+      "[RAG] Embedding error:",
+      error instanceof Error ? error.message : error,
+    );
     // Note: Document is already inserted, but embeddings failed
     // In production, you might want to delete the document or mark it as incomplete
     throw error;

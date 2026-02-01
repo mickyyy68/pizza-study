@@ -1,5 +1,6 @@
+import { Upload04Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { cn } from "../lib/utils";
 
@@ -216,8 +217,6 @@ function DefaultDropzoneContent({
   isDragging: boolean;
   size: "sm" | "md" | "lg" | null | undefined;
 }) {
-  const iconSize =
-    size === "lg" ? "h-12 w-12" : size === "sm" ? "h-8 w-8" : "h-10 w-10";
   const titleSize =
     size === "lg" ? "text-lg" : size === "sm" ? "text-sm" : "text-base";
 
@@ -232,9 +231,10 @@ function DefaultDropzoneContent({
           isDragging && "bg-primary/20 scale-110",
         )}
       >
-        <Upload
+        <HugeiconsIcon
+          icon={Upload04Icon}
+          size={size === "lg" ? 48 : size === "sm" ? 32 : 40}
           className={cn(
-            iconSize,
             "transition-transform duration-200",
             isDragging && "-translate-y-1",
           )}

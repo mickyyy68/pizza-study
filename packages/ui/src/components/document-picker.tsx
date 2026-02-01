@@ -1,5 +1,6 @@
+import { File02Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { FileText, Search } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export interface PickerDocument {
@@ -37,9 +38,7 @@ export function DocumentPicker({
   const filtered = React.useMemo(() => {
     if (!query) return documents;
     const q = query.toLowerCase();
-    return documents.filter((doc) =>
-      doc.name.toLowerCase().includes(q)
-    );
+    return documents.filter((doc) => doc.name.toLowerCase().includes(q));
   }, [documents, query]);
 
   // Scroll selected item into view
@@ -68,12 +67,14 @@ export function DocumentPicker({
         className={cn(
           "absolute z-50 w-64 rounded-lg border bg-popover p-3 shadow-lg",
           "animate-in fade-in-0 slide-in-from-bottom-2 duration-150",
-          className
+          className,
         )}
-        style={position ? { top: position.top, left: position.left } : undefined}
+        style={
+          position ? { top: position.top, left: position.left } : undefined
+        }
       >
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Search className="h-4 w-4" />
+          <HugeiconsIcon icon={Search01Icon} size={16} />
           <span>No documents match "{query}"</span>
         </div>
       </div>
@@ -89,7 +90,7 @@ export function DocumentPicker({
         "absolute z-50 w-72 max-h-64 overflow-y-auto",
         "rounded-lg border bg-popover shadow-lg",
         "animate-in fade-in-0 slide-in-from-bottom-2 duration-150",
-        className
+        className,
       )}
       style={position ? { top: position.top, left: position.left } : undefined}
     >
@@ -108,10 +109,14 @@ export function DocumentPicker({
               "focus:outline-none",
               index === selectedIndex
                 ? "bg-primary/10 text-foreground"
-                : "text-foreground hover:bg-muted"
+                : "text-foreground hover:bg-muted",
             )}
           >
-            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <HugeiconsIcon
+              icon={File02Icon}
+              size={16}
+              className="text-muted-foreground flex-shrink-0"
+            />
             <div className="flex-1 min-w-0">
               <span className="block truncate">
                 {highlightMatch(doc.name, query)}

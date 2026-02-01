@@ -1,3 +1,5 @@
+import { Chat01Icon, FileUploadIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Button,
   buttonVariants,
@@ -11,7 +13,6 @@ import {
   UploadList,
   UploadListItem,
 } from "@repo/ui";
-import { FileUp, MessageSquare } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { useUploadQueue } from "../../hooks/useUploadQueue";
@@ -63,7 +64,11 @@ export function UploadDocumentPage() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <FileUp className="h-5 w-5 text-primary" />
+            <HugeiconsIcon
+              icon={FileUploadIcon}
+              size={20}
+              className="text-primary"
+            />
           </div>
           <div>
             <h1 className="font-serif text-2xl font-semibold">
@@ -137,7 +142,7 @@ export function UploadDocumentPage() {
           View documents
         </Link>
         <Button onClick={openChatSlideOver} variant="outline">
-          <MessageSquare className="h-4 w-4 mr-2" />
+          <HugeiconsIcon icon={Chat01Icon} size={16} className="mr-2" />
           Ask questions
         </Button>
       </div>

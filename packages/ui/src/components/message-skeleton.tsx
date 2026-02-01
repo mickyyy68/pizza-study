@@ -21,7 +21,7 @@ export function MessageSkeleton({
       className={cn(
         "flex gap-3 animate-pulse",
         isUser ? "flex-row-reverse" : "flex-row",
-        className
+        className,
       )}
     >
       {/* Avatar skeleton */}
@@ -34,7 +34,7 @@ export function MessageSkeleton({
           "max-w-[70%]",
           isUser
             ? "bg-primary/10 rounded-br-md ml-auto"
-            : "bg-muted rounded-bl-md mr-auto"
+            : "bg-muted rounded-bl-md mr-auto",
         )}
       >
         {/* Text lines */}
@@ -59,10 +59,7 @@ export function MessageSkeletonList({
   return (
     <div className={cn("space-y-6", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <MessageSkeleton
-          key={i}
-          variant={i % 2 === 0 ? "assistant" : "user"}
-        />
+        <MessageSkeleton key={i} variant={i % 2 === 0 ? "assistant" : "user"} />
       ))}
     </div>
   );

@@ -1,5 +1,11 @@
-import * as React from "react";
-import { FileText, Loader2, Paperclip, X } from "lucide-react";
+import {
+  Attachment01Icon,
+  Cancel01Icon,
+  File02Icon,
+  Loading01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type * as React from "react";
 import { cn } from "../lib/utils";
 
 /* =============================================================================
@@ -28,10 +34,10 @@ export function DocumentChip({
         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
         "bg-primary/10 text-primary text-xs font-medium",
         "animate-in zoom-in-95 duration-150",
-        className
+        className,
       )}
     >
-      <FileText className="h-3 w-3" />
+      <HugeiconsIcon icon={File02Icon} size={12} />
       <span className="max-w-32 truncate">{name}</span>
       <button
         type="button"
@@ -39,7 +45,7 @@ export function DocumentChip({
         className="rounded-full p-0.5 hover:bg-primary/20 transition-colors"
         aria-label={`Remove ${name}`}
       >
-        <X className="h-3 w-3" />
+        <HugeiconsIcon icon={Cancel01Icon} size={12} />
       </button>
     </span>
   );
@@ -80,14 +86,18 @@ export function AttachmentChip({
         status === "error"
           ? "bg-destructive/10 text-destructive"
           : "bg-muted text-foreground",
-        className
+        className,
       )}
     >
       {/* Icon based on status */}
       {status === "uploading" ? (
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <HugeiconsIcon
+          icon={Loading01Icon}
+          size={12}
+          className="animate-spin"
+        />
       ) : (
-        <Paperclip className="h-3 w-3" />
+        <HugeiconsIcon icon={Attachment01Icon} size={12} />
       )}
 
       {/* File name */}
@@ -117,11 +127,11 @@ export function AttachmentChip({
           "rounded-full p-0.5 transition-colors",
           status === "error"
             ? "hover:bg-destructive/20"
-            : "hover:bg-foreground/10"
+            : "hover:bg-foreground/10",
         )}
         aria-label={`Remove ${name}`}
       >
-        <X className="h-3 w-3" />
+        <HugeiconsIcon icon={Cancel01Icon} size={12} />
       </button>
     </span>
   );
@@ -145,7 +155,7 @@ export function ChipsContainer({ children, className }: ChipsContainerProps) {
       className={cn(
         "flex flex-wrap gap-1.5 px-2 pt-2 pb-1",
         "empty:hidden",
-        className
+        className,
       )}
     >
       {children}

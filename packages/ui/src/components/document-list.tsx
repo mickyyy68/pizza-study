@@ -1,5 +1,10 @@
+import {
+  Add01Icon,
+  File02Icon,
+  SparklesIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { FileText, Plus, Sparkles } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 import { Checkbox } from "./checkbox";
@@ -20,7 +25,8 @@ export interface DocumentItem {
    DocumentList - Container for document items
    ============================================================================= */
 
-export interface DocumentListProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface DocumentListProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   documents: DocumentItem[];
   onToggleSelection: (docId: string) => void;
   onUploadClick?: () => void;
@@ -49,7 +55,7 @@ export function DocumentList({
       case "ArrowDown":
         e.preventDefault();
         setFocusedIndex((prev) =>
-          prev < documents.length - 1 ? prev + 1 : prev
+          prev < documents.length - 1 ? prev + 1 : prev,
         );
         break;
       case "ArrowUp":
@@ -101,7 +107,7 @@ export function DocumentList({
           onClick={onUploadClick}
           className="mt-2 w-full justify-start gap-2"
         >
-          <Plus className="h-4 w-4" />
+          <HugeiconsIcon icon={Add01Icon} size={16} />
           Upload Document
         </Button>
       )}
@@ -138,7 +144,7 @@ function DocumentListItem({
         "group flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer transition-colors",
         "hover:bg-muted/50",
         isFocused && "bg-muted/50 ring-1 ring-primary/20",
-        document.isSelected && "bg-primary/5"
+        document.isSelected && "bg-primary/5",
       )}
       onClick={onToggle}
       onFocus={onFocus}
@@ -154,10 +160,18 @@ function DocumentListItem({
 
       {/* Icon */}
       <div className="relative flex-shrink-0">
-        <FileText className="h-4 w-4 text-muted-foreground" />
+        <HugeiconsIcon
+          icon={File02Icon}
+          size={16}
+          className="text-muted-foreground"
+        />
         {/* Recently cited indicator */}
         {document.recentlyCited && (
-          <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-primary" />
+          <HugeiconsIcon
+            icon={SparklesIcon}
+            size={12}
+            className="absolute -right-1 -top-1 text-primary"
+          />
         )}
       </div>
 
@@ -169,7 +183,7 @@ function DocumentListItem({
             "block text-sm truncate cursor-pointer",
             document.isSelected
               ? "text-foreground font-medium"
-              : "text-muted-foreground"
+              : "text-muted-foreground",
           )}
         >
           {document.name}

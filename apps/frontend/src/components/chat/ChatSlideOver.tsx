@@ -1,4 +1,6 @@
 import { useChat } from "@ai-sdk/react";
+import { BookOpen02Icon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Avatar,
   ChatInput,
@@ -52,7 +54,11 @@ export function ChatSlideOver() {
     >
       <SlideOverHeader onClose={closeChatSlideOver}>
         <div className="flex items-center gap-2">
-          <span className="text-lg">✨</span>
+          <HugeiconsIcon
+            icon={SparklesIcon}
+            size={18}
+            className="text-primary"
+          />
           <span>Quick Chat</span>
         </div>
       </SlideOverHeader>
@@ -61,8 +67,8 @@ export function ChatSlideOver() {
         {/* Welcome message if no messages */}
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <span className="text-3xl">🍕</span>
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+              <HugeiconsIcon icon={BookOpen02Icon} size={32} />
             </div>
             <h3 className="font-serif text-lg font-semibold mb-2">
               How can I help you study?

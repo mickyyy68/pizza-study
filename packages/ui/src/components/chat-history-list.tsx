@@ -1,5 +1,6 @@
-import * as React from "react";
-import { MessageSquare } from "lucide-react";
+import { Chat01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import type * as React from "react";
 import { cn } from "../lib/utils";
 
 /* =============================================================================
@@ -83,14 +84,16 @@ function ChatHistoryItem({ item, isActive, onClick }: ChatHistoryItemProps) {
         "hover:bg-muted/50 hover:-translate-y-px hover:shadow-sm",
         "active:scale-[0.98]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        isActive && "bg-primary/10 border-l-2 border-primary"
+        isActive && "bg-primary/10 border-l-2 border-primary",
       )}
     >
       {/* Icon */}
-      <MessageSquare
+      <HugeiconsIcon
+        icon={Chat01Icon}
+        size={16}
         className={cn(
-          "h-4 w-4 flex-shrink-0 mt-0.5",
-          isActive ? "text-primary" : "text-muted-foreground"
+          "flex-shrink-0 mt-0.5",
+          isActive ? "text-primary" : "text-muted-foreground",
         )}
       />
 
@@ -100,7 +103,7 @@ function ChatHistoryItem({ item, isActive, onClick }: ChatHistoryItemProps) {
         <p
           className={cn(
             "text-sm truncate",
-            isActive ? "text-foreground font-medium" : "text-foreground"
+            isActive ? "text-foreground font-medium" : "text-foreground",
           )}
         >
           {item.preview || "New conversation"}

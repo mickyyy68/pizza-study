@@ -1,4 +1,11 @@
-import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { conversations } from "./conversations";
 
 export const messages = pgTable(
@@ -10,7 +17,8 @@ export const messages = pgTable(
       .notNull(),
     role: text("role").notNull(), // "user" | "assistant" | "system"
     content: text("content").notNull(),
-    citations: jsonb("citations").$type<{ documentId: string; chunk: string }[]>(),
+    citations:
+      jsonb("citations").$type<{ documentId: string; chunk: string }[]>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

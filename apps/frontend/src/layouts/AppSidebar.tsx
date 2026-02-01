@@ -1,4 +1,15 @@
 import {
+  Books01Icon,
+  Calendar03Icon,
+  Cancel01Icon,
+  Chat01Icon,
+  DashboardSquare01Icon,
+  File02Icon,
+  FileUploadIcon,
+  SparklesIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import {
   Button,
   cn,
   Separator,
@@ -9,15 +20,6 @@ import {
   SidebarHeader,
   ThemeToggle,
 } from "@repo/ui";
-import {
-  Calendar,
-  FileText,
-  FileUp,
-  LayoutDashboard,
-  MessageSquare,
-  Sparkles,
-  X,
-} from "lucide-react";
 import { NavLink } from "react-router";
 import { useTheme } from "../hooks/useTheme";
 import { useUIStore } from "../stores/ui-store";
@@ -25,31 +27,31 @@ import { useUIStore } from "../stores/ui-store";
 /**
  * Navigation items for the sidebar.
  */
-const navItems = [
+const navItems: { path: string; label: string; icon: IconSvgElement }[] = [
   {
     path: "/dashboard",
     label: "Dashboard",
-    icon: LayoutDashboard,
+    icon: DashboardSquare01Icon,
   },
   {
     path: "/documents",
     label: "Documents",
-    icon: FileText,
+    icon: File02Icon,
   },
   {
     path: "/documents/upload",
     label: "Upload",
-    icon: FileUp,
+    icon: FileUploadIcon,
   },
   {
     path: "/calendar",
     label: "Calendar",
-    icon: Calendar,
+    icon: Calendar03Icon,
   },
   {
     path: "/chat",
     label: "Chat",
-    icon: MessageSquare,
+    icon: Chat01Icon,
   },
 ];
 
@@ -78,8 +80,8 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
       <SidebarHeader>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-lg">📚</span>
+            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
+              <HugeiconsIcon icon={Books01Icon} size={20} />
             </div>
             {!sidebarCollapsed && (
               <div className="flex flex-col">
@@ -101,7 +103,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
               className="md:hidden p-2 -mr-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
               aria-label="Close menu"
             >
-              <X className="h-5 w-5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} />
             </button>
           )}
         </div>
@@ -125,7 +127,11 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
                   )
                 }
               >
-                <item.icon className="h-5 w-5 shrink-0" />
+                <HugeiconsIcon
+                  icon={item.icon}
+                  size={20}
+                  className="shrink-0"
+                />
                 {!sidebarCollapsed && <span>{item.label}</span>}
               </NavLink>
             ))}
@@ -164,7 +170,7 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
             sidebarCollapsed && "justify-center px-0",
           )}
         >
-          <Sparkles className="h-4 w-4" />
+          <HugeiconsIcon icon={SparklesIcon} size={16} />
           {!sidebarCollapsed && (
             <div className="grid w-full grid-cols-[1fr_auto] items-center">
               <span className="text-center">Quick Chat</span>

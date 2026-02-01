@@ -28,11 +28,7 @@ export function UploadList({
   return (
     <div className="relative">
       {/* Screen reader announcements for status changes */}
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
         {statusMessage}
       </div>
 

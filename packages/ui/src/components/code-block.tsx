@@ -1,5 +1,6 @@
+import { Copy01Icon, Tick01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { Check, Copy } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export interface CodeBlockProps {
@@ -36,18 +37,18 @@ export function CodeBlock({ children, language, className }: CodeBlockProps) {
           className={cn(
             "flex items-center gap-1.5 rounded px-2 py-1 transition-colors",
             "hover:bg-zinc-700 hover:text-zinc-200",
-            copied && "text-green-400"
+            copied && "text-green-400",
           )}
           aria-label={copied ? "Copied!" : "Copy code"}
         >
           {copied ? (
             <>
-              <Check className="h-3.5 w-3.5" />
+              <HugeiconsIcon icon={Tick01Icon} size={14} />
               <span>Copied!</span>
             </>
           ) : (
             <>
-              <Copy className="h-3.5 w-3.5" />
+              <HugeiconsIcon icon={Copy01Icon} size={14} />
               <span>Copy</span>
             </>
           )}
@@ -56,7 +57,12 @@ export function CodeBlock({ children, language, className }: CodeBlockProps) {
 
       {/* Code content */}
       <pre className="overflow-x-auto rounded-b-lg bg-zinc-900 p-4 text-sm leading-relaxed">
-        <code className={cn("font-mono text-zinc-100", language && `language-${language}`)}>
+        <code
+          className={cn(
+            "font-mono text-zinc-100",
+            language && `language-${language}`,
+          )}
+        >
           {children}
         </code>
       </pre>
@@ -78,7 +84,7 @@ export function InlineCode({
     <code
       className={cn(
         "rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]",
-        className
+        className,
       )}
     >
       {children}

@@ -1,5 +1,11 @@
+import {
+  Copy01Icon,
+  PencilEdit01Icon,
+  Refresh01Icon,
+  Tick01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import * as React from "react";
-import { Check, Copy, Pencil, RefreshCw } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export interface MessageActionsProps {
@@ -58,12 +64,12 @@ export function MessageActions({
         "absolute -top-3 flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5 shadow-sm",
         "opacity-0 transition-opacity group-hover:opacity-100",
         role === "user" ? "right-0" : "left-10",
-        className
+        className,
       )}
     >
       {/* Copy */}
       <ActionButton
-        icon={copied ? Check : Copy}
+        icon={copied ? Tick01Icon : Copy01Icon}
         label={copied ? "Copied!" : "Copy message"}
         onClick={handleCopy}
         active={copied}
@@ -71,13 +77,17 @@ export function MessageActions({
 
       {/* Edit (user only) */}
       {role === "user" && onEdit && (
-        <ActionButton icon={Pencil} label="Edit message" onClick={onEdit} />
+        <ActionButton
+          icon={PencilEdit01Icon}
+          label="Edit message"
+          onClick={onEdit}
+        />
       )}
 
       {/* Regenerate (assistant only) */}
       {role === "assistant" && onRegenerate && (
         <ActionButton
-          icon={RefreshCw}
+          icon={Refresh01Icon}
           label="Regenerate response"
           onClick={onRegenerate}
         />
@@ -87,27 +97,27 @@ export function MessageActions({
 }
 
 interface ActionButtonProps {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconSvgElement;
   label: string;
   onClick: () => void;
   active?: boolean;
 }
 
-function ActionButton({ icon: Icon, label, onClick, active }: ActionButtonProps) {
+function ActionButton({ icon, label, onClick, active }: ActionButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded p-1.5 text-muted-foreground transition-colors",
+        "rounded-md p-2 text-muted-foreground transition-colors",
         "hover:bg-muted hover:text-foreground",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        active && "text-green-500"
+        active && "text-green-500",
       )}
       aria-label={label}
       title={label}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <HugeiconsIcon icon={icon} size={14} />
     </button>
   );
 }

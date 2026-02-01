@@ -1,5 +1,6 @@
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
-import { ChevronDown } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export interface ScrollToBottomProps {
@@ -59,10 +60,11 @@ export function ScrollToBottom({
         "active:scale-95",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         // Entrance animation
-        shouldAnimate && "animate-in fade-in-0 slide-in-from-bottom-4 duration-200",
+        shouldAnimate &&
+          "animate-in fade-in-0 slide-in-from-bottom-4 duration-200",
         // Bounce when new messages
         hasNewMessages && "animate-bounce",
-        className
+        className,
       )}
       aria-label={
         newMessageCount
@@ -70,7 +72,7 @@ export function ScrollToBottom({
           : "Scroll to bottom"
       }
     >
-      <ChevronDown className="h-5 w-5" />
+      <HugeiconsIcon icon={ArrowDown01Icon} size={20} />
 
       {/* New message count badge */}
       {newMessageCount && newMessageCount > 0 && (
@@ -81,7 +83,7 @@ export function ScrollToBottom({
             "min-w-5 h-5 px-1.5 rounded-full",
             "bg-primary text-primary-foreground",
             "text-xs font-medium",
-            "animate-in zoom-in-50 duration-150"
+            "animate-in zoom-in-50 duration-150",
           )}
         >
           {newMessageCount > 99 ? "99+" : newMessageCount}

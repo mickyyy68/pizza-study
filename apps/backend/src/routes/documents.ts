@@ -108,7 +108,10 @@ const documentsRoute = new Hono()
         return c.json({ id }, 201);
       } catch (error) {
         console.error("[Documents] ✗ Failed to create document");
-        console.error("[Documents] Error:", error instanceof Error ? error.message : error);
+        console.error(
+          "[Documents] Error:",
+          error instanceof Error ? error.message : error,
+        );
         return c.json(
           {
             error: "Failed to create document",
@@ -189,7 +192,15 @@ const documentsRoute = new Hono()
 
       console.log("[Documents] Creating document via FormData...");
       console.log("[Documents] Title:", title);
-      console.log("[Documents] File:", file.name, "-", file.type, "-", file.size, "bytes");
+      console.log(
+        "[Documents] File:",
+        file.name,
+        "-",
+        file.type,
+        "-",
+        file.size,
+        "bytes",
+      );
       console.log("[Documents] Content length:", content.length, "chars");
 
       try {
@@ -198,7 +209,10 @@ const documentsRoute = new Hono()
         return c.json({ id }, 201);
       } catch (error) {
         console.error("[Documents] ✗ Failed to create document");
-        console.error("[Documents] Error:", error instanceof Error ? error.message : error);
+        console.error(
+          "[Documents] Error:",
+          error instanceof Error ? error.message : error,
+        );
         if (error && typeof error === "object" && "cause" in error) {
           console.error("[Documents] Cause:", error.cause);
         }
