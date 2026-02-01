@@ -364,12 +364,62 @@
     --enter-translate-y: -0.5rem;
   }
 
+  .slide-in-from-top-4 {
+    --enter-translate-y: -1rem;
+  }
+
   .slide-in-from-bottom-2 {
     --enter-translate-y: 0.5rem;
   }
 
+  .slide-in-from-bottom-4 {
+    --enter-translate-y: 1rem;
+  }
+
+  .slide-in-from-left-2 {
+    --enter-translate-x: -0.5rem;
+  }
+
+  .slide-in-from-right-2 {
+    --enter-translate-x: 0.5rem;
+  }
+
   .slide-out-to-top-2 {
     --exit-translate-y: -0.5rem;
+  }
+
+  .slide-out-to-bottom-2 {
+    --exit-translate-y: 0.5rem;
+  }
+
+  /* Zoom animations */
+  .zoom-in-50 {
+    --enter-scale: 0.5;
+  }
+
+  .zoom-in-95 {
+    --enter-scale: 0.95;
+  }
+
+  .zoom-out-95 {
+    --exit-scale: 0.95;
+  }
+
+  /* Duration overrides */
+  .duration-100 {
+    animation-duration: 100ms;
+  }
+
+  .duration-150 {
+    animation-duration: 150ms;
+  }
+
+  .duration-200 {
+    animation-duration: 200ms;
+  }
+
+  .duration-300 {
+    animation-duration: 300ms;
   }
 
   /* Keyframes for enter/exit animations */
@@ -393,5 +443,80 @@
       opacity: var(--exit-opacity, 1);
       transform: translateY(var(--exit-translate-y, 0)) translateX(var(--exit-translate-x, 0)) scale(var(--exit-scale, 1));
     }
+  }
+
+  /* Shake animation for errors */
+  .animate-shake {
+    animation: shake 0.3s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    20%, 60% {
+      transform: translateX(-4px);
+    }
+    40%, 80% {
+      transform: translateX(4px);
+    }
+  }
+
+  /* Success flash for confirmations */
+  .animate-success {
+    animation: success-flash 0.5s ease-out;
+  }
+
+  @keyframes success-flash {
+    0% {
+      background-color: oklch(0.65 0.15 145); /* green */
+    }
+    100% {
+      background-color: var(--primary);
+    }
+  }
+
+  /* Pulse animation for loading states */
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+}
+
+/*
+ * Reduced Motion Support
+ *
+ * Respects user's accessibility preference for reduced motion.
+ * Disables animations while keeping instant state changes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-in,
+  .animate-out {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-bounce,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
   }
 }

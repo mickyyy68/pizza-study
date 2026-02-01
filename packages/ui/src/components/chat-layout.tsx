@@ -162,28 +162,53 @@ export function ChatLayoutMain({
 export interface ChatLayoutMessagesProps
   extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  /** Show shadow at top when content is scrolled */
+  showTopShadow?: boolean;
+  /** Show shadow at bottom when more content below */
+  showBottomShadow?: boolean;
 }
 
 /**
  * Scrollable container for chat messages.
  * Designed to support virtualization.
+ * Supports scroll shadows via props (from useAutoScroll hook).
  */
 export const ChatLayoutMessages = React.forwardRef<
   HTMLDivElement,
   ChatLayoutMessagesProps
->(({ className, children, ...props }, ref) => {
+>(({ className, children, showTopShadow, showBottomShadow, ...props }, ref) => {
   return (
     <div
       ref={ref}
       className={cn(
-        "flex-1 overflow-y-auto px-4 py-6",
-        // Scroll shadows (CSS-only)
-        "scroll-shadow",
+        "relative flex-1 overflow-y-auto px-4 py-6",
         className
       )}
       {...props}
     >
+      {/* Top scroll shadow */}
+      <div
+        className={cn(
+          "pointer-events-none sticky top-0 -mt-6 h-6 w-full",
+          "bg-gradient-to-b from-background to-transparent",
+          "transition-opacity duration-200",
+          showTopShadow ? "opacity-100" : "opacity-0"
+        )}
+        aria-hidden="true"
+      />
+
       <div className="mx-auto w-full max-w-[720px]">{children}</div>
+
+      {/* Bottom scroll shadow */}
+      <div
+        className={cn(
+          "pointer-events-none sticky bottom-0 -mb-6 h-6 w-full",
+          "bg-gradient-to-t from-background to-transparent",
+          "transition-opacity duration-200",
+          showBottomShadow ? "opacity-100" : "opacity-0"
+        )}
+        aria-hidden="true"
+      />
     </div>
   );
 });

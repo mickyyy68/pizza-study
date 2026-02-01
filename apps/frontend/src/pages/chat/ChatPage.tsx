@@ -16,6 +16,7 @@ import {
   cn,
   DocumentList,
   MobileSidebarTrigger,
+  ScrollToBottom,
   ThinkingIndicator,
   type PickerDocument,
   type MentionedDocument,
@@ -23,6 +24,7 @@ import {
 } from "@repo/ui";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
 import { type ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useAutoScroll } from "../../hooks/useAutoScroll";
 import { useChatStore } from "../../stores/chat-store";
 import type { ChatDocument, ChatHistoryItem, Attachment } from "../../stores/chat-store";
 
@@ -86,7 +88,9 @@ const MOCK_HISTORY: ChatHistoryItem[] = [
  * - Rich markdown message rendering
  */
 export function ChatPage() {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Track new messages for FAB indicator
+  const [newMessageCount, setNewMessageCount] = useState(0);
+  const prevMessageCountRef = useRef(0);
 
   // Chat store state
   const {
@@ -120,8 +124,9 @@ export function ChatPage() {
     clearAttachments,
   } = useChatStore();
 
-  // Local state for thinking indicator
+  // Local state for thinking indicator and errors
   const [isThinking, setIsThinking] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
 
   // Initialize with mock data
   useEffect(() => {
@@ -133,20 +138,49 @@ export function ChatPage() {
     }
   }, [documents.length, history.length, setDocuments, setHistory]);
 
-  // Vercel AI SDK chat hook
+  // Vercel AI SDK chat hook with error handling
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: `${API_URL}/api/chat`,
       onResponse: () => {
         // First token received, stop thinking
         setIsThinking(false);
+        setChatError(null);
+      },
+      onError: (error) => {
+        setIsThinking(false);
+        setChatError(error.message || "Failed to send message. Please try again.");
+        // Auto-clear error after 5 seconds
+        setTimeout(() => setChatError(null), 5000);
       },
     });
 
-  // Auto-scroll to bottom when messages change
+  // Smart auto-scroll hook - triggers when message count changes
+  const {
+    containerRef: messagesContainerRef,
+    isAtBottom,
+    scrollToBottom,
+    canScrollUp,
+    canScrollDown,
+  } = useAutoScroll(messages.length);
+
+  // Track new message indicator for FAB
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messages.length > prevMessageCountRef.current) {
+      // New message arrived
+      if (!isAtBottom) {
+        setNewMessageCount((prev) => prev + (messages.length - prevMessageCountRef.current));
+      }
+    }
+    prevMessageCountRef.current = messages.length;
+  }, [messages.length, isAtBottom]);
+
+  // Clear new message count when scrolling to bottom
+  useEffect(() => {
+    if (isAtBottom) {
+      setNewMessageCount(0);
+    }
+  }, [isAtBottom]);
 
   // Convert store documents to picker format
   const pickerDocuments: PickerDocument[] = documents.map((doc) => ({
@@ -200,10 +234,10 @@ export function ChatPage() {
     [addMentionedDoc]
   );
 
-  // Handle file attachment
+  // Handle file attachment with real API upload
   const handleAttach = useCallback(
-    (files: FileList) => {
-      Array.from(files).forEach((file) => {
+    async (files: FileList) => {
+      for (const file of Array.from(files)) {
         const id = `${Date.now()}-${file.name}`;
         const attachment: Attachment = {
           id,
@@ -214,18 +248,36 @@ export function ChatPage() {
         };
         addAttachment(attachment);
 
-        // Simulate upload progress
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += Math.random() * 30;
-          if (progress >= 100) {
-            clearInterval(interval);
-            updateAttachment(id, { status: "complete", progress: 100 });
-          } else {
-            updateAttachment(id, { progress });
+        // Upload to API
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          // Show progress updates during upload
+          updateAttachment(id, { progress: 30 });
+
+          const response = await fetch(`${API_URL}/api/documents`, {
+            method: "POST",
+            body: formData,
+          });
+
+          updateAttachment(id, { progress: 80 });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed: ${response.statusText}`);
           }
-        }, 500);
-      });
+
+          const { id: documentId } = await response.json();
+          updateAttachment(id, {
+            status: "complete",
+            progress: 100,
+            documentId,
+          });
+        } catch (error) {
+          console.error("File upload error:", error);
+          updateAttachment(id, { status: "error", progress: 0 });
+        }
+      }
     },
     [addAttachment, updateAttachment]
   );
@@ -295,7 +347,11 @@ export function ChatPage() {
           <span className="font-medium">Chat</span>
         </div>
 
-        <ChatLayoutMessages>
+        <ChatLayoutMessages
+          ref={messagesContainerRef}
+          showTopShadow={canScrollUp}
+          showBottomShadow={canScrollDown && !isAtBottom}
+        >
           {messages.length === 0 ? (
             <WelcomeScreen onSuggestionClick={handleInputChange} />
           ) : (
@@ -328,9 +384,24 @@ export function ChatPage() {
                 />
               )}
 
-              <div ref={messagesEndRef} />
+              {/* Error indicator */}
+              {chatError && (
+                <div className="flex justify-center">
+                  <div className="bg-destructive/10 text-destructive text-sm px-4 py-2 rounded-lg animate-in fade-in-0 slide-in-from-bottom-2">
+                    {chatError}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
+          {/* Scroll to bottom FAB */}
+          <ScrollToBottom
+            visible={!isAtBottom && messages.length > 0}
+            onClick={scrollToBottom}
+            hasNewMessages={newMessageCount > 0}
+            newMessageCount={newMessageCount}
+          />
         </ChatLayoutMessages>
 
         <ChatLayoutFooter>

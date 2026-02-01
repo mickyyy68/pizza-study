@@ -86,6 +86,10 @@ export {
   MessageSkeletonList,
   ThinkingIndicator,
 } from "./message-skeleton";
+export {
+  ScrollToBottom,
+  type ScrollToBottomProps,
+} from "./scroll-to-bottom";
 // Chat
 export {
   ChatMessage,
@@ -104,7 +108,7 @@ export {
 } from "./message-actions";
 export { MessageErrorBoundary } from "./message-error-boundary";
 export {
-  Citation,
+  type Citation,
   CitationBadge,
   type CitationBadgeProps,
   CitationPreview,
