@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { conversations, db, messages } from "@repo/database";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
@@ -34,14 +34,14 @@ const conversationsRoute = new Hono()
     // Get message counts for each conversation
     const withCounts = await Promise.all(
       convos.map(async (conv) => {
-        const [countResult] = await db
-          .select({ count: messages.id })
+        const countResult = await db
+          .select({ count: sql<number>`count(*)::int` })
           .from(messages)
           .where(eq(messages.conversationId, conv.id));
 
         return {
           ...conv,
-          messageCount: countResult ? 1 : 0, // Basic count
+          messageCount: countResult[0]?.count ?? 0,
         };
       }),
     );

@@ -58,9 +58,8 @@ function sanitizeFilename(filename: string): string {
  * Uses dynamic import to avoid loading pdf-parse unless needed.
  */
 async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
-  const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
-  const result = await parser.getText();
+  const pdfParse = (await import("pdf-parse")).default;
+  const result = await pdfParse(Buffer.from(buffer));
   return result.text;
 }
 
