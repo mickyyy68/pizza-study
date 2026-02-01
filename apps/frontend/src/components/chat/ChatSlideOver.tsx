@@ -8,7 +8,7 @@ import {
   SlideOverFooter,
   SlideOverHeader,
 } from "@repo/ui";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ChangeEvent } from "react";
 import { useUIStore } from "../../stores/ui-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -110,7 +110,7 @@ export function ChatSlideOver() {
           onChange={(value) =>
             handleInputChange({
               target: { value },
-            } as React.ChangeEvent<HTMLTextAreaElement>)
+            } as ChangeEvent<HTMLTextAreaElement>)
           }
           onSubmit={onSubmit}
           placeholder="Ask a question..."
