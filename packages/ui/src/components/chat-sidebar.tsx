@@ -133,7 +133,7 @@ export function ChatSidebarSection({
           collapsed ? "max-h-0" : "max-h-[500px]",
         )}
       >
-        <div className="px-2 pb-2">{children}</div>
+        <div className="px-3 pb-2">{children}</div>
       </div>
     </div>
   );
@@ -164,21 +164,21 @@ export function ChatSidebarSearch({
       <HugeiconsIcon
         icon={Search01Icon}
         size={16}
-        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
       />
       <Input
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="pl-8 pr-8 h-8 text-sm"
+        className="pl-10 pr-10 h-8 text-sm"
         aria-label={placeholder}
       />
       {value && (
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           aria-label="Clear search"
         >
           <HugeiconsIcon icon={Cancel01Icon} size={16} />
@@ -207,7 +207,7 @@ export function ChatSidebarNewButton({
   return (
     <Button
       onClick={onClick}
-      className={cn("w-full justify-start gap-2", className)}
+      className={cn("w-full", className)}
       size="sm"
     >
       <HugeiconsIcon icon={Add01Icon} size={16} />

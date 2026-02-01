@@ -166,18 +166,18 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
           onClick={openChatSlideOver}
           variant="outline"
           className={cn(
-            "w-full gap-2",
-            sidebarCollapsed && "justify-center px-0",
+            "w-full",
+            sidebarCollapsed ? "justify-center px-0" : "justify-between",
           )}
         >
-          <HugeiconsIcon icon={SparklesIcon} size={16} />
+          <span className="inline-flex items-center gap-2">
+            <HugeiconsIcon icon={SparklesIcon} size={16} />
+            {!sidebarCollapsed && <span>Quick Chat</span>}
+          </span>
           {!sidebarCollapsed && (
-            <div className="grid w-full grid-cols-[1fr_auto] items-center">
-              <span className="text-center">Quick Chat</span>
-              <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </div>
+            <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <span className="text-xs">⌘</span>K
+            </kbd>
           )}
         </Button>
       </SidebarFooter>
