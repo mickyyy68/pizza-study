@@ -2,7 +2,7 @@ import type { LanguageModelV1 } from "ai";
 import { openrouter } from "./client";
 
 // Chat model configuration
-export const CHAT_MODEL = "minimax/minimax-m2.1";
+export const CHAT_MODEL = "meta-llama/llama-3.2-3b-instruct:free";
 export const chatModel: LanguageModelV1 = openrouter(CHAT_MODEL);
 
 // Default parameters for chat completions

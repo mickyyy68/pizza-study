@@ -12,6 +12,7 @@ import {
 import {
   Calendar,
   FileText,
+  FileUp,
   LayoutDashboard,
   MessageSquare,
   Sparkles,
@@ -34,6 +35,11 @@ const navItems = [
     path: "/documents",
     label: "Documents",
     icon: FileText,
+  },
+  {
+    path: "/documents/upload",
+    label: "Upload",
+    icon: FileUp,
   },
   {
     path: "/calendar",
