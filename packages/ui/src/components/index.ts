@@ -55,7 +55,6 @@ export {
   ChatMessage,
   type ChatMessageProps,
   ChatTypingIndicator,
-  chatMessageVariants,
 } from "./chat-message";
 export {
   ChatSidebarHeader,

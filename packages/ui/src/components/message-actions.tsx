@@ -19,7 +19,7 @@ export interface MessageActionsProps {
 
 /**
  * Hover actions for chat messages.
- * Shows copy for all, edit for user, regenerate for assistant.
+ * Shows below the message content on hover.
  */
 export function MessageActions({
   role,
@@ -39,7 +39,6 @@ export function MessageActions({
         .replace(/\*([^*]+)\*/g, "$1") // italic
         .replace(/`([^`]+)`/g, "$1") // inline code
         .replace(/```[\s\S]*?```/g, (match) => {
-          // Extract code block content
           return match.replace(/```\w*\n?/, "").replace(/\n?```$/, "");
         })
         .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links
@@ -61,16 +60,15 @@ export function MessageActions({
       role="toolbar"
       aria-label="Message actions"
       className={cn(
-        "absolute -top-3 flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5 shadow-sm",
-        "opacity-0 transition-opacity group-hover:opacity-100",
-        role === "user" ? "right-0" : "left-10",
+        "flex items-center gap-0.5 -ml-2",
+        "opacity-0 group-hover:opacity-100 transition-opacity duration-150",
         className,
       )}
     >
       {/* Copy */}
       <ActionButton
         icon={copied ? Tick01Icon : Copy01Icon}
-        label={copied ? "Copied!" : "Copy message"}
+        label={copied ? "Copied!" : "Copy"}
         onClick={handleCopy}
         active={copied}
       />
@@ -79,7 +77,7 @@ export function MessageActions({
       {role === "user" && onEdit && (
         <ActionButton
           icon={PencilEdit01Icon}
-          label="Edit message"
+          label="Edit"
           onClick={onEdit}
         />
       )}
@@ -88,7 +86,7 @@ export function MessageActions({
       {role === "assistant" && onRegenerate && (
         <ActionButton
           icon={Refresh01Icon}
-          label="Regenerate response"
+          label="Regenerate"
           onClick={onRegenerate}
         />
       )}
@@ -109,15 +107,17 @@ function ActionButton({ icon, label, onClick, active }: ActionButtonProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-md p-2 text-muted-foreground transition-colors",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-1",
+        "text-xs text-muted-foreground",
         "hover:bg-muted hover:text-foreground",
+        "transition-colors duration-150",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        active && "text-green-500",
+        active && "text-green-600 dark:text-green-400",
       )}
       aria-label={label}
-      title={label}
     >
       <HugeiconsIcon icon={icon} size={14} />
+      <span>{label}</span>
     </button>
   );
 }

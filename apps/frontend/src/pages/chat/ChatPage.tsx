@@ -8,7 +8,6 @@ import {
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   type AttachedFile,
-  Avatar,
   ChatHistoryList,
   ChatInput,
   ChatLayout,
@@ -401,19 +400,12 @@ export function ChatPage() {
           {messages.length === 0 ? (
             <WelcomeScreen onSuggestionClick={handleInputChange} />
           ) : (
-            <div className="space-y-6 pb-6">
+            <div className="flex flex-col gap-4">
               {messages.map((message) => (
                 <ChatMessage
                   key={message.id}
                   variant={message.role as "user" | "assistant"}
                   content={message.content}
-                  avatar={
-                    message.role === "assistant" ? (
-                      <Avatar size="md" fallback="AI" />
-                    ) : (
-                      <Avatar size="md" fallback="You" />
-                    )
-                  }
                 />
               ))}
 
@@ -426,7 +418,6 @@ export function ChatPage() {
                   variant="assistant"
                   content=""
                   isStreaming
-                  avatar={<Avatar size="md" fallback="AI" />}
                 />
               )}
 
