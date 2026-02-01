@@ -40,6 +40,12 @@ export {
   type EmptyStateAction,
   type EmptyStateProps,
 } from "./empty-state";
+// File Upload
+export {
+  FileDropzone,
+  type FileDropzoneProps,
+  fileDropzoneVariants,
+} from "./file-dropzone";
 // Form Elements
 export { Input, type InputProps } from "./input";
 export { Separator, type SeparatorProps } from "./separator";
@@ -82,3 +88,10 @@ export {
 } from "./slide-over";
 // Theme
 export { type Theme, ThemeToggle, type ThemeToggleProps } from "./theme-toggle";
+// Upload
+export { UploadList, type UploadListProps } from "./upload-list";
+export {
+  UploadListItem,
+  type UploadListItemProps,
+  type UploadStatus,
+} from "./upload-list-item";

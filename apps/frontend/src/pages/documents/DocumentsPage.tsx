@@ -1,15 +1,15 @@
 import {
   Badge,
   Button,
+  buttonVariants,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  cn,
   Input,
   SkeletonCard,
-  buttonVariants,
-  cn,
 } from "@repo/ui";
 import {
   FileText,
@@ -239,9 +239,7 @@ function DocumentCard({ document }: { document: ApiDocument }) {
         <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors">
           {document.title}
         </h3>
-        <p className="text-xs text-muted-foreground line-clamp-3">
-          {preview}
-        </p>
+        <p className="text-xs text-muted-foreground line-clamp-3">{preview}</p>
 
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-3">
@@ -270,9 +268,7 @@ function DocumentRow({ document }: { document: ApiDocument }) {
       <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{document.title}</p>
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {preview}
-        </p>
+        <p className="text-xs text-muted-foreground line-clamp-2">{preview}</p>
         <p className="text-xs text-muted-foreground">
           Updated {formatDate(document.updatedAt)}
         </p>

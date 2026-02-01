@@ -1,14 +1,14 @@
 import {
   Badge,
   Button,
+  buttonVariants,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
-  buttonVariants,
   cn,
+  Input,
 } from "@repo/ui";
 import { FileUp, MessageSquare, RefreshCw } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
@@ -39,7 +39,9 @@ export function UploadDocumentPage() {
 
   const statusBadge = useMemo(() => {
     if (status === "success") {
-      return <Badge className="bg-emerald-500/10 text-emerald-700">Saved</Badge>;
+      return (
+        <Badge className="bg-emerald-500/10 text-emerald-700">Saved</Badge>
+      );
     }
     if (status === "error") {
       return <Badge className="bg-rose-500/10 text-rose-700">Error</Badge>;

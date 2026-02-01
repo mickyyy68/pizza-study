@@ -8,7 +8,7 @@ import {
   SlideOverFooter,
   SlideOverHeader,
 } from "@repo/ui";
-import { useEffect, useRef, type ChangeEvent } from "react";
+import { type ChangeEvent, useEffect, useRef } from "react";
 import { useUIStore } from "../../stores/ui-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";

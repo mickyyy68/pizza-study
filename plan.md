@@ -19,205 +19,205 @@
 
 ---
 
-## Phase 1: Core Dropzone Component
+## Phase 1: Core Dropzone Component ✅
 
-### 1.1 Create FileDropzone Base Component
-- [ ] Create `packages/ui/src/components/file-dropzone.tsx`
-- [ ] Define `FileDropzoneProps` interface extending `HTMLAttributes<HTMLDivElement>`
-- [ ] Add props: `onFilesSelected`, `accept`, `multiple`, `disabled`
-- [ ] Implement basic div container with `cn()` class merging
-- [ ] Export from `packages/ui/src/components/index.ts` and re-export from `packages/ui/src/index.ts`
+### 1.1 Create FileDropzone Base Component ✅
+- [x] Create `packages/ui/src/components/file-dropzone.tsx`
+- [x] Define `FileDropzoneProps` interface extending `HTMLAttributes<HTMLDivElement>`
+- [x] Add props: `onFilesSelected`, `accept`, `multiple`, `disabled`
+- [x] Implement basic div container with `cn()` class merging
+- [x] Export from `packages/ui/src/components/index.ts` and re-export from `packages/ui/src/index.ts`
 
-### 1.2 Add Dropzone Variants with CVA
-- [ ] Define `fileDropzoneVariants` using CVA
-- [ ] Add `variant` prop: `default`, `compact`
-- [ ] Add `size` prop: `sm`, `md`, `lg`
-- [ ] Style default variant with dashed border, rounded-xl, padding
-- [ ] Use Trattoria theme colors (warm border, cream background)
+### 1.2 Add Dropzone Variants with CVA ✅
+- [x] Define `fileDropzoneVariants` using CVA
+- [x] Add `variant` prop: `default`, `compact`
+- [x] Add `size` prop: `sm`, `md`, `lg`
+- [x] Style default variant with dashed border, rounded-xl, padding
+- [x] Use Trattoria theme colors (warm border, cream background)
 
-### 1.3 Implement Drag-and-Drop State
-- [ ] Add internal `isDragging` state
-- [ ] Implement `onDragEnter` handler (set isDragging true)
-- [ ] Implement `onDragLeave` handler (set isDragging false)
-- [ ] Implement `onDragOver` handler (prevent default)
-- [ ] Implement `onDrop` handler (extract files, call onFilesSelected)
-- [ ] Prevent drag events from bubbling to parent
+### 1.3 Implement Drag-and-Drop State ✅
+- [x] Add internal `isDragging` state
+- [x] Implement `onDragEnter` handler (set isDragging true)
+- [x] Implement `onDragLeave` handler (set isDragging false)
+- [x] Implement `onDragOver` handler (prevent default)
+- [x] Implement `onDrop` handler (extract files, call onFilesSelected)
+- [x] Prevent drag events from bubbling to parent
 
-### 1.4 Add Drag-Over Visual Feedback
-- [ ] Apply subtle glow effect when `isDragging` is true
-- [ ] Use terracotta border color on drag-over
-- [ ] Add soft background color shift (cream → warm highlight)
-- [ ] Implement smooth transition (200ms) for all state changes
-- [ ] Ensure accessible focus states
+### 1.4 Add Drag-Over Visual Feedback ✅
+- [x] Apply subtle glow effect when `isDragging` is true
+- [x] Use terracotta border color on drag-over
+- [x] Add soft background color shift (cream → warm highlight)
+- [x] Implement smooth transition (200ms) for all state changes
+- [x] Ensure accessible focus states
 
-### 1.5 Add Click-to-Upload Fallback
-- [ ] Add hidden `<input type="file" />` element with ref
-- [ ] Forward `accept` and `multiple` props to input
-- [ ] Handle click on dropzone to trigger input click
-- [ ] Handle input `onChange` to call `onFilesSelected`
-- [ ] Style the clickable area with cursor-pointer
+### 1.5 Add Click-to-Upload Fallback ✅
+- [x] Add hidden `<input type="file" />` element with ref
+- [x] Forward `accept` and `multiple` props to input
+- [x] Handle click on dropzone to trigger input click
+- [x] Handle input `onChange` to call `onFilesSelected`
+- [x] Style the clickable area with cursor-pointer
 
-### 1.6 Add Dropzone Content Slot
-- [ ] Accept `children` prop for custom content
-- [ ] Create default content (icon + text) when no children provided
-- [ ] Use Lucide `Upload` icon for default state
-- [ ] Add encouraging copy: "Drop your study materials here"
-- [ ] Add secondary text: "or click to browse"
+### 1.6 Add Dropzone Content Slot ✅
+- [x] Accept `children` prop for custom content
+- [x] Create default content (icon + text) when no children provided
+- [x] Use Lucide `Upload` icon for default state
+- [x] Add encouraging copy: "Drop your study materials here"
+- [x] Add secondary text: "or click to browse"
 
-### 1.7 Add Disabled State
-- [ ] Style disabled state (reduced opacity, no pointer events)
-- [ ] Prevent drag handlers when disabled
-- [ ] Prevent click-to-upload when disabled
-- [ ] Add `aria-disabled` attribute
-
----
-
-## Phase 2: File Utilities (moved before Upload List)
-
-### 2.1 Create File Validation Utility
-- [ ] Create `packages/ui/src/utils/file-validation.ts`
-- [ ] Define `ACCEPTED_FILE_TYPES` constant
-- [ ] Add `.txt`, `.md`, `.markdown`, `.csv`, `.json`, `.pdf`
-- [ ] Create `isValidFileType(file: File)` function
-- [ ] Create `getFileExtension(filename: string)` function
-
-### 2.2 Add File Size Validation
-- [ ] Define `MAX_FILE_SIZE_PDF` constant (10MB)
-- [ ] Define `MAX_FILE_SIZE_TEXT` constant (1MB)
-- [ ] Create `isValidFileSize(file: File)` function
-- [ ] Return `{ valid: boolean, error?: string }` with clear error messages
-- [ ] Export validation functions from utils index
-
-### 2.3 Create File Size Formatting Utility
-- [ ] Create `formatFileSize(bytes: number)` function
-- [ ] Return human-readable format (B, KB, MB, GB)
-- [ ] Handle edge cases (0 bytes, very large files)
-- [ ] Export from utils index
-
-### 2.4 Create File Type Mapping
-- [ ] Create `getFileTypeLabel(extension: string)` function
-- [ ] Map extensions to friendly names (PDF, Markdown, Text, etc.)
-- [ ] Create `getFileTypeIcon(extension: string)` function
-- [ ] Return appropriate Lucide icon component name
-
-### 2.5 Add PDF File Handling Hook
-- [ ] Create `apps/frontend/src/hooks/useFileReader.ts`
-- [ ] Handle text file reading with `file.text()`
-- [ ] Handle PDF files (store as binary/base64 for backend processing)
-- [ ] Return `{ content, isLoading, error }` state
-- [ ] Support abort/cancel for large files
+### 1.7 Add Disabled State ✅
+- [x] Style disabled state (reduced opacity, no pointer events)
+- [x] Prevent drag handlers when disabled
+- [x] Prevent click-to-upload when disabled
+- [x] Add `aria-disabled` attribute
 
 ---
 
-## Phase 3: Upload List Components
+## Phase 2: File Utilities (moved before Upload List) ✅
 
-### 3.1 Create UploadListItem Component
-- [ ] Create `packages/ui/src/components/upload-list-item.tsx`
-- [ ] Define `UploadListItemProps` interface
-- [ ] Add props: `fileName`, `fileSize`, `fileType`, `status`, `progress`, `error`, `onRemove`, `onRetry`
-- [ ] Create basic horizontal flex layout
-- [ ] Export from `packages/ui/src/components/index.ts`
+### 2.1 Create File Validation Utility ✅
+- [x] Create `packages/ui/src/utils/file-validation.ts`
+- [x] Define `ACCEPTED_FILE_TYPES` constant
+- [x] Add `.txt`, `.md`, `.markdown`, `.csv`, `.json`, `.pdf`
+- [x] Create `isValidFileType(file: File)` function
+- [x] Create `getFileExtension(filename: string)` function
 
-### 3.2 Add File Icon/Thumbnail Section
-- [ ] Create left section for file type indicator
-- [ ] Show file type icon based on extension (FileText, FileJson, File)
-- [ ] Add PDF icon (`FileText` with red accent) for `.pdf` files
-- [ ] Use Trattoria accent colors for icons
-- [ ] Size icons appropriately (w-10 h-10)
+### 2.2 Add File Size Validation ✅
+- [x] Define `MAX_FILE_SIZE_PDF` constant (10MB)
+- [x] Define `MAX_FILE_SIZE_TEXT` constant (1MB)
+- [x] Create `isValidFileSize(file: File)` function
+- [x] Return `{ valid: boolean, error?: string }` with clear error messages
+- [x] Export validation functions from utils index
 
-### 3.3 Add File Info Section
-- [ ] Create middle section with file details
-- [ ] Display file name (truncate with ellipsis if > 30 chars)
-- [ ] Display file size using `formatFileSize` utility
-- [ ] Add file type badge using existing Badge component
-- [ ] Style with proper typography (Poppins for body)
+### 2.3 Create File Size Formatting Utility ✅
+- [x] Create `formatFileSize(bytes: number)` function
+- [x] Return human-readable format (B, KB, MB, GB)
+- [x] Handle edge cases (0 bytes, very large files)
+- [x] Export from utils index
 
-### 3.4 Add Progress Indicator
-- [ ] Create progress bar section
-- [ ] Show progress percentage (0-100)
-- [ ] Use terracotta color for progress fill
-- [ ] Animate progress bar smoothly (transition-all)
-- [ ] Hide progress bar when complete or idle
+### 2.4 Create File Type Mapping ✅
+- [x] Create `getFileTypeLabel(extension: string)` function
+- [x] Map extensions to friendly names (PDF, Markdown, Text, etc.)
+- [x] Create `getFileTypeIcon(extension: string)` function
+- [x] Return appropriate Lucide icon component name
 
-### 3.5 Add Status Indicators
-- [ ] Show status badge: `uploading`, `processing`, `complete`, `error`
-- [ ] Use existing Badge variants (amber for uploading, emerald for complete, rose for error)
-- [ ] Add spinning icon (Loader2) for uploading state
-- [ ] Add checkmark icon (Check) for complete state
-- [ ] Add error icon (AlertCircle) for error state
-
-### 3.6 Add Remove/Retry Actions
-- [ ] Add remove button (X icon) on right side
-- [ ] Call `onRemove` when clicked
-- [ ] Show retry button when status is `error`
-- [ ] Add `onRetry` prop and handler
-- [ ] Style buttons with hover states
-
-### 3.7 Create UploadList Container Component
-- [ ] Create `packages/ui/src/components/upload-list.tsx`
-- [ ] Define `UploadListProps` with `children` or render prop pattern
-- [ ] Add wrapper div with `role="list"` for accessibility
-- [ ] Style with gap-3 between items
-- [ ] Export from components index
+### 2.5 Add PDF File Handling Hook ✅
+- [x] Create `apps/frontend/src/hooks/useFileReader.ts`
+- [x] Handle text file reading with `file.text()`
+- [x] Handle PDF files (flagged as binary, sent directly to backend)
+- [x] Return `{ content, isLoading, error }` state
+- [x] Support abort/cancel for read operations
 
 ---
 
-## Phase 4: Upload State Management
+## Phase 3: Upload List Components ✅
 
-### 4.1 Define Upload Types
-- [ ] Add `UploadItem` interface to `apps/frontend/src/types/index.ts`
-- [ ] Include: `id`, `file`, `title`, `status`, `progress`, `error`, `documentId`
-- [ ] Add `UploadStatus` type: `pending`, `uploading`, `processing`, `complete`, `error`
-- [ ] Export types from index
+### 3.1 Create UploadListItem Component ✅
+- [x] Create `packages/ui/src/components/upload-list-item.tsx`
+- [x] Define `UploadListItemProps` interface
+- [x] Add props: `fileName`, `fileSize`, `fileType`, `status`, `progress`, `error`, `onRemove`, `onRetry`
+- [x] Create basic horizontal flex layout
+- [x] Export from `packages/ui/src/components/index.ts`
 
-### 4.2 Create Upload Queue Hook
-- [ ] Create `apps/frontend/src/hooks/useUploadQueue.ts`
-- [ ] Manage array of `UploadItem` objects with useState
-- [ ] Implement `addFiles(files: File[])` — creates upload items with unique IDs
-- [ ] Implement `removeFile(id: string)` — removes from queue
-- [ ] Implement `updateItem(id: string, updates: Partial<UploadItem>)`
+### 3.2 Add File Icon/Thumbnail Section ✅
+- [x] Create left section for file type indicator
+- [x] Show file type icon based on extension (FileText, FileJson, File)
+- [x] Add PDF icon (`FileText` with red accent) for `.pdf` files
+- [x] Use Trattoria accent colors for icons
+- [x] Size icons appropriately (w-10 h-10)
 
-### 4.3 Implement Single File Upload Function
-- [ ] Create `uploadDocument(file: File, title: string)` async function
-- [ ] Use FormData for file upload (to support binary PDFs)
-- [ ] Call `POST /api/documents` endpoint
-- [ ] Return created document ID on success
-- [ ] Throw error with message on failure
+### 3.3 Add File Info Section ✅
+- [x] Create middle section with file details
+- [x] Display file name (truncate with ellipsis if > 30 chars)
+- [x] Display file size using `formatFileSize` utility
+- [x] Add file type badge using existing Badge component
+- [x] Style with proper typography (Poppins for body)
 
-### 4.4 Add Progress Tracking
-- [ ] Use `XMLHttpRequest` for upload with progress events
-- [ ] Listen to `upload.onprogress` event
-- [ ] Calculate percentage: `(loaded / total) * 100`
-- [ ] Call `updateItem` with new progress value
-- [ ] Handle upload completion via `onload`
+### 3.4 Add Progress Indicator ✅
+- [x] Create progress bar section
+- [x] Show progress percentage (0-100)
+- [x] Use terracotta color for progress fill
+- [x] Animate progress bar smoothly (transition-all)
+- [x] Hide progress bar when complete or idle
 
-### 4.5 Add Auto-Upload on File Add
-- [ ] Trigger upload immediately when file is added via `addFiles`
-- [ ] Set status to `uploading`
-- [ ] Update progress during upload (0 → 100)
-- [ ] Set status to `complete` or `error` when done
-- [ ] Store returned `documentId` on success
+### 3.5 Add Status Indicators ✅
+- [x] Show status badge: `uploading`, `processing`, `complete`, `error`
+- [x] Use existing Badge variants (amber for uploading, emerald for complete, rose for error)
+- [x] Add spinning icon (Loader2) for uploading state
+- [x] Add checkmark icon (Check) for complete state
+- [x] Add error icon (AlertCircle) for error state
 
-### 4.6 Add Upload Cancellation
-- [ ] Create AbortController for each upload
-- [ ] Store controller reference in upload item
-- [ ] Implement `cancelUpload(id: string)` function
-- [ ] Abort XMLHttpRequest when cancel called
-- [ ] Set status to `error` with "Upload cancelled" message
+### 3.6 Add Remove/Retry Actions ✅
+- [x] Add remove button (X icon) on right side
+- [x] Call `onRemove` when clicked
+- [x] Show retry button when status is `error`
+- [x] Add `onRetry` prop and handler
+- [x] Style buttons with hover states
 
-### 4.7 Add Concurrent Upload Limiting
-- [ ] Define `MAX_CONCURRENT_UPLOADS = 3` constant
-- [ ] Track count of items with status `uploading`
-- [ ] When adding files, only start upload if under limit
-- [ ] Queue excess files with status `pending`
-- [ ] Start next pending upload when an active one completes
+### 3.7 Create UploadList Container Component ✅
+- [x] Create `packages/ui/src/components/upload-list.tsx`
+- [x] Define `UploadListProps` with `children` or render prop pattern
+- [x] Add wrapper `<ul>` for semantic list accessibility
+- [x] Style with gap-3 between items
+- [x] Export from components index
 
-### 4.8 Add Retry Logic
-- [ ] Implement `retryUpload(id: string)` function
-- [ ] Reset status to `pending` (will auto-start if under limit)
-- [ ] Clear previous error
-- [ ] Increment retry count (store in item)
-- [ ] Limit retry attempts (max 3), show final error if exceeded
+---
+
+## Phase 4: Upload State Management ✅
+
+### 4.1 Define Upload Types ✅
+- [x] Add `UploadItem` interface to `apps/frontend/src/types/index.ts`
+- [x] Include: `id`, `file`, `title`, `status`, `progress`, `error`, `documentId`
+- [x] Add `UploadStatus` type: `pending`, `uploading`, `processing`, `complete`, `error`
+- [x] Export types from index
+
+### 4.2 Create Upload Queue Hook ✅
+- [x] Create `apps/frontend/src/hooks/useUploadQueue.ts`
+- [x] Manage array of `UploadItem` objects with useState
+- [x] Implement `addFiles(files: File[])` — creates upload items with unique IDs
+- [x] Implement `removeFile(id: string)` — removes from queue
+- [x] Implement `updateItem(id: string, updates: Partial<UploadItem>)`
+
+### 4.3 Implement Single File Upload Function ✅
+- [x] Create `uploadFile()` function with FormData
+- [x] Use FormData for file upload (to support binary PDFs)
+- [x] Call `POST /api/documents` endpoint
+- [x] Return created document ID on success
+- [x] Throw error with message on failure
+
+### 4.4 Add Progress Tracking ✅
+- [x] Use `XMLHttpRequest` for upload with progress events
+- [x] Listen to `upload.onprogress` event
+- [x] Calculate percentage: `(loaded / total) * 100`
+- [x] Call `updateItem` with new progress value
+- [x] Handle upload completion via `onload`
+
+### 4.5 Add Auto-Upload on File Add ✅
+- [x] Trigger upload immediately when file is added via useEffect
+- [x] Set status to `uploading`
+- [x] Update progress during upload (0 → 100)
+- [x] Set status to `complete` or `error` when done
+- [x] Store returned `documentId` on success
+
+### 4.6 Add Upload Cancellation ✅
+- [x] Create AbortController for each upload
+- [x] Store controller reference in upload item
+- [x] Implement `cancelUpload(id: string)` function
+- [x] Abort XMLHttpRequest when cancel called
+- [x] Set status to `error` with "Upload cancelled" message
+
+### 4.7 Add Concurrent Upload Limiting ✅
+- [x] Define `MAX_CONCURRENT_UPLOADS = 3` constant
+- [x] Track active uploads with ref
+- [x] When adding files, only start upload if under limit
+- [x] Queue excess files with status `pending`
+- [x] Start next pending upload when an active one completes (via useEffect)
+
+### 4.8 Add Retry Logic ✅
+- [x] Implement `retryUpload(id: string)` function
+- [x] Reset status to `pending` (will auto-start if under limit)
+- [x] Clear previous error
+- [x] Increment retry count (store in item)
+- [x] Limit retry attempts (max 3), show final error if exceeded
 
 ### 4.9 Integrate with Documents Store
 - [ ] Import `useDocumentsStore` in upload hook

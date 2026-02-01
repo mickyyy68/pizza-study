@@ -103,3 +103,37 @@ export interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   badge?: number | string;
 }
+
+/* =============================================================================
+   Upload
+   ============================================================================= */
+
+/** Status of a file in the upload queue */
+export type UploadStatus =
+  | "pending"
+  | "uploading"
+  | "processing"
+  | "complete"
+  | "error";
+
+/** Represents a file in the upload queue */
+export interface UploadItem {
+  /** Unique identifier for this upload */
+  id: string;
+  /** The file being uploaded */
+  file: File;
+  /** Title for the document (defaults to filename without extension) */
+  title: string;
+  /** Current upload status */
+  status: UploadStatus;
+  /** Upload progress (0-100) */
+  progress: number;
+  /** Error message if status is "error" */
+  error?: string;
+  /** Document ID returned after successful upload */
+  documentId?: string;
+  /** Number of retry attempts */
+  retryCount: number;
+  /** AbortController for cancellation */
+  abortController?: AbortController;
+}
