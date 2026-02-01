@@ -312,31 +312,31 @@
 
 ---
 
-## Phase 7: Polish & Accessibility
+## Phase 7: Polish & Accessibility ✅
 
-### 7.1 Add Keyboard Navigation
-- [ ] Dropzone focusable with Tab key (tabIndex={0})
-- [ ] Enter/Space triggers file picker when focused
-- [ ] List items have focusable remove/retry buttons
-- [ ] Focus trap doesn't get stuck
+### 7.1 Add Keyboard Navigation ✅
+- [x] Dropzone focusable with Tab key (tabIndex={0})
+- [x] Enter/Space triggers file picker when focused
+- [x] List items have focusable remove/retry buttons
+- [x] Focus trap doesn't get stuck
 
-### 7.2 Add Screen Reader Support
-- [ ] Add `aria-label="Upload files by dropping or clicking"` to dropzone
-- [ ] Use `aria-live="polite"` region to announce upload status changes
-- [ ] Label all buttons with `aria-label`
-- [ ] Add `role="listitem"` to upload list items
+### 7.2 Add Screen Reader Support ✅
+- [x] Add `aria-label="Upload files by dropping or clicking"` to dropzone
+- [x] Use `aria-live="polite"` region to announce upload status changes
+- [x] Label all buttons with `aria-label`
+- [x] Add `role="listitem"` to upload list items (using semantic `<li>`)
 
-### 7.3 Add Animations & Transitions
-- [ ] Animate file items entering list (fade-in + slide-down)
-- [ ] Animate progress bar filling (smooth width transition)
-- [ ] Animate status badge transitions (fade)
-- [ ] Animate item removal (fade-out, then remove from DOM)
+### 7.3 Add Animations & Transitions ✅
+- [x] Animate file items entering list (fade-in + slide-down)
+- [x] Animate progress bar filling (smooth width transition)
+- [x] Animate status badge transitions (fade)
+- [ ] Animate item removal (fade-out, then remove from DOM) — deferred (requires framer-motion or similar)
 
-### 7.4 Mobile Responsiveness
-- [ ] Ensure dropzone works on touch devices (tap to upload)
-- [ ] Reduce dropzone height on small screens
-- [ ] Stack file info vertically on mobile (< 640px)
-- [ ] Ensure tap targets are large enough (min 44px)
+### 7.4 Mobile Responsiveness ✅
+- [x] Ensure dropzone works on touch devices (tap to upload)
+- [x] Reduce dropzone height on small screens
+- [x] Stack file info vertically on mobile (< 640px)
+- [x] Ensure tap targets are large enough (min 44px)
 
 ---
 

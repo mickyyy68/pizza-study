@@ -143,28 +143,36 @@ export function UploadListItem({
   return (
     <li
       className={cn(
+        // Layout
         "group relative flex items-center gap-4 p-4",
+        // Mobile: stack vertically
+        "sm:flex-row flex-col sm:items-center items-start",
+        // Appearance
         "bg-card rounded-lg border border-border",
+        // Animations
         "transition-all duration-200",
+        "animate-in fade-in-0 slide-in-from-top-2",
+        // Hover states
         "hover:border-border/80 hover:shadow-sm",
+        // Status-specific styles
         status === "error" && "border-destructive/30 bg-destructive/5",
         status === "complete" && "border-emerald-500/30 bg-emerald-500/5",
         className,
       )}
     >
-      {/* File icon */}
+      {/* File icon - larger on mobile for better tap target */}
       <div
         className={cn(
           "flex-shrink-0 flex items-center justify-center",
-          "w-10 h-10 rounded-lg",
+          "w-12 h-12 sm:w-10 sm:h-10 rounded-lg",
           "bg-muted/50",
         )}
       >
         {getFileIcon(extension)}
       </div>
 
-      {/* File info */}
-      <div className="flex-1 min-w-0">
+      {/* File info - full width on mobile */}
+      <div className="flex-1 min-w-0 w-full sm:w-auto">
         {/* File name and type badge */}
         <div className="flex items-center gap-2 mb-1">
           <span
@@ -205,15 +213,16 @@ export function UploadListItem({
         )}
       </div>
 
-      {/* Actions */}
-      <div className="flex-shrink-0 flex items-center gap-1">
+      {/* Actions - positioned absolutely on mobile for better layout */}
+      <div className="flex-shrink-0 flex items-center gap-1 sm:relative absolute top-3 right-3 sm:top-auto sm:right-auto">
         {/* Retry button (only on error) */}
         {status === "error" && onRetry && (
           <button
             type="button"
             onClick={onRetry}
             className={cn(
-              "p-1.5 rounded-md",
+              // Larger tap target on mobile (min 44px)
+              "p-2.5 sm:p-1.5 rounded-md",
               "text-muted-foreground hover:text-primary",
               "hover:bg-primary/10",
               "transition-colors duration-150",
@@ -225,17 +234,19 @@ export function UploadListItem({
           </button>
         )}
 
-        {/* Remove button */}
+        {/* Remove button - always visible on mobile */}
         {onRemove && (
           <button
             type="button"
             onClick={onRemove}
             className={cn(
-              "p-1.5 rounded-md",
+              // Larger tap target on mobile (min 44px)
+              "p-2.5 sm:p-1.5 rounded-md",
               "text-muted-foreground hover:text-destructive",
               "hover:bg-destructive/10",
               "transition-colors duration-150",
-              "opacity-0 group-hover:opacity-100",
+              // Always visible on mobile, fade on hover on desktop
+              "sm:opacity-0 sm:group-hover:opacity-100",
               "focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
             aria-label="Remove file"

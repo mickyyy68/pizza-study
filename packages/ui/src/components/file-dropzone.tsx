@@ -33,9 +33,10 @@ const fileDropzoneVariants = cva(
         ],
       },
       size: {
-        sm: "min-h-32 p-4 gap-2",
-        md: "min-h-48 p-6 gap-3",
-        lg: "min-h-64 p-8 gap-4",
+        // Reduced heights on mobile for better viewport fit
+        sm: "min-h-24 sm:min-h-32 p-3 sm:p-4 gap-2",
+        md: "min-h-36 sm:min-h-48 p-4 sm:p-6 gap-2 sm:gap-3",
+        lg: "min-h-48 sm:min-h-64 p-6 sm:p-8 gap-3 sm:gap-4",
       },
     },
     defaultVariants: {

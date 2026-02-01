@@ -330,4 +330,68 @@
   .priority-low {
     @apply border-l-4 border-l-muted-foreground/30;
   }
+
+  /* ─────────────────────────────────────────────────────────────────────────
+   * Animation utilities (inspired by tailwindcss-animate)
+   * ───────────────────────────────────────────────────────────────────────── */
+
+  /* Base animation class - compose with specific animations */
+  .animate-in {
+    animation-name: enter;
+    animation-duration: 200ms;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+  }
+
+  .animate-out {
+    animation-name: exit;
+    animation-duration: 150ms;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+
+  /* Fade animations */
+  .fade-in-0 {
+    --enter-opacity: 0;
+  }
+
+  .fade-out-0 {
+    --exit-opacity: 0;
+  }
+
+  /* Slide animations */
+  .slide-in-from-top-2 {
+    --enter-translate-y: -0.5rem;
+  }
+
+  .slide-in-from-bottom-2 {
+    --enter-translate-y: 0.5rem;
+  }
+
+  .slide-out-to-top-2 {
+    --exit-translate-y: -0.5rem;
+  }
+
+  /* Keyframes for enter/exit animations */
+  @keyframes enter {
+    from {
+      opacity: var(--enter-opacity, 1);
+      transform: translateY(var(--enter-translate-y, 0)) translateX(var(--enter-translate-x, 0)) scale(var(--enter-scale, 1));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+  }
+
+  @keyframes exit {
+    from {
+      opacity: 1;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+    to {
+      opacity: var(--exit-opacity, 1);
+      transform: translateY(var(--exit-translate-y, 0)) translateX(var(--exit-translate-x, 0)) scale(var(--exit-scale, 1));
+    }
+  }
 }
