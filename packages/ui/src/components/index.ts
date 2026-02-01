@@ -61,7 +61,31 @@ export {
   CardTitle,
   type CardTitleProps,
 } from "./card";
-export { ChatInput, type ChatInputProps } from "./chat-input";
+export {
+  ChatInput,
+  type ChatInputProps,
+  type MentionedDocument,
+  type AttachedFile,
+} from "./chat-input";
+export {
+  DocumentPicker,
+  type DocumentPickerProps,
+  type PickerDocument,
+} from "./document-picker";
+export {
+  DocumentChip,
+  type DocumentChipProps,
+  AttachmentChip,
+  type AttachmentChipProps,
+  ChipsContainer,
+  type ChipsContainerProps,
+} from "./input-chips";
+export {
+  MessageSkeleton,
+  type MessageSkeletonProps,
+  MessageSkeletonList,
+  ThinkingIndicator,
+} from "./message-skeleton";
 // Chat
 export {
   ChatMessage,
@@ -69,6 +93,27 @@ export {
   ChatTypingIndicator,
   chatMessageVariants,
 } from "./chat-message";
+export {
+  MarkdownRenderer,
+  type MarkdownRendererProps,
+} from "./markdown-renderer";
+export { CodeBlock, InlineCode, type CodeBlockProps } from "./code-block";
+export {
+  MessageActions,
+  type MessageActionsProps,
+} from "./message-actions";
+export { MessageErrorBoundary } from "./message-error-boundary";
+export {
+  Citation,
+  CitationBadge,
+  type CitationBadgeProps,
+  CitationPreview,
+  type CitationPreviewProps,
+  CitationSources,
+  type CitationSourcesProps,
+  parseCitations,
+  renderWithCitations,
+} from "./citation";
 export { Checkbox, type CheckboxProps } from "./checkbox";
 export {
   EmptyState,

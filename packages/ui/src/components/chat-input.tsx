@@ -1,12 +1,34 @@
-import { forwardRef, useCallback, useEffect, useRef } from "react";
+import * as React from "react";
+import { Paperclip, Send } from "lucide-react";
 import { cn } from "../lib/utils";
+import { DocumentPicker, type PickerDocument } from "./document-picker";
+import {
+  AttachmentChip,
+  ChipsContainer,
+  DocumentChip,
+} from "./input-chips";
 
 /**
  * ChatInput component for Pizza Study.
  *
- * An auto-growing textarea with send button for chat interfaces.
- * Handles Enter to submit, Shift+Enter for newlines.
+ * Rich input with:
+ * - Auto-growing textarea
+ * - @ mentions for documents
+ * - File attachments with drag-drop
+ * - Keyboard shortcuts
  */
+
+export interface MentionedDocument {
+  id: string;
+  name: string;
+}
+
+export interface AttachedFile {
+  id: string;
+  name: string;
+  status: "uploading" | "complete" | "error";
+  progress: number;
+}
 
 export interface ChatInputProps
   extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> {
@@ -18,13 +40,33 @@ export interface ChatInputProps
   onSubmit: () => void;
   /** Maximum rows before scrolling */
   maxRows?: number;
-  /** Show send button */
-  showSendButton?: boolean;
   /** Loading state (disables input) */
   isLoading?: boolean;
+
+  // @ Mentions
+  /** Available documents for @ mentions */
+  documents?: PickerDocument[];
+  /** Currently mentioned documents */
+  mentionedDocs?: MentionedDocument[];
+  /** Called when a document is mentioned */
+  onMentionAdd?: (doc: PickerDocument) => void;
+  /** Called when a mention is removed */
+  onMentionRemove?: (docId: string) => void;
+
+  // Attachments
+  /** Currently attached files */
+  attachments?: AttachedFile[];
+  /** Called when files are attached */
+  onAttach?: (files: FileList) => void;
+  /** Called when an attachment is removed */
+  onAttachmentRemove?: (id: string) => void;
+  /** Called to retry a failed upload */
+  onAttachmentRetry?: (id: string) => void;
+  /** Accepted file types */
+  acceptedFileTypes?: string;
 }
 
-export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
+export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
   (
     {
       className,
@@ -32,88 +74,317 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       onChange,
       onSubmit,
       maxRows = 5,
-      showSendButton = true,
       isLoading,
-      placeholder = "Type a message...",
+      placeholder = "Type a message... Use @ to mention documents",
       disabled,
+      // Mentions
+      documents = [],
+      mentionedDocs = [],
+      onMentionAdd,
+      onMentionRemove,
+      // Attachments
+      attachments = [],
+      onAttach,
+      onAttachmentRemove,
+      onAttachmentRetry,
+      acceptedFileTypes = ".pdf,.doc,.docx,.txt,.md",
       ...props
     },
-    ref,
+    ref
   ) => {
-    const internalRef = useRef<HTMLTextAreaElement>(null);
-    const textareaRef =
-      (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+    const internalRef = React.useRef<HTMLTextAreaElement>(null);
+    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // @ mention state
+    const [showPicker, setShowPicker] = React.useState(false);
+    const [mentionQuery, setMentionQuery] = React.useState("");
+    const [mentionStartIndex, setMentionStartIndex] = React.useState(-1);
+    const [selectedPickerIndex, setSelectedPickerIndex] = React.useState(0);
+
+    // Drag state
+    const [isDragging, setIsDragging] = React.useState(false);
 
     // Auto-resize textarea
-    const adjustHeight = useCallback(() => {
+    const adjustHeight = React.useCallback(() => {
       const textarea = textareaRef.current;
       if (!textarea) return;
 
-      // Reset height to auto to get correct scrollHeight
       textarea.style.height = "auto";
-
-      // Calculate max height based on maxRows
-      const lineHeight =
-        parseInt(getComputedStyle(textarea).lineHeight, 10) || 24;
+      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight, 10) || 24;
       const maxHeight = lineHeight * maxRows;
-
-      // Set new height, capped at maxHeight
       const newHeight = Math.min(textarea.scrollHeight, maxHeight);
       textarea.style.height = `${newHeight}px`;
     }, [maxRows, textareaRef]);
 
-    // Adjust height when value changes
-    // biome-ignore lint/correctness/useExhaustiveDependencies: value triggers height adjustment
-    useEffect(() => {
+    React.useEffect(() => {
       adjustHeight();
     }, [value, adjustHeight]);
 
-    // Handle key down
+    // Filter available documents (exclude already mentioned)
+    const availableDocs = React.useMemo(() => {
+      const mentionedIds = new Set(mentionedDocs.map((d) => d.id));
+      return documents.filter((d) => !mentionedIds.has(d.id));
+    }, [documents, mentionedDocs]);
+
+    // Handle input change with @ detection
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
+      const cursorPos = e.target.selectionStart;
+
+      onChange(newValue);
+
+      // Detect @ trigger
+      const textBeforeCursor = newValue.slice(0, cursorPos);
+      const atMatch = textBeforeCursor.match(/@(\w*)$/);
+
+      if (atMatch) {
+        setShowPicker(true);
+        setMentionQuery(atMatch[1]);
+        setMentionStartIndex(cursorPos - atMatch[0].length);
+        setSelectedPickerIndex(0);
+      } else {
+        setShowPicker(false);
+        setMentionQuery("");
+        setMentionStartIndex(-1);
+      }
+    };
+
+    // Handle document selection from picker
+    const handleDocumentSelect = (doc: PickerDocument) => {
+      if (mentionStartIndex >= 0) {
+        // Replace @query with empty (we show chips instead)
+        const before = value.slice(0, mentionStartIndex);
+        const after = value.slice(
+          mentionStartIndex + mentionQuery.length + 1 // +1 for @
+        );
+        onChange(before + after);
+      }
+
+      onMentionAdd?.(doc);
+      setShowPicker(false);
+      setMentionQuery("");
+      setMentionStartIndex(-1);
+      textareaRef.current?.focus();
+    };
+
+    // Handle keyboard navigation
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Picker navigation
+      if (showPicker) {
+        const filteredCount = availableDocs.filter((d) =>
+          d.name.toLowerCase().includes(mentionQuery.toLowerCase())
+        ).length;
+
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setSelectedPickerIndex((prev) =>
+            prev < filteredCount - 1 ? prev + 1 : prev
+          );
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setSelectedPickerIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          return;
+        }
+        if (e.key === "Enter" || e.key === "Tab") {
+          e.preventDefault();
+          const filtered = availableDocs.filter((d) =>
+            d.name.toLowerCase().includes(mentionQuery.toLowerCase())
+          );
+          if (filtered[selectedPickerIndex]) {
+            handleDocumentSelect(filtered[selectedPickerIndex]);
+          }
+          return;
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setShowPicker(false);
+          return;
+        }
+      }
+
+      // Submit on Enter (without Shift)
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        if (value.trim() && !isLoading && !disabled) {
+        if (canSubmit) {
           onSubmit();
         }
+        return;
+      }
+
+      // Cmd/Ctrl+Enter to force send
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (canSubmit) {
+          onSubmit();
+        }
+        return;
+      }
+
+      // Escape to blur
+      if (e.key === "Escape" && !showPicker) {
+        textareaRef.current?.blur();
+      }
+    };
+
+    // File attachment handlers
+    const handleFileSelect = () => {
+      fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        onAttach?.(e.target.files);
+        e.target.value = ""; // Reset for re-selection
+      }
+    };
+
+    // Drag and drop handlers
+    const handleDragEnter = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer.types.includes("Files")) {
+        setIsDragging(true);
+      }
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only close if leaving the container
+      if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+        setIsDragging(false);
+      }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        onAttach?.(e.dataTransfer.files);
       }
     };
 
     const isDisabled = disabled || isLoading;
-    const canSubmit = value.trim().length > 0 && !isDisabled;
+    const canSubmit = (value.trim().length > 0 || attachments.length > 0) && !isDisabled;
+    const hasChips = mentionedDocs.length > 0 || attachments.length > 0;
 
     return (
       <div
+        ref={containerRef}
         className={cn(
-          "flex items-end gap-2 p-2",
-          "bg-background border border-input rounded-xl",
-          "focus-within:ring-2 focus-within:ring-ring/30 focus-within:border-primary",
+          "relative flex flex-col",
+          "bg-background border rounded-xl",
           "transition-all duration-200",
+          "focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary",
+          isDragging && "ring-2 ring-primary border-primary bg-primary/5",
           isDisabled && "opacity-50",
-          className,
+          className
         )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        aria-dropeffect={isDragging ? "copy" : undefined}
       >
-        {/* Textarea */}
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={isDisabled}
-          rows={1}
-          className={cn(
-            "flex-1 resize-none bg-transparent",
-            "text-sm text-foreground placeholder:text-muted-foreground",
-            "focus:outline-none",
-            "disabled:cursor-not-allowed",
-            "py-2 px-2",
-            "max-h-32 overflow-y-auto",
-          )}
-          {...props}
-        />
+        {/* Drag overlay */}
+        {isDragging && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 z-10">
+            <span className="text-sm text-primary font-medium">
+              Drop files here
+            </span>
+          </div>
+        )}
 
-        {/* Send button */}
-        {showSendButton && (
+        {/* Chips (mentioned docs + attachments) */}
+        {hasChips && (
+          <ChipsContainer>
+            {mentionedDocs.map((doc) => (
+              <DocumentChip
+                key={doc.id}
+                id={doc.id}
+                name={doc.name}
+                onRemove={onMentionRemove || (() => {})}
+              />
+            ))}
+            {attachments.map((file) => (
+              <AttachmentChip
+                key={file.id}
+                id={file.id}
+                name={file.name}
+                status={file.status}
+                progress={file.progress}
+                onRemove={onAttachmentRemove || (() => {})}
+                onRetry={onAttachmentRetry}
+              />
+            ))}
+          </ChipsContainer>
+        )}
+
+        {/* Input row */}
+        <div className="flex items-end gap-2 p-2">
+          {/* Attachment button */}
+          {onAttach && (
+            <>
+              <button
+                type="button"
+                onClick={handleFileSelect}
+                disabled={isDisabled}
+                className={cn(
+                  "shrink-0 h-9 w-9 rounded-lg",
+                  "flex items-center justify-center",
+                  "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  "transition-colors",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                )}
+                aria-label="Attach file"
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept={acceptedFileTypes}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </>
+          )}
+
+          {/* Textarea */}
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={isDisabled}
+            rows={1}
+            className={cn(
+              "flex-1 resize-none bg-transparent",
+              "text-sm text-foreground placeholder:text-muted-foreground",
+              "focus:outline-none",
+              "disabled:cursor-not-allowed",
+              "py-2 px-2",
+              "max-h-32 overflow-y-auto"
+            )}
+            aria-label="Message input"
+            {...props}
+          />
+
+          {/* Send button */}
           <button
             type="button"
             onClick={() => canSubmit && onSubmit()}
@@ -125,12 +396,11 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
               "transition-all duration-150",
               "hover:bg-primary/90 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             )}
             aria-label="Send message"
           >
             {isLoading ? (
-              // Loading spinner
               <svg
                 className="h-4 w-4 animate-spin"
                 fill="none"
@@ -152,27 +422,25 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 />
               </svg>
             ) : (
-              // Send icon
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-                />
-              </svg>
+              <Send className="h-4 w-4" />
             )}
           </button>
+        </div>
+
+        {/* Document picker dropdown */}
+        {showPicker && availableDocs.length > 0 && (
+          <DocumentPicker
+            documents={availableDocs}
+            query={mentionQuery}
+            selectedIndex={selectedPickerIndex}
+            onSelect={handleDocumentSelect}
+            onClose={() => setShowPicker(false)}
+            className="bottom-full mb-2 left-0"
+          />
         )}
       </div>
     );
-  },
+  }
 );
 
 ChatInput.displayName = "ChatInput";
