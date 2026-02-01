@@ -35,23 +35,13 @@ export function CodeBlock({ children, language, className }: CodeBlockProps) {
           type="button"
           onClick={handleCopy}
           className={cn(
-            "flex items-center gap-1.5 rounded px-2 py-1 transition-colors",
+            "flex items-center justify-center p-1.5 rounded-md transition-colors",
             "hover:bg-zinc-700 hover:text-zinc-200",
             copied && "text-green-400",
           )}
           aria-label={copied ? "Copied!" : "Copy code"}
         >
-          {copied ? (
-            <>
-              <HugeiconsIcon icon={Tick01Icon} size={14} />
-              <span>Copied!</span>
-            </>
-          ) : (
-            <>
-              <HugeiconsIcon icon={Copy01Icon} size={14} />
-              <span>Copy</span>
-            </>
-          )}
+          <HugeiconsIcon icon={copied ? Tick01Icon : Copy01Icon} size={16} />
         </button>
       </div>
 

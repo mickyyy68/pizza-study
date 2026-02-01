@@ -67,24 +67,22 @@ export function MessageSkeletonList({
 
 /**
  * Thinking indicator shown before first token arrives.
+ * Matches ChatMessage design: no avatar, role label, blinking cursor.
  */
 export function ThinkingIndicator({ className }: { className?: string }) {
   return (
-    <div className={cn("flex gap-3", className)}>
-      {/* Avatar */}
-      <div className="shrink-0 h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-        <span className="text-xs font-medium text-muted-foreground">AI</span>
-      </div>
-
-      {/* Thinking bubble */}
-      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Thinking</span>
-          <div className="flex gap-1">
-            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
-          </div>
+    <div
+      className={cn(
+        "py-8 bg-muted/30 animate-in fade-in-0 duration-200",
+        className,
+      )}
+    >
+      <div className="max-w-2xl mx-auto px-8 space-y-2">
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          ✦ Assistant
+        </div>
+        <div className="text-base text-foreground leading-loose">
+          <span className="inline-block text-primary animate-pulse">█</span>
         </div>
       </div>
     </div>

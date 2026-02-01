@@ -2,7 +2,6 @@ import { useChat } from "@ai-sdk/react";
 import { BookOpen02Icon, SparklesIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Avatar,
   ChatInput,
   ChatMessage,
   SlideOver,
@@ -86,13 +85,6 @@ export function ChatSlideOver() {
             key={message.id}
             variant={message.role as "user" | "assistant"}
             content={message.content}
-            avatar={
-              message.role === "assistant" ? (
-                <Avatar size="sm" fallback="AI" />
-              ) : (
-                <Avatar size="sm" fallback="You" />
-              )
-            }
           />
         ))}
 
@@ -102,7 +94,6 @@ export function ChatSlideOver() {
             variant="assistant"
             content=""
             isStreaming
-            avatar={<Avatar size="sm" fallback="AI" />}
           />
         )}
 

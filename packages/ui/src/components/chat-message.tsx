@@ -1,5 +1,3 @@
-import { SparklesIcon, User03Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
 import { cn } from "../lib/utils";
 import {
@@ -14,11 +12,12 @@ import { MessageErrorBoundary } from "./message-error-boundary";
 /**
  * ChatMessage component for Pizza Study.
  *
- * Flat/linear design with:
- * - Full-width rows (no bubbles)
- * - Icon avatars (sparkle for AI, user icon for you)
- * - Hover actions below content
- * - Subtle background differentiation
+ * Clean, ChatGPT-style alternating row design:
+ * - Full-width rows with generous whitespace (py-8, max-w-2xl)
+ * - No avatars — minimal uppercase role labels with ✦ sparkle for assistant
+ * - Icon-only hover actions positioned top-right
+ * - Subtle background differentiation (assistant: bg-muted/30)
+ * - Optimized typography for long-form study content (text-base, leading-loose)
  */
 
 export interface ChatMessageProps
@@ -31,8 +30,6 @@ export interface ChatMessageProps
   timestamp?: Date;
   /** Show streaming indicator */
   isStreaming?: boolean;
-  /** Custom avatar (overrides default icon) */
-  avatar?: React.ReactNode;
   /** Citations for this message */
   citations?: Citation[];
   /** Callback when user clicks edit */
@@ -47,9 +44,8 @@ export function ChatMessage({
   className,
   variant = "assistant",
   content,
-  timestamp,
+  timestamp: _timestamp,
   isStreaming,
-  avatar,
   citations = [],
   onEdit,
   onRegenerate,
@@ -64,8 +60,8 @@ export function ChatMessage({
   const isAssistant = variant === "assistant";
   const isSystem = variant === "system";
 
-  // Handle citation badge click - scroll to sources
-  const handleCitationClick = (citationId: string) => {
+  // Handle citation badge click - scroll to sources (not yet wired up)
+  const _handleCitationClick = (citationId: string) => {
     setHighlightedCitation(citationId);
     const sourceEl = document.getElementById(`source-${citationId}`);
     sourceEl?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -94,27 +90,18 @@ export function ChatMessage({
         <div className="space-y-3">
           <MarkdownRenderer content={processedContent} />
           {citations.length > 0 && (
-            <CitationSources
-              citations={citations}
-              highlightedId={highlightedCitation || undefined}
-              onSourceClick={onCitationClick}
-            />
+            <div className="mt-4 pt-4 border-t border-border/50">
+              <CitationSources
+                citations={citations}
+                highlightedId={highlightedCitation || undefined}
+                onSourceClick={onCitationClick}
+              />
+            </div>
           )}
         </div>
       </MessageErrorBoundary>
     );
   };
-
-  // Default avatar icons
-  const defaultAvatar = isUser ? (
-    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-      <HugeiconsIcon icon={User03Icon} size={16} className="text-primary" />
-    </div>
-  ) : (
-    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-      <HugeiconsIcon icon={SparklesIcon} size={16} className="text-primary" />
-    </div>
-  );
 
   // System messages (centered, no avatar)
   if (isSystem) {
@@ -138,73 +125,43 @@ export function ChatMessage({
   return (
     <div
       className={cn(
-        "group relative py-6 animate-in fade-in-0 duration-200",
-        isAssistant && "bg-muted/40",
+        "group relative py-8 animate-in fade-in-0 duration-200",
+        isAssistant && "bg-muted/30",
         className,
       )}
       role="article"
       aria-label={`${variant} message`}
       {...props}
     >
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="flex gap-4">
-          {/* Avatar */}
-          <div className="shrink-0 pt-0.5">
-            {avatar || defaultAvatar}
-          </div>
+      <div className="max-w-2xl mx-auto px-8 space-y-2 relative">
+        {/* Actions (show on hover) - positioned top-right */}
+        {!isStreaming && (
+          <MessageActions
+            role={isUser ? "user" : "assistant"}
+            content={content}
+            onEdit={isUser ? onEdit : undefined}
+            onRegenerate={isAssistant ? onRegenerate : undefined}
+            className="absolute top-0 right-0"
+          />
+        )}
 
-          {/* Content */}
-          <div className="flex-1 min-w-0 space-y-2">
-            {/* Role label */}
-            <div className="text-sm font-medium text-foreground">
-              {isUser ? "You" : "Assistant"}
-            </div>
+        {/* Role label */}
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {isUser ? "You" : "✦ Assistant"}
+        </div>
 
-            {/* Message content */}
-            <div className="text-sm text-foreground/90 leading-relaxed">
-              {renderContent()}
+        {/* Message content */}
+        <div className="text-base text-foreground leading-loose">
+          {renderContent()}
 
-              {/* Streaming indicator */}
-              {isStreaming && (
-                <span className="inline-flex gap-1 ml-1 align-middle">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
-                </span>
-              )}
-            </div>
-
-            {/* Actions (show on hover) */}
-            {!isStreaming && (
-              <MessageActions
-                role={isUser ? "user" : "assistant"}
-                content={content}
-                onEdit={isUser ? onEdit : undefined}
-                onRegenerate={isAssistant ? onRegenerate : undefined}
-              />
-            )}
-
-            {/* Timestamp */}
-            {timestamp && !isStreaming && (
-              <div className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                {formatTime(timestamp)}
-              </div>
-            )}
-          </div>
+          {/* Streaming indicator */}
+          {isStreaming && (
+            <span className="inline-block ml-0.5 text-primary animate-pulse">█</span>
+          )}
         </div>
       </div>
     </div>
   );
-}
-
-/**
- * Format timestamp for display
- */
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }
 
 /**
@@ -214,23 +171,14 @@ export function ChatTypingIndicator({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "py-6 bg-muted/30 animate-in fade-in-0 duration-200",
+        "py-8 bg-muted/30 animate-in fade-in-0 duration-200",
         className,
       )}
     >
-      <div className="max-w-3xl mx-auto px-6">
-        <div className="flex gap-4">
-          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <HugeiconsIcon icon={SparklesIcon} size={16} className="text-primary" />
-          </div>
-          <div className="flex-1 pt-1">
-            <div className="text-sm font-medium text-foreground mb-2">Assistant</div>
-            <div className="flex gap-1.5">
-              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-bounce" />
-            </div>
-          </div>
+      <div className="max-w-2xl mx-auto px-8 space-y-2">
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">✦ Assistant</div>
+        <div className="text-base text-foreground leading-loose">
+          <span className="inline-block text-primary animate-pulse">█</span>
         </div>
       </div>
     </div>

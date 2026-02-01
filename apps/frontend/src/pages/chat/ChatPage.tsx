@@ -134,6 +134,7 @@ export function ChatPage() {
     handleSubmit,
     isLoading,
     setMessages,
+    stop,
   } = useChat({
     api: `${API_URL}/api/chat`,
     body: {
@@ -400,26 +401,27 @@ export function ChatPage() {
           {messages.length === 0 ? (
             <WelcomeScreen onSuggestionClick={handleInputChange} />
           ) : (
-            <div className="flex flex-col gap-4">
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  variant={message.role as "user" | "assistant"}
-                  content={message.content}
-                />
-              ))}
+            <div className="flex flex-col">
+              {messages.map((message, index) => {
+                const isLastMessage = index === messages.length - 1;
+                const isStreamingMessage =
+                  isLastMessage &&
+                  message.role === "assistant" &&
+                  isLoading &&
+                  !isThinking;
+
+                return (
+                  <ChatMessage
+                    key={message.id}
+                    variant={message.role as "user" | "assistant"}
+                    content={message.content}
+                    isStreaming={isStreamingMessage}
+                  />
+                );
+              })}
 
               {/* Thinking indicator (before first token) */}
               {isThinking && <ThinkingIndicator />}
-
-              {/* Streaming indicator (after first token) */}
-              {isLoading && !isThinking && messages.length > 0 && (
-                <ChatMessage
-                  variant="assistant"
-                  content=""
-                  isStreaming
-                />
-              )}
 
               {/* Error indicator */}
               {chatError && (
@@ -450,6 +452,7 @@ export function ChatPage() {
               } as ChangeEvent<HTMLTextAreaElement>)
             }
             onSubmit={onSubmit}
+            onStop={stop}
             placeholder="Ask anything... Use @ to mention documents"
             isLoading={isLoading}
             // @ Mentions

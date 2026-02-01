@@ -19,7 +19,7 @@ export interface MessageActionsProps {
 
 /**
  * Hover actions for chat messages.
- * Shows below the message content on hover.
+ * Icon-only buttons positioned at top-right of message on hover.
  */
 export function MessageActions({
   role,
@@ -60,7 +60,7 @@ export function MessageActions({
       role="toolbar"
       aria-label="Message actions"
       className={cn(
-        "flex items-center gap-0.5 -ml-2",
+        "flex items-center gap-1",
         "opacity-0 group-hover:opacity-100 transition-opacity duration-150",
         className,
       )}
@@ -107,17 +107,16 @@ function ActionButton({ icon, label, onClick, active }: ActionButtonProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-1",
-        "text-xs text-muted-foreground",
-        "hover:bg-muted hover:text-foreground",
+        "inline-flex items-center justify-center p-2 rounded-md",
+        "text-muted-foreground",
+        "hover:bg-muted/80 hover:text-foreground",
         "transition-colors duration-150",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         active && "text-green-600 dark:text-green-400",
       )}
       aria-label={label}
     >
-      <HugeiconsIcon icon={icon} size={14} />
-      <span>{label}</span>
+      <HugeiconsIcon icon={icon} size={16} />
     </button>
   );
 }
