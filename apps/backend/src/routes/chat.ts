@@ -14,9 +14,22 @@ const chat = new Hono().post(
       model: chatModel,
       system: SYSTEM_PROMPT,
       messages,
+      maxRetries: 0,
     });
 
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse({
+      getErrorMessage: (error) => {
+        console.error("AI chat error:", error);
+        if (error instanceof Error) {
+          return error.message;
+        }
+        try {
+          return JSON.stringify(error);
+        } catch {
+          return "Unknown error";
+        }
+      },
+    });
   },
 );
 
