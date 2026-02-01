@@ -1,25 +1,26 @@
 import {
+  Cancel01Icon,
+  CloudUploadIcon,
+  File02Icon,
+  GridIcon,
+  Menu01Icon,
+  Refresh01Icon,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
   Badge,
   Button,
+  buttonVariants,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  cn,
   Input,
   SkeletonCard,
-  buttonVariants,
-  cn,
 } from "@repo/ui";
-import {
-  FileText,
-  Grid,
-  List,
-  RefreshCw,
-  Search,
-  UploadCloud,
-  X,
-} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -113,14 +114,14 @@ export function DocumentsPage() {
                 onClick={fetchDocuments}
                 disabled={status === "loading"}
               >
-                <RefreshCw className="h-4 w-4" />
+                <HugeiconsIcon icon={Refresh01Icon} size={16} />
                 Refresh
               </Button>
               <Link
                 to="/documents/upload"
                 className={cn(buttonVariants(), "gap-2")}
               >
-                <UploadCloud className="h-4 w-4" />
+                <HugeiconsIcon icon={CloudUploadIcon} size={16} />
                 Upload
               </Link>
             </div>
@@ -128,7 +129,11 @@ export function DocumentsPage() {
 
           <div className="flex flex-wrap items-center gap-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
@@ -141,7 +146,7 @@ export function DocumentsPage() {
                   onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  <X className="h-4 w-4" />
+                  <HugeiconsIcon icon={Cancel01Icon} size={16} />
                 </button>
               )}
             </div>
@@ -158,7 +163,7 @@ export function DocumentsPage() {
                 )}
                 aria-label="Grid view"
               >
-                <Grid className="h-4 w-4" />
+                <HugeiconsIcon icon={GridIcon} size={16} />
               </button>
               <button
                 type="button"
@@ -171,7 +176,7 @@ export function DocumentsPage() {
                 )}
                 aria-label="List view"
               >
-                <List className="h-4 w-4" />
+                <HugeiconsIcon icon={Menu01Icon} size={16} />
               </button>
             </div>
           </div>
@@ -229,7 +234,11 @@ function DocumentCard({ document }: { document: ApiDocument }) {
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-            <FileText className="h-5 w-5 text-muted-foreground" />
+            <HugeiconsIcon
+              icon={File02Icon}
+              size={20}
+              className="text-muted-foreground"
+            />
           </div>
           <Badge variant="muted" size="sm">
             Document
@@ -239,9 +248,7 @@ function DocumentCard({ document }: { document: ApiDocument }) {
         <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors">
           {document.title}
         </h3>
-        <p className="text-xs text-muted-foreground line-clamp-3">
-          {preview}
-        </p>
+        <p className="text-xs text-muted-foreground line-clamp-3">{preview}</p>
 
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-3">
@@ -267,12 +274,14 @@ function DocumentRow({ document }: { document: ApiDocument }) {
 
   return (
     <div className="flex items-start gap-4 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-      <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+      <HugeiconsIcon
+        icon={File02Icon}
+        size={20}
+        className="text-muted-foreground mt-0.5"
+      />
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm truncate">{document.title}</p>
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {preview}
-        </p>
+        <p className="text-xs text-muted-foreground line-clamp-2">{preview}</p>
         <p className="text-xs text-muted-foreground">
           Updated {formatDate(document.updatedAt)}
         </p>
@@ -300,7 +309,11 @@ function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center h-full text-center">
       <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-        <FileText className="h-8 w-8 text-muted-foreground" />
+        <HugeiconsIcon
+          icon={File02Icon}
+          size={32}
+          className="text-muted-foreground"
+        />
       </div>
       <h3 className="font-serif text-lg font-semibold mb-2">
         {searchQuery ? "No matching documents" : "No documents yet"}
@@ -319,7 +332,7 @@ function EmptyState({
           to="/documents/upload"
           className={cn(buttonVariants({ size: "sm" }), "gap-2")}
         >
-          <UploadCloud className="h-4 w-4" />
+          <HugeiconsIcon icon={CloudUploadIcon} size={16} />
           Upload document
         </Link>
       )}

@@ -1,4 +1,14 @@
 import {
+  Add01Icon,
+  AlertCircleIcon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  BookOpen01Icon,
+  CheckmarkCircle02Icon,
+  Clock01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import {
   Badge,
   Button,
   cn,
@@ -10,15 +20,6 @@ import {
   SlideOverHeader,
 } from "@repo/ui";
 import { format, isSameDay, isSameMonth, isToday } from "date-fns";
-import {
-  AlertCircle,
-  BookOpen,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Plus,
-} from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import type { Task } from "../../types";
@@ -71,7 +72,7 @@ export function CalendarPage() {
       {error && (
         <div className="absolute top-0 left-0 right-0 z-50 bg-destructive/10 border-b border-destructive/20 p-3 flex items-center justify-between">
           <p className="text-sm text-destructive flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" />
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             {error}
           </p>
           <div className="flex gap-2">
@@ -108,7 +109,7 @@ export function CalendarPage() {
                 onClick={() => navigateMonth("prev")}
                 aria-label="Previous month"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
               </Button>
               <Button
                 variant="ghost"
@@ -116,7 +117,7 @@ export function CalendarPage() {
                 onClick={() => navigateMonth("next")}
                 aria-label="Next month"
               >
-                <ChevronRight className="h-4 w-4" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
               </Button>
             </div>
           </div>
@@ -160,7 +161,7 @@ export function CalendarPage() {
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-sm flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" />
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
               Tasks
             </h3>
             <Button
@@ -169,14 +170,14 @@ export function CalendarPage() {
               className="h-7 px-2"
               onClick={() => setIsAddTaskOpen(true)}
             >
-              <Plus className="h-3 w-3 mr-1" />
+              <HugeiconsIcon icon={Add01Icon} size={12} className="mr-1" />
               Add
             </Button>
           </div>
 
           {selectedTasks.length === 0 ? (
             <EmptyState
-              icon={<CheckCircle2 className="h-5 w-5" />}
+              icon={<HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />}
               title="No tasks"
               description="Add a task to plan your day"
               size="sm"
@@ -193,13 +194,13 @@ export function CalendarPage() {
         {/* Events Section */}
         <section>
           <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
-            <Clock className="h-4 w-4" />
+            <HugeiconsIcon icon={Clock01Icon} size={16} />
             Events
           </h3>
 
           {selectedEvents.length === 0 ? (
             <EmptyState
-              icon={<Clock className="h-5 w-5" />}
+              icon={<HugeiconsIcon icon={Clock01Icon} size={20} />}
               title="No events"
               description="Nothing scheduled for this day"
               size="sm"
@@ -354,11 +355,11 @@ function EventItem({
 }: {
   event: ReturnType<typeof useCalendarStore.getState>["events"][0];
 }) {
-  const typeIcons = {
-    "study-session": BookOpen,
-    exam: AlertCircle,
-    deadline: Clock,
-    review: CheckCircle2,
+  const typeIcons: Record<string, IconSvgElement> = {
+    "study-session": BookOpen01Icon,
+    exam: AlertCircleIcon,
+    deadline: Clock01Icon,
+    review: CheckmarkCircle02Icon,
   };
 
   const typeColors = {
@@ -368,7 +369,7 @@ function EventItem({
     review: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   };
 
-  const Icon = typeIcons[event.type];
+  const icon = typeIcons[event.type];
 
   return (
     <li className="flex items-start gap-3 p-3 rounded-lg border bg-card">
@@ -378,7 +379,7 @@ function EventItem({
           typeColors[event.type],
         )}
       >
-        <Icon className="h-4 w-4" />
+        <HugeiconsIcon icon={icon} size={16} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">{event.title}</p>

@@ -1,251 +1,246 @@
-# Tasks & Calendar Database Storage - Implementation Backlog
+# Chat Message Redesign — Implementation Backlog
 
-## ✅ IMPLEMENTATION COMPLETE
+## Overview
 
-All phases have been implemented. See notes below for important changes made during implementation.
+Redesign chat messages to follow a clean, ChatGPT-style alternating row pattern with improved whitespace, typography, and visual hierarchy. Optimized for study/tutoring and document-based chat use cases.
 
-### Key Changes From Original Plan:
-1. **Port Configuration**: Docker PostgreSQL uses port **5433** (not 5432) to avoid conflicts with local PostgreSQL
-2. **CORS Middleware**: Added `PATCH` to allowed methods in `apps/backend/src/middleware/cors.ts`
-3. **Schema Exports**: Used named exports `export { tasks }` instead of `export *` (matches codebase pattern)
-4. **Route Exports**: Used `export default tasksRoute` instead of named exports (matches codebase pattern)
-5. **RootLayout Path**: Correct path is `apps/frontend/src/layouts/RootLayout.tsx` (not components/layout)
-6. **Parse Utilities**: Created in `apps/frontend/src/lib/parse.ts` (not utils.ts)
-7. **Error Schema**: Not created (not needed - errors handled inline)
+**Design principles:**
+- Alternating backgrounds: user (transparent) vs assistant (subtle muted band)
+- No avatars — clean typography with minimal role labels
+- Icon-only actions on hover
+- More whitespace and better line-height for long educational content
 
 ---
 
-## Phase 1: Database Schema ✅
+## Phase 1: Layout Foundation ✓
 
-### Tasks Table
-- [x] Create `packages/database/src/schema/tasks.ts`
-- [x] Import required types: `uuid`, `text`, `timestamp`, `boolean`, `jsonb` from `drizzle-orm/pg-core`
-- [x] Define `tasks` table with all fields
-- [x] Add indexes using Drizzle callback pattern
-- [x] Export `tasks` table from the file
+### 1.1 Update container width and padding
+- [x] In `chat-message.tsx`, change `max-w-3xl` to `max-w-2xl` for tighter, more readable content width
+- [x] Change outer padding from `px-6` to `px-8` for more horizontal breathing room
 
-### Calendar Events Table
-- [x] Create `packages/database/src/schema/calendar-events.ts`
-- [x] Define `calendarEvents` table with all fields
-- [x] Add date index
-- [x] Export `calendarEvents` table
+### 1.2 Increase vertical spacing
+- [x] Change `py-6` to `py-8` on the main message container for both user and assistant messages
+- [x] Update `ChatTypingIndicator` to match with `py-8`
 
-### Schema Index
-- [x] Add `export { tasks } from "./tasks"` to `packages/database/src/schema/index.ts`
-- [x] Add `export { calendarEvents } from "./calendar-events"` to `packages/database/src/schema/index.ts`
-
-### Migration
-- [x] Run `bun run db:generate` to generate migration SQL
-- [x] Migration file: `packages/database/drizzle/0001_broken_dakota_north.sql`
-- [x] Run `bun run db:migrate` to apply migration
+### 1.3 Improve content typography
+- [x] Change content text from `text-sm` to `text-base` for better readability
+- [x] Change `leading-relaxed` to `leading-loose` for improved line spacing on long content
+- [x] Update `text-foreground/90` to `text-foreground` for full contrast
 
 ---
 
-## Phase 2: API Contracts (Zod Schemas) ✅
+## Phase 2: Remove Avatars ✓
 
-### Task Schemas
-- [x] Create `packages/contracts/src/schemas/task.ts`
-- [x] Define `taskSchema`, `createTaskSchema`, `updateTaskSchema`
-- [x] Export all schemas and inferred types
+### 2.1 Remove avatar from user messages
+- [x] Remove the `avatar` prop usage for user messages
+- [x] Remove the `defaultAvatar` rendering for user variant
+- [x] Remove the avatar container `<div className="shrink-0 pt-0.5">` wrapper for user messages
 
-### Calendar Event Schemas
-- [x] Create `packages/contracts/src/schemas/calendar-event.ts`
-- [x] Define `calendarEventSchema`, `createEventSchema`, `updateEventSchema`
-- [x] Export all schemas and inferred types
+### 2.2 Remove avatar from assistant messages
+- [x] Remove the `defaultAvatar` rendering for assistant variant
+- [x] Remove the avatar container wrapper for assistant messages
+- [x] Remove the `User03Icon` and `SparklesIcon` imports if no longer needed elsewhere
 
-### Stats Schema
-- [x] Create `packages/contracts/src/schemas/stats.ts`
-- [x] Define `studyStatsSchema`
-- [x] Export schema and inferred type
+### 2.3 Update layout structure
+- [x] Remove the `flex gap-4` wrapper that accommodated avatar + content
+- [x] Simplify to direct content rendering without the two-column layout
 
-### Contracts Index
-- [x] Add exports to `packages/contracts/src/index.ts`
+### 2.4 Clean up avatar-related props
+- [x] Remove `avatar` prop from `ChatMessageProps` interface
+- [x] Update any consumers passing custom avatars (ChatSlideOver.tsx)
 
----
-
-## Phase 3: Type Alignment ✅
-
-### Update Frontend Types to Match API
-- [x] Add `createdAt: Date` and `updatedAt: Date` to `Task` interface
-- [x] Add `createdAt: Date` and `updatedAt: Date` to `CalendarEvent` interface
-- [x] Change `CalendarEvent.documentIds` from optional to required
-
-### Create Date Conversion Utilities
-- [x] Create `apps/frontend/src/lib/parse.ts`
-- [x] Add `parseTaskFromApi` function
-- [x] Add `parseEventFromApi` function
+### 2.5 Update ChatTypingIndicator
+- [x] Remove avatar from typing indicator component
+- [x] Simplify layout to match new message structure
 
 ---
 
-## Phase 4: Backend API Routes ✅
+## Phase 3: Role Labels ✓
 
-### Tasks Route
-- [x] Create `apps/backend/src/routes/tasks.ts`
-- [x] Implement GET `/` with optional date filters
-- [x] Implement GET `/stats` (before /:id)
-- [x] Implement GET `/:id`
-- [x] Implement POST `/` with validation
-- [x] Implement PATCH `/:id`
-- [x] Implement DELETE `/:id`
-- [x] Export default
+### 3.1 Restyle user role label
+- [x] Change "You" label from `text-sm font-medium text-foreground` to `text-xs font-medium uppercase tracking-wide text-muted-foreground`
+- [x] Add `mb-2` spacing between label and content (via `space-y-2` on container)
 
-### Events Route
-- [x] Create `apps/backend/src/routes/events.ts`
-- [x] Implement full CRUD
-- [x] Export default
+### 3.2 Restyle assistant role label
+- [x] Change "Assistant" to "✦ Assistant" (add sparkle character before text)
+- [x] Apply same styling: `text-xs font-medium uppercase tracking-wide text-muted-foreground`
+- [x] Add `mb-2` spacing between label and content
 
-### Register Routes
-- [x] Import and register in `apps/backend/src/routes/index.ts`
-- [x] Build backend for RPC types: `bun run --filter backend build`
-
-### CORS Fix (Added during implementation)
-- [x] Add `PATCH` to `allowMethods` in `apps/backend/src/middleware/cors.ts`
+### 3.3 Update typing indicator label
+- [x] Apply same role label styling to typing indicator's "Assistant" text
+- [x] Add sparkle prefix to match assistant messages
 
 ---
 
-## Phase 5: Frontend Store Updates ✅
+## Phase 4: Background Differentiation ✓
 
-### Calendar Store
-- [x] Remove mock data imports
-- [x] Add loading/error state
-- [x] Add stats state
-- [x] Add `fetchTasks`, `fetchEvents`, `fetchStats` async actions
-- [x] Add `addTask` async action
-- [x] Add `toggleTaskComplete` with optimistic update and rollback
-- [x] Add `deleteTask` async action
-- [x] Add `addEvent`, `deleteEvent` async actions
-- [x] Add `clearError` action
+### 4.1 Remove background from user messages
+- [x] Ensure user messages have no background class (transparent by default)
+- [x] Remove any existing background styling for user variant
 
----
+### 4.2 Update assistant message background
+- [x] Change `bg-muted/40` to `bg-muted/30` for subtler differentiation
+- [x] Ensure background spans full viewport width (already does via parent container)
 
-## Phase 6: Frontend Initialization ✅
-
-### Create Initialization Hook
-- [x] Create `apps/frontend/src/hooks/useInitialize.ts`
-- [x] Implement hook with useEffect
-
-### Wire Up Initialization
-- [x] Update `apps/frontend/src/layouts/RootLayout.tsx`
-- [x] Call `useInitialize()` hook
+### 4.3 Update typing indicator background
+- [x] Verify `bg-muted/30` matches assistant message background
+- [x] Verify visual consistency between typing state and rendered message
 
 ---
 
-## Phase 7: Dashboard Stats Integration ✅
+## Phase 5: Actions Toolbar Redesign ✓
 
-- [x] Update `DashboardPage.tsx` to use real stats from store
-- [x] Remove `mockStats` import
-- [x] Show loading skeleton when `statsLoading`
-- [x] Handle null stats gracefully
+### 5.1 Create new icon-only action button
+- [x] In `message-actions.tsx`, modify `ActionButton` to be icon-only (remove `<span>{label}</span>`)
+- [x] Keep `aria-label` for accessibility
+- [x] Adjust padding from `px-2 py-1` to `p-2` for square icon buttons
+- [x] Update icon size from `14` to `16`
 
----
+### 5.2 Reposition actions to top-right
+- [x] Change actions container from below content to absolute positioned top-right
+- [x] Add `relative` to message content wrapper to enable absolute positioning
+- [x] Position actions with `absolute top-0 right-0`
 
-## Phase 8: UI Loading & Error States ✅
+### 5.3 Update actions container styling
+- [x] Remove `-ml-2` negative margin (no longer needed)
+- [x] Add `flex items-center gap-1` for icon spacing
+- [x] Keep hover opacity transition: `opacity-0 group-hover:opacity-100`
 
-### Calendar Page
-- [x] Add error banner with dismiss/retry buttons
-- [x] Import error handling from store
+### 5.4 Improve action button hover state
+- [x] Change hover background from `hover:bg-muted` to `hover:bg-muted/80`
+- [x] Add `rounded-md` if not present
+- [x] Ensure smooth transition with `transition-colors duration-150`
 
----
-
-## Phase 9: Cleanup ✅
-
-- [x] Add deprecation notice to `apps/frontend/src/mock/tasks.ts`
-- [x] Add `createdAt`/`updatedAt` to mock data for type compatibility
-- [x] Verify no mock imports in calendar store
-
----
-
-## Phase 10: Verification ✅
-
-- [x] All lint errors fixed
-- [x] TypeScript compiles successfully
-- [x] Backend endpoints tested and working
-- [x] Frontend connects to API
+### 5.5 Update copied state styling
+- [x] Keep checkmark icon swap behavior
+- [x] Ensure green tint works: `text-green-600 dark:text-green-400`
+- [x] Verify the 2-second timeout for reverting state
 
 ---
 
-## Setup Instructions
+## Phase 6: Streaming Indicator ✓
 
-### Prerequisites
-- Docker running
-- Node.js / Bun installed
+### 6.1 Replace bouncing dots with cursor
+- [x] Remove the three bouncing dot `<span>` elements from streaming state
+- [x] Add a blinking cursor character: `<span className="animate-pulse">█</span>`
 
-### Database Setup
-```bash
-# Start PostgreSQL (uses port 5433 to avoid conflicts)
-docker compose up -d
+### 6.2 Style the cursor
+- [x] Apply `text-primary` color to cursor for visibility
+- [x] Use `animate-pulse` for blinking effect
+- [x] Cursor appears inline after last character of content
 
-# Run migrations
-cd packages/database
-export $(cat ../../.env | grep -v '^#' | xargs)
-bun run db:migrate
-```
-
-### Development
-```bash
-# Start everything
-bun run dev
-
-# Or start individually:
-cd apps/backend && bun run dev   # API on http://localhost:3000
-cd apps/frontend && bun run dev  # UI on http://localhost:5173
-```
-
-### Testing API
-```bash
-# Create a task
-curl -X POST http://localhost:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test task","dueDate":"2025-02-01T10:00:00Z","priority":"high"}'
-
-# List tasks
-curl http://localhost:3000/api/tasks
-
-# Get stats
-curl http://localhost:3000/api/tasks/stats
-
-# Toggle complete (replace {id} with actual ID)
-curl -X PATCH http://localhost:3000/api/tasks/{id} \
-  -H "Content-Type: application/json" \
-  -d '{"completed":true}'
-```
+### 6.3 Update ChatTypingIndicator component
+- [x] Replace bouncing dots with same cursor treatment
+- [x] Show just the blinking cursor (no "Thinking..." text)
+- [x] Ensure consistent styling with in-message streaming cursor
 
 ---
 
-## Files Created
+## Phase 7: Citations Refinement ✓
 
-```
-packages/database/src/schema/tasks.ts
-packages/database/src/schema/calendar-events.ts
-packages/contracts/src/schemas/task.ts
-packages/contracts/src/schemas/calendar-event.ts
-packages/contracts/src/schemas/stats.ts
-apps/backend/src/routes/tasks.ts
-apps/backend/src/routes/events.ts
-apps/frontend/src/lib/parse.ts
-apps/frontend/src/hooks/useInitialize.ts
-```
+### 7.1 Add visual separator before citations
+- [x] Wrap `CitationSources` in a container with `mt-4 pt-4 border-t border-border/50`
+- [x] This creates clear separation between content and sources
+
+### 7.2 Compact citation styling (if needed)
+- [x] Reviewed `CitationSources` component styling — no changes needed
+
+---
+
+## Phase 8: Remove Timestamps ✓
+
+### 8.1 Remove timestamp display
+- [x] Remove the timestamp rendering block from `ChatMessage`
+- [x] Keep the `timestamp` prop in interface for API compatibility (prefixed with `_`)
+
+### 8.2 Clean up timestamp utility
+- [x] Remove `formatTime` function (only used by deleted timestamp display)
+
+---
+
+## Phase 9: System Messages ✓
+
+### 9.1 Review system message styling
+- [x] System messages already use `py-2` (not affected by `py-8` change)
+- [x] Verified centered pill styling looks good — no change needed
+
+---
+
+## Phase 10: Final Cleanup ✓
+
+### 10.1 Remove unused imports
+- [x] Remove `User03Icon` import
+- [x] Remove `SparklesIcon` import
+- [x] Remove `HugeiconsIcon` import from chat-message.tsx
+
+### 10.2 Update component documentation
+- [x] Update the JSDoc comment at top of `chat-message.tsx` to reflect new design
+- [x] Remove references to "Icon avatars" and update description
+
+### 10.3 Test all message variants
+- [x] Verify user message renders correctly
+- [x] Verify assistant message renders correctly
+- [x] Verify system message renders correctly
+- [x] Verify streaming state renders correctly
+- [x] Verify typing indicator renders correctly
+- [x] Test hover actions work for both user and assistant
+
+---
+
+## Phase 11: ThinkingIndicator Update ✓ (Added)
+
+### 11.1 Update ThinkingIndicator component
+- [x] Remove old avatar bubble design from `message-skeleton.tsx`
+- [x] Match new ChatMessage design: no avatar, role label, blinking cursor
+- [x] Apply same styling: `py-8 bg-muted/30`, `max-w-2xl mx-auto px-8`
+- [x] Add `✦ Assistant` label with same uppercase styling
+
+---
+
+## Phase 12: Streaming Flow Fix ✓ (Added)
+
+### 12.1 Fix double-block streaming issue
+- [x] Remove separate empty `<ChatMessage isStreaming />` in ChatPage.tsx
+- [x] Pass `isStreaming` prop to actual message being streamed
+- [x] Add logic to detect last assistant message during streaming
+- [x] Remove `gap-4` from messages container (messages have own `py-8` padding)
+
+---
+
+## Phase 13: Input & Code Block Improvements ✓ (Added)
+
+### 13.1 Add Stop button to ChatInput
+- [x] Add `onStop` prop to `ChatInputProps` interface
+- [x] Import `StopIcon` from hugeicons
+- [x] Show Stop button (instead of spinner) when `isLoading && onStop`
+- [x] Style with muted background, red hover state
+- [x] Wire up `stop` from useChat in ChatPage.tsx
+
+### 13.2 Fix code block copy button
+- [x] Make copy button icon-only (remove "Copy" text label)
+- [x] Update padding to `p-1.5` and icon size to `16`
+- [x] Simplify to single icon element with conditional icon swap
+
+---
 
 ## Files Modified
 
-```
-packages/database/src/schema/index.ts — added exports
-packages/contracts/src/index.ts — added exports
-apps/backend/src/routes/index.ts — registered routes
-apps/backend/src/middleware/cors.ts — added PATCH method
-apps/frontend/src/types/index.ts — added timestamps
-apps/frontend/src/stores/calendar-store.ts — API integration
-apps/frontend/src/pages/dashboard/DashboardPage.tsx — real stats
-apps/frontend/src/pages/calendar/CalendarPage.tsx — error handling
-apps/frontend/src/layouts/RootLayout.tsx — useInitialize hook
-apps/frontend/src/mock/tasks.ts — deprecation + type fixes
-docker-compose.yml — port 5433
-.env — port 5433
-```
+| File | Changes |
+|------|---------|
+| `packages/ui/src/components/chat-message.tsx` | Layout, spacing, avatars, role labels, backgrounds, streaming cursor |
+| `packages/ui/src/components/message-actions.tsx` | Icon-only buttons, positioning, padding |
+| `packages/ui/src/components/message-skeleton.tsx` | ThinkingIndicator redesign |
+| `packages/ui/src/components/chat-input.tsx` | Add onStop prop, Stop button |
+| `packages/ui/src/components/code-block.tsx` | Icon-only copy button |
+| `apps/frontend/src/pages/chat/ChatPage.tsx` | Streaming flow fix, wire up stop |
+| `apps/frontend/src/components/chat/ChatSlideOver.tsx` | Remove avatar prop usage |
 
-## Unchanged (as planned)
+---
 
-```
-apps/frontend/src/mock/documents.ts — documents stay mocked
-apps/frontend/src/stores/documents-store.ts — keep using mock data
-```
+## Out of Scope (Future Enhancements)
+
+- [ ] KaTeX/LaTeX math rendering
+- [ ] Timestamp as hover tooltip
+- [ ] Mobile-specific always-visible actions
+- [ ] Message edit mode UI
+- [ ] Regenerate loading state

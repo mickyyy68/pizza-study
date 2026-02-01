@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { mockDocuments, mockFolders } from "../mock/documents";
 import type { Document, Folder } from "../types";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 /**
  * Documents Store for Pizza Study.
@@ -17,6 +18,7 @@ interface DocumentsState {
   // Data
   documents: Document[];
   folders: Folder[];
+  isLoading: boolean;
 
   // Filters
   selectedFolderId: string | null;
@@ -27,6 +29,8 @@ interface DocumentsState {
   viewMode: "grid" | "list";
 
   // Actions
+  fetchDocuments: () => Promise<void>;
+  fetchFolders: () => Promise<void>;
   setSelectedFolder: (folderId: string | null) => void;
   toggleTag: (tag: string) => void;
   clearTags: () => void;
@@ -39,16 +43,79 @@ interface DocumentsState {
   getFolderPath: (folderId: string | null) => Folder[];
 }
 
+// Helper to parse API document to frontend Document type
+function parseDocumentFromApi(doc: {
+  id: string;
+  title: string;
+  content: string;
+  metadata?: { mimeType?: string; originalFilename?: string } | null;
+  folderId?: string | null;
+  tags?: string[] | null;
+  createdAt: string;
+  updatedAt: string;
+}): Document {
+  // Derive document type from mime type or filename
+  const mimeType = doc.metadata?.mimeType || "";
+  const filename = doc.metadata?.originalFilename || doc.title;
+  let type: Document["type"] = "note";
+
+  if (mimeType.includes("pdf") || filename.endsWith(".pdf")) {
+    type = "pdf";
+  } else if (filename.includes("flashcard")) {
+    type = "flashcard-deck";
+  } else if (mimeType.startsWith("image/")) {
+    type = "image";
+  }
+
+  return {
+    id: doc.id,
+    title: doc.title,
+    folderId: doc.folderId ?? null,
+    tags: doc.tags ?? [],
+    type,
+    content: doc.content,
+    createdAt: new Date(doc.createdAt),
+    updatedAt: new Date(doc.updatedAt),
+  };
+}
+
 export const useDocumentsStore = create<DocumentsState>((set, get) => ({
-  // Initialize with mock data
-  documents: mockDocuments,
-  folders: mockFolders,
+  // Initialize empty (will be populated from API)
+  documents: [],
+  folders: [],
+  isLoading: false,
 
   // Initial filter state
   selectedFolderId: null,
   selectedTags: [],
   searchQuery: "",
   viewMode: "grid",
+
+  // API Actions
+  fetchDocuments: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${API_URL}/api/documents`);
+      if (!response.ok) throw new Error("Failed to fetch documents");
+      const docs = await response.json();
+      set({ documents: docs.map(parseDocumentFromApi) });
+    } catch (error) {
+      console.error("Failed to fetch documents:", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchFolders: async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/folders`);
+      if (!response.ok) throw new Error("Failed to fetch folders");
+      const folders = await response.json();
+      set({ folders });
+    } catch (error) {
+      console.error("Failed to fetch folders:", error);
+    }
+  },
 
   // Actions
   setSelectedFolder: (folderId) => set({ selectedFolderId: folderId }),

@@ -5,6 +5,7 @@ export {
   embedDocument,
 } from "./embeddings";
 export {
+  hasDocuments,
   type RetrievalOptions,
   type RetrievalResult,
   retrieve,

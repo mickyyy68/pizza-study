@@ -26,22 +26,111 @@ export {
   CardTitle,
   type CardTitleProps,
 } from "./card";
-export { ChatInput, type ChatInputProps } from "./chat-input";
+export {
+  type ChatHistoryItemData,
+  ChatHistoryList,
+  type ChatHistoryListProps,
+} from "./chat-history-list";
+export {
+  type AttachedFile,
+  ChatInput,
+  type ChatInputProps,
+  type MentionedDocument,
+} from "./chat-input";
+// Chat Layout
+export {
+  ChatLayout,
+  ChatLayoutFooter,
+  type ChatLayoutFooterProps,
+  ChatLayoutMain,
+  type ChatLayoutMainProps,
+  ChatLayoutMessages,
+  type ChatLayoutMessagesProps,
+  type ChatLayoutProps,
+  ChatLayoutSidebar,
+  type ChatLayoutSidebarProps,
+} from "./chat-layout";
 // Chat
 export {
   ChatMessage,
   type ChatMessageProps,
   ChatTypingIndicator,
-  chatMessageVariants,
 } from "./chat-message";
+export {
+  ChatSidebarHeader,
+  type ChatSidebarHeaderProps,
+  ChatSidebarNewButton,
+  type ChatSidebarNewButtonProps,
+  ChatSidebarSearch,
+  type ChatSidebarSearchProps,
+  ChatSidebarSection,
+  type ChatSidebarSectionProps,
+  MobileSidebarTrigger,
+  type MobileSidebarTriggerProps,
+} from "./chat-sidebar";
 export { Checkbox, type CheckboxProps } from "./checkbox";
+export {
+  type Citation,
+  CitationBadge,
+  type CitationBadgeProps,
+  CitationPreview,
+  type CitationPreviewProps,
+  CitationSources,
+  type CitationSourcesProps,
+  parseCitations,
+  renderWithCitations,
+} from "./citation";
+export { CodeBlock, type CodeBlockProps, InlineCode } from "./code-block";
+export {
+  type DocumentItem,
+  DocumentList,
+  type DocumentListProps,
+} from "./document-list";
+export {
+  DocumentPicker,
+  type DocumentPickerProps,
+  type PickerDocument,
+} from "./document-picker";
 export {
   EmptyState,
   type EmptyStateAction,
   type EmptyStateProps,
 } from "./empty-state";
+// File Upload
+export {
+  FileDropzone,
+  type FileDropzoneProps,
+  fileDropzoneVariants,
+} from "./file-dropzone";
 // Form Elements
 export { Input, type InputProps } from "./input";
+export {
+  AttachmentChip,
+  type AttachmentChipProps,
+  ChipsContainer,
+  type ChipsContainerProps,
+  DocumentChip,
+  type DocumentChipProps,
+} from "./input-chips";
+export {
+  MarkdownRenderer,
+  type MarkdownRendererProps,
+} from "./markdown-renderer";
+export {
+  MessageActions,
+  type MessageActionsProps,
+} from "./message-actions";
+export { MessageErrorBoundary } from "./message-error-boundary";
+export {
+  MessageSkeleton,
+  MessageSkeletonList,
+  type MessageSkeletonProps,
+  ThinkingIndicator,
+} from "./message-skeleton";
+export {
+  ScrollToBottom,
+  type ScrollToBottomProps,
+} from "./scroll-to-bottom";
 export { Separator, type SeparatorProps } from "./separator";
 // Layout - Sidebar
 export {
@@ -82,3 +171,10 @@ export {
 } from "./slide-over";
 // Theme
 export { type Theme, ThemeToggle, type ThemeToggleProps } from "./theme-toggle";
+// Upload
+export { UploadList, type UploadListProps } from "./upload-list";
+export {
+  UploadListItem,
+  type UploadListItemProps,
+  type UploadStatus,
+} from "./upload-list-item";
