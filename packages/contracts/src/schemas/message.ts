@@ -8,6 +8,7 @@ export const chatRequestSchema = z.object({
     }),
   ),
   conversationId: z.string().uuid().nullish(),
+  model: z.string().nullish(),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;

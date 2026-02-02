@@ -128,6 +128,11 @@ export {
   ThinkingIndicator,
 } from "./message-skeleton";
 export {
+  type Model,
+  ModelSelector,
+  type ModelSelectorProps,
+} from "./model-selector";
+export {
   ScrollToBottom,
   type ScrollToBottomProps,
 } from "./scroll-to-bottom";

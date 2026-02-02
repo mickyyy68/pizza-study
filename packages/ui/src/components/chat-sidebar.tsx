@@ -205,11 +205,7 @@ export function ChatSidebarNewButton({
   className,
 }: ChatSidebarNewButtonProps) {
   return (
-    <Button
-      onClick={onClick}
-      className={cn("w-full", className)}
-      size="sm"
-    >
+    <Button onClick={onClick} className={cn("w-full", className)} size="sm">
       <HugeiconsIcon icon={Add01Icon} size={16} />
       New Chat
     </Button>

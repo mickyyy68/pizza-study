@@ -1,5 +1,10 @@
 import { zValidator } from "@hono/zod-validator";
-import { chatModel, SYSTEM_PROMPT } from "@repo/ai";
+import {
+  DEFAULT_MODEL_ID,
+  isValidModelId,
+  openrouter,
+  SYSTEM_PROMPT,
+} from "@repo/ai";
 import { chatRequestSchema } from "@repo/contracts";
 import { conversations, db, messages } from "@repo/database";
 import { retrieveContext } from "@repo/rag";
@@ -46,8 +51,19 @@ const chat = new Hono().post(
   "/",
   zValidator("json", chatRequestSchema),
   async (c) => {
-    const { messages: chatMessages, conversationId: providedConvoId } =
-      c.req.valid("json");
+    const {
+      messages: chatMessages,
+      conversationId: providedConvoId,
+      model: requestedModel,
+    } = c.req.valid("json");
+
+    // Validate and select model
+    const modelId =
+      requestedModel && isValidModelId(requestedModel)
+        ? requestedModel
+        : DEFAULT_MODEL_ID;
+    const selectedModel = openrouter(modelId);
+    console.log("[Chat] Using model:", modelId);
 
     // Get or create conversation
     let conversationId = providedConvoId;
@@ -112,7 +128,7 @@ const chat = new Hono().post(
     const systemPrompt = buildSystemPrompt(SYSTEM_PROMPT, ragContext);
 
     const result = streamText({
-      model: chatModel,
+      model: selectedModel,
       system: systemPrompt,
       messages: chatMessages,
       maxRetries: 0,

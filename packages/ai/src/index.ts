@@ -8,6 +8,14 @@ export {
   EMBEDDING_MODEL,
 } from "./config";
 export { embeddingModel, generateEmbedding } from "./embedding";
+export {
+  AVAILABLE_MODELS,
+  DEFAULT_MODEL_ID,
+  getModelById,
+  isValidModelId,
+  type ModelDefinition,
+  type ModelId,
+} from "./models";
 export * from "./prompts";
 export * from "./prompts/personalities";
 export * from "./tools";

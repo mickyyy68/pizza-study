@@ -1,10 +1,6 @@
 import * as React from "react";
 import { cn } from "../lib/utils";
-import {
-  type Citation,
-  CitationSources,
-  parseCitations,
-} from "./citation";
+import { type Citation, CitationSources, parseCitations } from "./citation";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { MessageActions } from "./message-actions";
 import { MessageErrorBoundary } from "./message-error-boundary";
@@ -156,7 +152,9 @@ export function ChatMessage({
 
           {/* Streaming indicator */}
           {isStreaming && (
-            <span className="inline-block ml-0.5 text-primary animate-pulse">█</span>
+            <span className="inline-block ml-0.5 text-primary animate-pulse">
+              █
+            </span>
           )}
         </div>
       </div>
@@ -176,7 +174,9 @@ export function ChatTypingIndicator({ className }: { className?: string }) {
       )}
     >
       <div className="max-w-2xl mx-auto px-8 space-y-2">
-        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">✦ Assistant</div>
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          ✦ Assistant
+        </div>
         <div className="text-base text-foreground leading-loose">
           <span className="inline-block text-primary animate-pulse">█</span>
         </div>

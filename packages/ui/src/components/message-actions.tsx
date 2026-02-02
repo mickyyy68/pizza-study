@@ -75,11 +75,7 @@ export function MessageActions({
 
       {/* Edit (user only) */}
       {role === "user" && onEdit && (
-        <ActionButton
-          icon={PencilEdit01Icon}
-          label="Edit"
-          onClick={onEdit}
-        />
+        <ActionButton icon={PencilEdit01Icon} label="Edit" onClick={onEdit} />
       )}
 
       {/* Regenerate (assistant only) */}

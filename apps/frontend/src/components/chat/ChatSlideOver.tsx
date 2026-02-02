@@ -90,11 +90,7 @@ export function ChatSlideOver() {
 
         {/* Loading indicator */}
         {isLoading && (
-          <ChatMessage
-            variant="assistant"
-            content=""
-            isStreaming
-          />
+          <ChatMessage variant="assistant" content="" isStreaming />
         )}
 
         {/* Scroll anchor */}

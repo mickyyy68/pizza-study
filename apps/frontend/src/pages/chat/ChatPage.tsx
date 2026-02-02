@@ -6,6 +6,7 @@ import {
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import { AVAILABLE_MODELS, DEFAULT_MODEL_ID } from "@repo/ai/models";
 import {
   type AttachedFile,
   ChatHistoryList,
@@ -24,6 +25,7 @@ import {
   DocumentList,
   type MentionedDocument,
   MobileSidebarTrigger,
+  ModelSelector,
   type PickerDocument,
   ScrollToBottom,
   ThinkingIndicator,
@@ -89,6 +91,8 @@ export function ChatPage() {
     updateAttachment,
     removeAttachment,
     clearAttachments,
+    selectedModelId,
+    setSelectedModelId,
   } = useChatStore();
 
   // Local state for thinking indicator and errors
@@ -127,6 +131,9 @@ export function ChatPage() {
   }, [setDocuments, fetchConversations]);
 
   // Vercel AI SDK chat hook with error handling and conversation persistence
+  // Use selected model or default
+  const activeModelId = selectedModelId || DEFAULT_MODEL_ID;
+
   const {
     messages,
     input,
@@ -139,6 +146,7 @@ export function ChatPage() {
     api: `${API_URL}/api/chat`,
     body: {
       conversationId: currentConversationId,
+      model: activeModelId,
     },
     onResponse: (response) => {
       // First token received, stop thinking
@@ -444,27 +452,36 @@ export function ChatPage() {
         </ChatLayoutMessages>
 
         <ChatLayoutFooter>
-          <ChatInput
-            value={input}
-            onChange={(value) =>
-              handleInputChange({
-                target: { value },
-              } as ChangeEvent<HTMLTextAreaElement>)
-            }
-            onSubmit={onSubmit}
-            onStop={stop}
-            placeholder="Ask anything... Use @ to mention documents"
-            isLoading={isLoading}
-            // @ Mentions
-            documents={pickerDocuments}
-            mentionedDocs={mentionedDocs}
-            onMentionAdd={handleMentionAdd}
-            onMentionRemove={removeMentionedDoc}
-            // Attachments
-            attachments={inputAttachments}
-            onAttach={handleAttach}
-            onAttachmentRemove={removeAttachment}
-          />
+          <div className="flex items-end gap-3">
+            <ModelSelector
+              models={AVAILABLE_MODELS}
+              selectedModelId={activeModelId}
+              onSelectModel={setSelectedModelId}
+            />
+            <div className="flex-1">
+              <ChatInput
+                value={input}
+                onChange={(value) =>
+                  handleInputChange({
+                    target: { value },
+                  } as ChangeEvent<HTMLTextAreaElement>)
+                }
+                onSubmit={onSubmit}
+                onStop={stop}
+                placeholder="Ask anything... Use @ to mention documents"
+                isLoading={isLoading}
+                // @ Mentions
+                documents={pickerDocuments}
+                mentionedDocs={mentionedDocs}
+                onMentionAdd={handleMentionAdd}
+                onMentionRemove={removeMentionedDoc}
+                // Attachments
+                attachments={inputAttachments}
+                onAttach={handleAttach}
+                onAttachmentRemove={removeAttachment}
+              />
+            </div>
+          </div>
           <p className="text-xs text-muted-foreground text-center mt-2">
             <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">@</kbd>{" "}
             mention docs ·{" "}

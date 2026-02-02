@@ -10,6 +10,7 @@ export default defineConfig({
       "@repo/ui": resolve(__dirname, "../../packages/ui/src"),
       "@repo/contracts": resolve(__dirname, "../../packages/contracts/src"),
       "@repo/utils": resolve(__dirname, "../../packages/utils/src"),
+      "@repo/ai": resolve(__dirname, "../../packages/ai/src"),
     },
   },
 });

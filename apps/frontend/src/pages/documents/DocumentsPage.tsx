@@ -102,9 +102,12 @@ export function DocumentsPage() {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`${API_URL}/api/documents/${deleteTarget.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${API_URL}/api/documents/${deleteTarget.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete document");

@@ -65,6 +65,9 @@ interface ChatState {
   mentionedDocIds: string[];
   attachments: Attachment[];
 
+  // Model selection
+  selectedModelId: string | null;
+
   // Sidebar actions
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
@@ -98,6 +101,9 @@ interface ChatState {
   removeAttachment: (id: string) => void;
   clearAttachments: () => void;
 
+  // Model selection actions
+  setSelectedModelId: (modelId: string) => void;
+
   // Computed
   getSelectedDocuments: () => ChatDocument[];
   getSelectedDocumentIds: () => string[];
@@ -126,6 +132,9 @@ export const useChatStore = create<ChatState>()(
       // Initial input state
       mentionedDocIds: [],
       attachments: [],
+
+      // Model selection (null means use default)
+      selectedModelId: null,
 
       // Sidebar actions
       toggleSidebar: () =>
@@ -255,6 +264,9 @@ export const useChatStore = create<ChatState>()(
         })),
       clearAttachments: () => set({ attachments: [] }),
 
+      // Model selection actions
+      setSelectedModelId: (modelId) => set({ selectedModelId: modelId }),
+
       // Computed
       getSelectedDocuments: () => {
         return get().documents.filter((doc) => doc.isSelected);
@@ -272,6 +284,8 @@ export const useChatStore = create<ChatState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         documentsSectionCollapsed: state.documentsSectionCollapsed,
         historySectionCollapsed: state.historySectionCollapsed,
+        // Persist model selection
+        selectedModelId: state.selectedModelId,
       }),
     },
   ),
