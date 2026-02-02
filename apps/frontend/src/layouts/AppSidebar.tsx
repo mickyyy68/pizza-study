@@ -5,7 +5,6 @@ import {
   Chat01Icon,
   DashboardSquare01Icon,
   File02Icon,
-  FileUploadIcon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
@@ -37,11 +36,6 @@ const navItems: { path: string; label: string; icon: IconSvgElement }[] = [
     path: "/documents",
     label: "Documents",
     icon: File02Icon,
-  },
-  {
-    path: "/documents/upload",
-    label: "Upload",
-    icon: FileUploadIcon,
   },
   {
     path: "/calendar",
