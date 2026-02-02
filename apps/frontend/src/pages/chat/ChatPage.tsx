@@ -452,36 +452,34 @@ export function ChatPage() {
         </ChatLayoutMessages>
 
         <ChatLayoutFooter>
-          <div className="flex items-end gap-3">
-            <ModelSelector
-              models={AVAILABLE_MODELS}
-              selectedModelId={activeModelId}
-              onSelectModel={setSelectedModelId}
-            />
-            <div className="flex-1">
-              <ChatInput
-                value={input}
-                onChange={(value) =>
-                  handleInputChange({
-                    target: { value },
-                  } as ChangeEvent<HTMLTextAreaElement>)
-                }
-                onSubmit={onSubmit}
-                onStop={stop}
-                placeholder="Ask anything... Use @ to mention documents"
-                isLoading={isLoading}
-                // @ Mentions
-                documents={pickerDocuments}
-                mentionedDocs={mentionedDocs}
-                onMentionAdd={handleMentionAdd}
-                onMentionRemove={removeMentionedDoc}
-                // Attachments
-                attachments={inputAttachments}
-                onAttach={handleAttach}
-                onAttachmentRemove={removeAttachment}
+          <ChatInput
+            value={input}
+            onChange={(value) =>
+              handleInputChange({
+                target: { value },
+              } as ChangeEvent<HTMLTextAreaElement>)
+            }
+            onSubmit={onSubmit}
+            onStop={stop}
+            placeholder="Ask anything... Use @ to mention documents"
+            isLoading={isLoading}
+            modelSelector={
+              <ModelSelector
+                models={AVAILABLE_MODELS}
+                selectedModelId={activeModelId}
+                onSelectModel={setSelectedModelId}
               />
-            </div>
-          </div>
+            }
+            // @ Mentions
+            documents={pickerDocuments}
+            mentionedDocs={mentionedDocs}
+            onMentionAdd={handleMentionAdd}
+            onMentionRemove={removeMentionedDoc}
+            // Attachments
+            attachments={inputAttachments}
+            onAttach={handleAttach}
+            onAttachmentRemove={removeAttachment}
+          />
           <p className="text-xs text-muted-foreground text-center mt-2">
             <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">@</kbd>{" "}
             mention docs ·{" "}

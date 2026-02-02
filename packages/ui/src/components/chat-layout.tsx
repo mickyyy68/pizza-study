@@ -16,7 +16,7 @@ export interface ChatLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
 export function ChatLayout({ className, children, ...props }: ChatLayoutProps) {
   return (
     <div
-      className={cn("flex h-full min-h-0 overflow-hidden", className)}
+      className={cn("flex h-full min-h-0", className)}
       {...props}
     >
       {children}
@@ -144,7 +144,7 @@ export function ChatLayoutMain({
   return (
     <main
       role="main"
-      className={cn("flex flex-1 flex-col min-h-0 min-w-0", className)}
+      className={cn("relative flex flex-1 flex-col min-h-0 min-w-0", className)}
       {...props}
     >
       {children}
@@ -169,40 +169,46 @@ export interface ChatLayoutMessagesProps
  * Scrollable container for chat messages.
  * Designed to support virtualization.
  * Supports scroll shadows via props (from useAutoScroll hook).
+ *
+ * Note: Uses an outer wrapper without overflow to allow sibling dropdowns
+ * to render above this component without being clipped.
  */
 export const ChatLayoutMessages = React.forwardRef<
   HTMLDivElement,
   ChatLayoutMessagesProps
 >(({ className, children, showTopShadow, showBottomShadow, ...props }, ref) => {
   return (
-    <div
-      ref={ref}
-      className={cn("relative flex-1 overflow-y-auto px-4 py-6", className)}
-      {...props}
-    >
-      {/* Top scroll shadow */}
+    <div className="relative flex-1 min-h-0">
+      {/* Inner scrollable container */}
       <div
-        className={cn(
-          "pointer-events-none sticky top-0 -mt-6 h-6 w-full",
-          "bg-gradient-to-b from-background to-transparent",
-          "transition-opacity duration-200",
-          showTopShadow ? "opacity-100" : "opacity-0",
-        )}
-        aria-hidden="true"
-      />
+        ref={ref}
+        className={cn("absolute inset-0 overflow-y-auto overflow-x-hidden px-4 py-6", className)}
+        {...props}
+      >
+        {/* Top scroll shadow */}
+        <div
+          className={cn(
+            "pointer-events-none sticky top-0 -mt-6 h-6 w-full",
+            "bg-gradient-to-b from-background to-transparent",
+            "transition-opacity duration-200",
+            showTopShadow ? "opacity-100" : "opacity-0",
+          )}
+          aria-hidden="true"
+        />
 
-      <div className="mx-auto w-full max-w-[720px]">{children}</div>
+        <div className="mx-auto w-full max-w-[720px]">{children}</div>
 
-      {/* Bottom scroll shadow */}
-      <div
-        className={cn(
-          "pointer-events-none sticky bottom-0 -mb-6 h-6 w-full",
-          "bg-gradient-to-t from-background to-transparent",
-          "transition-opacity duration-200",
-          showBottomShadow ? "opacity-100" : "opacity-0",
-        )}
-        aria-hidden="true"
-      />
+        {/* Bottom scroll shadow */}
+        <div
+          className={cn(
+            "pointer-events-none sticky bottom-0 -mb-6 h-6 w-full",
+            "bg-gradient-to-t from-background to-transparent",
+            "transition-opacity duration-200",
+            showBottomShadow ? "opacity-100" : "opacity-0",
+          )}
+          aria-hidden="true"
+        />
+      </div>
     </div>
   );
 });
@@ -219,6 +225,7 @@ export interface ChatLayoutFooterProps
 
 /**
  * Sticky footer for chat input.
+ * Uses z-index layering to ensure dropdowns render above the messages area.
  */
 export function ChatLayoutFooter({
   className,
@@ -228,7 +235,7 @@ export function ChatLayoutFooter({
   return (
     <div
       className={cn(
-        "border-t border-border bg-background px-4 py-4",
+        "relative z-10 border-t border-border bg-background px-4 py-4",
         className,
       )}
       {...props}

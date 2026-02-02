@@ -9,8 +9,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run",
-    "build": "tsc"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "drizzle-orm": "^0.38.0",

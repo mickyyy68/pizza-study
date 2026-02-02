@@ -1,5 +1,8 @@
 // Utilities
 export { cn } from "../lib/utils";
+export { useIsMobile } from "../hooks/use-mobile";
+// Layout - Bottom Sheet
+export { BottomSheet, type BottomSheetProps } from "./bottom-sheet";
 // Data Display
 export {
   Avatar,

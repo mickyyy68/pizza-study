@@ -12,9 +12,9 @@ import { AttachmentChip, ChipsContainer, DocumentChip } from "./input-chips";
 /**
  * ChatInput component for Pizza Study.
  *
- * Rich input with:
- * - Auto-growing textarea
- * - @ mentions for documents
+ * Unified input bar with:
+ * - Optional model selector slot
+ * - @ mentions for documents (minimal inline tags)
  * - File attachments with drag-drop
  * - Keyboard shortcuts
  */
@@ -45,6 +45,9 @@ export interface ChatInputProps
   isLoading?: boolean;
   /** Stop handler (shown when loading) */
   onStop?: () => void;
+
+  /** Optional model selector element to render inline */
+  modelSelector?: React.ReactNode;
 
   // @ Mentions
   /** Available documents for @ mentions */
@@ -79,8 +82,9 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       maxRows = 5,
       isLoading,
       onStop,
-      placeholder = "Type a message... Use @ to mention documents",
+      placeholder = "Type a message...",
       disabled,
+      modelSelector,
       // Mentions
       documents = [],
       mentionedDocs = [],
@@ -160,7 +164,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
     // Handle document selection from picker
     const handleDocumentSelect = (doc: PickerDocument) => {
       if (mentionStartIndex >= 0) {
-        // Replace @query with empty (we show chips instead)
+        // Replace @query with empty (we show tags instead)
         const before = value.slice(0, mentionStartIndex);
         const after = value.slice(
           mentionStartIndex + mentionQuery.length + 1, // +1 for @
@@ -260,7 +264,6 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
     const handleDragLeave = (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      // Only close if leaving the container
       if (!containerRef.current?.contains(e.relatedTarget as Node)) {
         setIsDragging(false);
       }
@@ -284,17 +287,26 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
     const isDisabled = disabled || isLoading;
     const canSubmit =
       (value.trim().length > 0 || attachments.length > 0) && !isDisabled;
-    const hasChips = mentionedDocs.length > 0 || attachments.length > 0;
+    const hasDocTags = mentionedDocs.length > 0;
+    const hasAttachments = attachments.length > 0;
 
     return (
       <div
         ref={containerRef}
         className={cn(
           "relative flex flex-col",
-          "bg-background border rounded-xl",
-          "transition-all duration-200",
-          "focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary",
-          isDragging && "ring-2 ring-primary border-primary bg-primary/5",
+          // Writing desk effect with gradient border on focus
+          "writing-desk",
+          // Floating effect with warm shadow
+          "bg-gradient-to-b from-card to-background",
+          "border border-border/60 rounded-xl",
+          // Hide regular border on focus (gradient border takes over)
+          "focus-within:border-transparent",
+          "shadow-md hover:shadow-lg",
+          "transition-all duration-300 ease-out",
+          // Drag state
+          isDragging &&
+          "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-lg",
           isDisabled && "opacity-50",
           className,
         )}
@@ -306,68 +318,67 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       >
         {/* Drag overlay */}
         {isDragging && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 z-10">
-            <span className="text-sm text-primary font-medium">
-              Drop files here
-            </span>
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl border-2 border-dashed border-primary/60 bg-gradient-to-b from-primary/8 to-primary/5 z-10 backdrop-blur-[1px]">
+            <div className="flex flex-col items-center gap-1">
+              <HugeiconsIcon
+                icon={Attachment01Icon}
+                size={24}
+                className="text-primary/70"
+              />
+              <span className="text-sm text-primary font-medium">
+                Drop files here
+              </span>
+            </div>
           </div>
         )}
 
-        {/* Chips (mentioned docs + attachments) */}
-        {hasChips && (
-          <ChipsContainer>
-            {mentionedDocs.map((doc) => (
-              <DocumentChip
-                key={doc.id}
-                id={doc.id}
-                name={doc.name}
-                onRemove={onMentionRemove || (() => {})}
-              />
-            ))}
-            {attachments.map((file) => (
-              <AttachmentChip
-                key={file.id}
-                id={file.id}
-                name={file.name}
-                status={file.status}
-                progress={file.progress}
-                onRemove={onAttachmentRemove || (() => {})}
-                onRetry={onAttachmentRetry}
-              />
-            ))}
-          </ChipsContainer>
+        {/* Attachment chips (above the input bar) */}
+        {hasAttachments && (
+          <div className="px-3 pt-2 pb-1">
+            <ChipsContainer>
+              {attachments.map((file) => (
+                <AttachmentChip
+                  key={file.id}
+                  id={file.id}
+                  name={file.name}
+                  status={file.status}
+                  progress={file.progress}
+                  onRemove={onAttachmentRemove || (() => { })}
+                  onRetry={onAttachmentRetry}
+                />
+              ))}
+            </ChipsContainer>
+          </div>
         )}
 
-        {/* Input row */}
-        <div className="flex items-end gap-2 p-2">
-          {/* Attachment button */}
-          {onAttach && (
-            <>
-              <button
-                type="button"
-                onClick={handleFileSelect}
-                disabled={isDisabled}
-                className={cn(
-                  "shrink-0 h-9 w-9 rounded-lg",
-                  "flex items-center justify-center",
-                  "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  "transition-colors",
-                  "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-                )}
-                aria-label="Attach file"
-              >
-                <HugeiconsIcon icon={Attachment01Icon} size={16} />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept={acceptedFileTypes}
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </>
+        {/* Document chips row (shown above input when present) */}
+        {hasDocTags && (
+          <div className="px-3 pt-2.5 pb-1">
+            <ChipsContainer>
+              {mentionedDocs.map((doc) => (
+                <DocumentChip
+                  key={doc.id}
+                  id={doc.id}
+                  name={doc.name}
+                  onRemove={onMentionRemove || (() => { })}
+                />
+              ))}
+            </ChipsContainer>
+          </div>
+        )}
+
+        {/* Main input row */}
+        <div className="flex items-end gap-2 px-3 pb-2.5 pt-3">
+          {/* Model selector (optional slot) */}
+          {modelSelector && (
+            <div className="shrink-0 self-center p-1">{modelSelector}</div>
+          )}
+
+          {/* Separator after model selector */}
+          {modelSelector && (
+            <div className="shrink-0 self-stretch flex items-center py-1">
+              <div className="w-px h-5 bg-border/40" />
+            </div>
           )}
 
           {/* Textarea */}
@@ -380,16 +391,67 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
             disabled={isDisabled}
             rows={1}
             className={cn(
-              "flex-1 resize-none bg-transparent",
-              "text-sm text-foreground placeholder:text-muted-foreground",
-              "focus:outline-none",
+              "flex-1 resize-none bg-transparent min-w-0",
+              // Typography - slightly larger, more presence
+              "text-sm leading-relaxed",
+              "text-foreground placeholder:text-muted-foreground/60",
+              // Themed caret
+              "caret-primary",
+              // Reset ALL browser styling
+              "appearance-none",
+              "border-0 border-none",
+              "outline-0 outline-none",
+              "ring-0 ring-offset-0",
+              "shadow-none",
+              // Also on focus states
+              "focus:border-0 focus:outline-0 focus:ring-0 focus:shadow-none",
+              "focus-visible:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:shadow-none",
               "disabled:cursor-not-allowed",
-              "py-2 px-2",
-              "max-h-32 overflow-y-auto",
+              // More generous padding
+              "py-2.5",
+              "max-h-36 overflow-y-auto",
             )}
+            style={{
+              // Extra insurance against browser defaults
+              border: "none",
+              outline: "none",
+              boxShadow: "none",
+              WebkitAppearance: "none",
+            }}
             aria-label="Message input"
             {...props}
           />
+
+          {/* Attachment button */}
+          {onAttach && (
+            <>
+              <button
+                type="button"
+                onClick={handleFileSelect}
+                disabled={isDisabled}
+                className={cn(
+                  "shrink-0 size-9 rounded-lg",
+                  "flex items-center justify-center",
+                  "text-muted-foreground/60 hover:text-foreground",
+                  "hover:bg-muted/60",
+                  "transition-all duration-200",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                )}
+                aria-label="Attach file"
+              >
+                <HugeiconsIcon icon={Attachment01Icon} size={18} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept={acceptedFileTypes}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </>
+          )}
 
           {/* Send/Stop button */}
           {isLoading && onStop ? (
@@ -397,12 +459,15 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               type="button"
               onClick={onStop}
               className={cn(
-                "shrink-0 h-9 w-9 rounded-lg",
+                "shrink-0 size-9 rounded-lg",
                 "flex items-center justify-center",
-                "bg-muted text-muted-foreground",
-                "transition-all duration-150",
-                "hover:bg-destructive/10 hover:text-destructive active:scale-95",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                // Subtle background with clear intent
+                "bg-muted/60 text-muted-foreground",
+                "border border-border/50",
+                "transition-all duration-200",
+                "hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30",
+                "active:scale-95",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
               aria-label="Stop generating"
             >
@@ -414,13 +479,21 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               onClick={() => canSubmit && onSubmit()}
               disabled={!canSubmit}
               className={cn(
-                "shrink-0 h-9 w-9 rounded-lg",
+                "shrink-0 size-9 rounded-lg",
                 "flex items-center justify-center",
-                "bg-primary text-primary-foreground",
-                "transition-all duration-150",
-                "hover:bg-primary/90 active:scale-95",
-                "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                // Gradient background for premium feel
+                "bg-gradient-to-br from-primary to-primary/90",
+                "text-primary-foreground",
+                "transition-all duration-200",
+                // Enhanced hover with shadow
+                "hover:from-primary/95 hover:to-primary/85",
+                "hover:shadow-md hover:shadow-primary/20",
+                // Active press effect
+                "active:scale-95 active:shadow-sm",
+                // Disabled state
+                "disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100",
+                "disabled:hover:shadow-none disabled:hover:from-primary disabled:hover:to-primary/90",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
               aria-label="Send message"
             >

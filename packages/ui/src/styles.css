@@ -227,6 +227,86 @@
 }
 
 /*
+ * Component layer styles
+ */
+@layer components {
+  /* ─────────────────────────────────────────────────────────────────────────
+   * Writing Desk - Chat input with gradient border effect
+   * ───────────────────────────────────────────────────────────────────────── */
+  .writing-desk {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Gradient border on focus */
+  .writing-desk::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      oklch(0.50 0.16 25) 0%,
+      oklch(0.58 0.14 55) 50%,
+      oklch(0.50 0.16 25) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .writing-desk:focus-within::before {
+    opacity: 1;
+  }
+
+  /* Inner glow effect - like candlelight */
+  .writing-desk::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      ellipse at center bottom,
+      oklch(0.50 0.16 25 / 0.06) 0%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .writing-desk:focus-within::after {
+    opacity: 1;
+  }
+
+  /* Dark mode adjustments */
+  .dark .writing-desk::before {
+    background: linear-gradient(
+      135deg,
+      oklch(0.60 0.18 25) 0%,
+      oklch(0.55 0.14 70) 50%,
+      oklch(0.60 0.18 25) 100%
+    );
+  }
+
+  .dark .writing-desk::after {
+    background: radial-gradient(
+      ellipse at center bottom,
+      oklch(0.60 0.18 25 / 0.10) 0%,
+      transparent 70%
+    );
+  }
+}
+
+/*
  * Base layer styles
  */
 @layer base {
@@ -376,6 +456,10 @@
     --enter-translate-y: 1rem;
   }
 
+  .slide-in-from-bottom-3 {
+    --enter-translate-y: 0.75rem;
+  }
+
   .slide-in-from-left-2 {
     --enter-translate-x: -0.5rem;
   }
@@ -399,6 +483,10 @@
 
   .zoom-in-95 {
     --enter-scale: 0.95;
+  }
+
+  .zoom-in-98 {
+    --enter-scale: 0.98;
   }
 
   .zoom-out-95 {

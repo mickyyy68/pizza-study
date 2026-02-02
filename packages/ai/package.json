@@ -9,8 +9,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run",
-    "build": "tsc"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "ai": "^4.0.0",
