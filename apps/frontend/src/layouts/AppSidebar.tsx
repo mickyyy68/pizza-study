@@ -1,5 +1,4 @@
 import {
-  Books01Icon,
   Calendar03Icon,
   Cancel01Icon,
   Chat01Icon,
@@ -71,34 +70,47 @@ export function AppSidebar({ onMobileClose }: AppSidebarProps) {
   return (
     <Sidebar collapsed={sidebarCollapsed}>
       {/* Header with logo */}
-      <SidebarHeader>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-              <HugeiconsIcon icon={Books01Icon} size={20} />
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex flex-col">
-                <span className="font-serif font-semibold text-foreground">
-                  Pizza Study
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Learn deliciously
-                </span>
-              </div>
-            )}
-          </div>
+      <SidebarHeader
+        className={cn(
+          "relative",
+          sidebarCollapsed ? "h-20" : "h-auto min-h-[160px] py-4",
+        )}
+      >
+        {/* Mobile close button - positioned absolute */}
+        {onMobileClose && (
+          <button
+            type="button"
+            onClick={onMobileClose}
+            className="md:hidden absolute top-2 right-2 p-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors z-10"
+            aria-label="Close menu"
+          >
+            <HugeiconsIcon icon={Cancel01Icon} size={20} />
+          </button>
+        )}
 
-          {/* Mobile close button */}
-          {onMobileClose && (
-            <button
-              type="button"
-              onClick={onMobileClose}
-              className="md:hidden p-2 -mr-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
-              aria-label="Close menu"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
-            </button>
+        <div
+          className={cn(
+            "flex flex-col items-center w-full",
+            sidebarCollapsed ? "justify-center" : "gap-2",
+          )}
+        >
+          <img
+            src="/logo_nobg_compressed.png"
+            alt="Pizza Study"
+            className={cn(
+              "object-contain transition-all duration-200",
+              sidebarCollapsed ? "h-20 w-20" : "h-28 w-28",
+            )}
+          />
+          {!sidebarCollapsed && (
+            <div className="flex flex-col items-center text-center">
+              <span className="font-serif font-semibold text-foreground">
+                Pizza Study
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Learn deliciously
+              </span>
+            </div>
           )}
         </div>
       </SidebarHeader>

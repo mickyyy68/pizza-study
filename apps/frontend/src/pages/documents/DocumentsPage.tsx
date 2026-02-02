@@ -1,6 +1,7 @@
 import {
   Cancel01Icon,
   CloudUploadIcon,
+  Delete01Icon,
   File02Icon,
   GridIcon,
   Menu01Icon,
@@ -48,6 +49,11 @@ export function DocumentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchDocuments = useCallback(async () => {
     setStatus("loading");
@@ -82,6 +88,37 @@ export function DocumentsPage() {
   useEffect(() => {
     void fetchDocuments();
   }, [fetchDocuments]);
+
+  const handleDeleteClick = useCallback((doc: ApiDocument) => {
+    setDeleteTarget({ id: doc.id, title: doc.title });
+  }, []);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteTarget(null);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`${API_URL}/api/documents/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete document");
+      }
+
+      setDocuments((prev) => prev.filter((doc) => doc.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      // Keep dialog open so user can retry
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deleteTarget]);
 
   const filteredDocuments = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -213,24 +250,74 @@ export function DocumentsPage() {
           >
             {filteredDocuments.map((doc) =>
               viewMode === "grid" ? (
-                <DocumentCard key={doc.id} document={doc} />
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  onDelete={handleDeleteClick}
+                />
               ) : (
-                <DocumentRow key={doc.id} document={doc} />
+                <DocumentRow
+                  key={doc.id}
+                  document={doc}
+                  onDelete={handleDeleteClick}
+                />
               ),
             )}
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={handleDeleteCancel}
+            onKeyDown={(e) => e.key === "Escape" && handleDeleteCancel()}
+          />
+          <div className="relative bg-background border border-border rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
+            <h2 className="font-serif text-lg font-semibold mb-2">
+              Delete Document
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to delete "{deleteTarget.title}"? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={handleDeleteCancel}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function DocumentCard({ document }: { document: ApiDocument }) {
+function DocumentCard({
+  document,
+  onDelete,
+}: {
+  document: ApiDocument;
+  onDelete: (doc: ApiDocument) => void;
+}) {
   const preview = buildPreview(document.content);
   const tags = extractTags(document.metadata);
 
   return (
-    <Card className="group hover:shadow-md transition-all duration-200">
+    <Card className="group hover:shadow-md transition-all duration-200 relative">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
@@ -240,9 +327,19 @@ function DocumentCard({ document }: { document: ApiDocument }) {
               className="text-muted-foreground"
             />
           </div>
-          <Badge variant="muted" size="sm">
-            Document
-          </Badge>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onDelete(document)}
+              className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              aria-label={`Delete ${document.title}`}
+            >
+              <HugeiconsIcon icon={Delete01Icon} size={16} />
+            </button>
+            <Badge variant="muted" size="sm">
+              Document
+            </Badge>
+          </div>
         </div>
 
         <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors">
@@ -268,7 +365,13 @@ function DocumentCard({ document }: { document: ApiDocument }) {
   );
 }
 
-function DocumentRow({ document }: { document: ApiDocument }) {
+function DocumentRow({
+  document,
+  onDelete,
+}: {
+  document: ApiDocument;
+  onDelete: (doc: ApiDocument) => void;
+}) {
   const preview = buildPreview(document.content);
   const tags = extractTags(document.metadata);
 
@@ -295,6 +398,14 @@ function DocumentRow({ document }: { document: ApiDocument }) {
           ))}
         </div>
       )}
+      <button
+        type="button"
+        onClick={() => onDelete(document)}
+        className="p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+        aria-label={`Delete ${document.title}`}
+      >
+        <HugeiconsIcon icon={Delete01Icon} size={16} />
+      </button>
     </div>
   );
 }
