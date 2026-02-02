@@ -58,9 +58,14 @@ function sanitizeFilename(filename: string): string {
  * Uses dynamic import to avoid loading pdf-parse unless needed.
  */
 async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
-  const pdfParse = (await import("pdf-parse")).default;
-  const result = await pdfParse(Buffer.from(buffer));
-  return result.text;
+  const { PDFParse } = await import("pdf-parse");
+  const parser = new PDFParse({ data: Buffer.from(buffer) });
+  try {
+    const result = await parser.getText();
+    return result.text;
+  } finally {
+    await parser.destroy();
+  }
 }
 
 const documentsRoute = new Hono()
