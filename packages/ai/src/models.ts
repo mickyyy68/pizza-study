@@ -16,6 +16,11 @@ export interface ModelDefinition {
 
 export const AVAILABLE_MODELS: ModelDefinition[] = [
   {
+    id: "stepfun/step-3.5-flash:free",
+    name: "StepFun 3.5 Flash (Free)",
+    description: "Fast, lightweight model",
+  },
+  {
     id: "moonshotai/kimi-k2",
     name: "Kimi K2.5",
     description: "Great for reasoning & analysis",
@@ -33,7 +38,7 @@ export const AVAILABLE_MODELS: ModelDefinition[] = [
 ];
 
 /** Default model ID when none is selected */
-export const DEFAULT_MODEL_ID = AVAILABLE_MODELS[0].id;
+export const DEFAULT_MODEL_ID = "stepfun/step-3.5-flash:free";
 
 /** All valid model IDs as a type */
 export type ModelId = (typeof AVAILABLE_MODELS)[number]["id"];
