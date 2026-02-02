@@ -281,7 +281,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   },
 
   // UI actions
-  setSelectedDate: (date) => set({ selectedDate: date }),
+  setSelectedDate: (date) => set({ selectedDate: date, currentMonth: date }),
 
   navigateMonth: (direction) =>
     set((state) => ({

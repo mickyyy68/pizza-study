@@ -19,46 +19,116 @@ import {
   SlideOverFooter,
   SlideOverHeader,
 } from "@repo/ui";
-import { format, isSameDay, isSameMonth, isToday } from "date-fns";
-import { useEffect, useState } from "react";
+import {
+  addWeeks,
+  eachDayOfInterval,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  startOfWeek,
+  subWeeks,
+} from "date-fns";
+import { useEffect, useMemo, useState } from "react";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
-import type { Task } from "../../types";
+import type { CalendarEvent, Task } from "../../types";
+
+const priorityOrder: Record<Task["priority"], number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
+
+const typeIcons: Record<CalendarEvent["type"], IconSvgElement> = {
+  "study-session": BookOpen01Icon,
+  exam: AlertCircleIcon,
+  deadline: Clock01Icon,
+  review: CheckmarkCircle02Icon,
+};
+
+const typeBadgeStyles: Record<CalendarEvent["type"], string> = {
+  "study-session": "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  exam: "bg-destructive/10 text-destructive",
+  deadline: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  review: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+};
+
+const typeDotStyles: Record<CalendarEvent["type"], string> = {
+  "study-session": "bg-blue-500",
+  exam: "bg-destructive",
+  deadline: "bg-amber-500",
+  review: "bg-emerald-500",
+};
+
+function parseTimeToMinutes(time?: string | null) {
+  if (!time) return Number.POSITIVE_INFINITY;
+  const [hours, minutes] = time.split(":").map(Number);
+  if (Number.isNaN(hours)) return Number.POSITIVE_INFINITY;
+  return hours * 60 + (Number.isNaN(minutes) ? 0 : minutes);
+}
 
 /**
- * CalendarPage - Day-focused planning for Pizza Study.
- *
- * Features:
- * - Month grid view
- * - Day selection
- * - Task list for selected day
- * - Event indicators
+ * CalendarPage - Agenda-first planning view for Pizza Study.
  */
 export function CalendarPage() {
   const {
     tasks,
     events,
-    currentMonth,
     selectedDate,
     navigateMonth,
     goToToday,
     getCalendarDays,
     addTask,
+    addEvent,
     error,
     clearError,
     fetchTasks,
     fetchEvents,
+    setSelectedDate,
+    getUpcomingEvents,
   } = useCalendarStore();
 
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [isAddEventOpen, setIsAddEventOpen] = useState(false);
 
   const days = getCalendarDays();
-  // Filter tasks/events for selected date - subscribing to tasks/events ensures re-renders
-  const selectedTasks = tasks.filter((task) =>
-    isSameDay(task.dueDate, selectedDate),
+  const weekStart = startOfWeek(selectedDate);
+  const weekEnd = endOfWeek(selectedDate);
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const selectedTasks = useMemo(
+    () => tasks.filter((task) => isSameDay(task.dueDate, selectedDate)),
+    [tasks, selectedDate],
   );
-  const selectedEvents = events.filter((event) =>
-    isSameDay(event.date, selectedDate),
+  const selectedEvents = useMemo(
+    () => events.filter((event) => isSameDay(event.date, selectedDate)),
+    [events, selectedDate],
   );
+
+  const sortedEvents = useMemo(
+    () =>
+      [...selectedEvents].sort(
+        (a, b) =>
+          parseTimeToMinutes(a.startTime) -
+          parseTimeToMinutes(b.startTime),
+      ),
+    [selectedEvents],
+  );
+
+  const sortedTasks = useMemo(
+    () =>
+      [...selectedTasks].sort((a, b) => {
+        if (a.completed !== b.completed) {
+          return Number(a.completed) - Number(b.completed);
+        }
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      }),
+    [selectedTasks],
+  );
+
+  const upcomingEvents = getUpcomingEvents(4);
+  const hasAgenda = sortedEvents.length > 0 || sortedTasks.length > 0;
 
   const handleRetry = () => {
     clearError();
@@ -66,11 +136,21 @@ export function CalendarPage() {
     fetchEvents();
   };
 
+  const handleWeekChange = (direction: "prev" | "next") => {
+    setSelectedDate(
+      direction === "prev"
+        ? subWeeks(selectedDate, 1)
+        : addWeeks(selectedDate, 1),
+    );
+  };
+
   return (
-    <div className="flex h-full">
+    <div className="relative flex h-full overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,244,235,0.9),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(219,239,255,0.7),transparent_45%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(46,30,24,0.7),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(20,30,48,0.8),transparent_45%)]" />
+
       {/* Error Banner */}
       {error && (
-        <div className="absolute top-0 left-0 right-0 z-50 bg-destructive/10 border-b border-destructive/20 p-3 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 z-50 border-b border-destructive/20 bg-destructive/10 p-3 flex items-center justify-between">
           <p className="text-sm text-destructive flex items-center gap-2">
             <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             {error}
@@ -86,134 +166,172 @@ export function CalendarPage() {
         </div>
       )}
 
-      {/* Calendar Grid */}
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="relative z-10 flex h-full w-full flex-col gap-6 p-6">
         {/* Header */}
-        <header className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-serif font-bold">
-              {formatDate(currentMonth, "MMMM yyyy")}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Plan your study sessions
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={goToToday}>
-              Today
-            </Button>
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigateMonth("prev")}
-                aria-label="Previous month"
-              >
-                <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigateMonth("next")}
-                aria-label="Next month"
-              >
-                <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
-              </Button>
+        <header className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+                Agenda
+              </p>
+              <h1 className="text-3xl font-serif font-bold text-foreground">
+                {formatDate(selectedDate, "EEEE, MMMM d")}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Week of {format(weekStart, "MMM d")} ·{" "}
+                {formatDate(selectedDate, "MMMM yyyy")}
+              </p>
             </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={goToToday}>
+                Today
+              </Button>
+              <div className="flex items-center rounded-full border border-border bg-background/80 p-1 shadow-sm">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleWeekChange("prev")}
+                  aria-label="Previous week"
+                >
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleWeekChange("next")}
+                  aria-label="Next week"
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Week Strip */}
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {weekDays.map((day) => (
+              <WeekDayPill key={day.toISOString()} date={day} />
+            ))}
           </div>
         </header>
 
-        {/* Calendar Grid */}
-        <div className="flex-1 flex flex-col min-h-0">
-          {/* Day headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div
-                key={day}
-                className="text-center text-xs font-semibold text-muted-foreground py-2"
-              >
-                {day}
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 min-h-0">
+          <main className="flex flex-col gap-4 min-h-0">
+            {/* Agenda Card */}
+            <section className="rounded-2xl border border-border/70 bg-card/80 backdrop-blur p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-serif text-xl font-semibold">
+                    Daily Agenda
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Plan sessions, track tasks, and stay focused.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsAddEventOpen(true)}
+                  >
+                    <HugeiconsIcon icon={Clock01Icon} size={14} className="mr-1" />
+                    Add Event
+                  </Button>
+                  <Button size="sm" onClick={() => setIsAddTaskOpen(true)}>
+                    <HugeiconsIcon icon={Add01Icon} size={14} className="mr-1" />
+                    Add Task
+                  </Button>
+                </div>
               </div>
-            ))}
-          </div>
 
-          {/* Day cells */}
-          <div className="grid grid-cols-7 gap-1 flex-1">
-            {days.map((day) => (
-              <DayCell key={day.toISOString()} date={day} />
-            ))}
-          </div>
+              {!hasAgenda ? (
+                <div className="mt-6 rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-center">
+                  <EmptyState
+                    icon={<HugeiconsIcon icon={Clock01Icon} size={20} />}
+                    title="Nothing scheduled yet"
+                    description="Add a study block or a focus task to get started."
+                    size="sm"
+                  />
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsAddEventOpen(true)}
+                    >
+                      Add Event
+                    </Button>
+                    <Button size="sm" onClick={() => setIsAddTaskOpen(true)}>
+                      Add Task
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 grid gap-6">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
+                        Schedule
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        {sortedEvents.length} events
+                      </span>
+                    </div>
+                    {sortedEvents.length === 0 ? (
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        No scheduled sessions yet.
+                      </p>
+                    ) : (
+                      <div className="mt-3 space-y-3">
+                        {sortedEvents.map((event, index) => (
+                          <AgendaEventItem
+                            key={event.id}
+                            event={event}
+                            index={index}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
+                        Tasks
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        {sortedTasks.length} tasks
+                      </span>
+                    </div>
+                    {sortedTasks.length === 0 ? (
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        No tasks planned for this day.
+                      </p>
+                    ) : (
+                      <ul className="mt-3 space-y-2">
+                        {sortedTasks.map((task, index) => (
+                          <TaskItem key={task.id} task={task} index={index} />
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Mobile-only cards */}
+            <div className="grid gap-4 xl:hidden">
+              <MiniMonthCard days={days} />
+              <UpcomingCard events={upcomingEvents} />
+            </div>
+          </main>
+
+          {/* Desktop Sidebar */}
+          <aside className="hidden xl:flex flex-col gap-4">
+            <MiniMonthCard days={days} />
+            <UpcomingCard events={upcomingEvents} />
+          </aside>
         </div>
       </div>
-
-      {/* Side Panel - Selected Day Details */}
-      <aside className="w-80 border-l border-border bg-muted/30 p-4 overflow-auto hidden lg:block">
-        <div className="mb-6">
-          <h2 className="font-serif text-lg font-semibold">
-            {formatDate(selectedDate, "EEEE")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {formatDate(selectedDate, "MMMM d, yyyy")}
-          </p>
-        </div>
-
-        {/* Tasks Section */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-              Tasks
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2"
-              onClick={() => setIsAddTaskOpen(true)}
-            >
-              <HugeiconsIcon icon={Add01Icon} size={12} className="mr-1" />
-              Add
-            </Button>
-          </div>
-
-          {selectedTasks.length === 0 ? (
-            <EmptyState
-              icon={<HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />}
-              title="No tasks"
-              description="Add a task to plan your day"
-              size="sm"
-            />
-          ) : (
-            <ul className="space-y-2">
-              {selectedTasks.map((task) => (
-                <TaskItem key={task.id} task={task} />
-              ))}
-            </ul>
-          )}
-        </section>
-
-        {/* Events Section */}
-        <section>
-          <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
-            <HugeiconsIcon icon={Clock01Icon} size={16} />
-            Events
-          </h3>
-
-          {selectedEvents.length === 0 ? (
-            <EmptyState
-              icon={<HugeiconsIcon icon={Clock01Icon} size={20} />}
-              title="No events"
-              description="Nothing scheduled for this day"
-              size="sm"
-            />
-          ) : (
-            <ul className="space-y-2">
-              {selectedEvents.map((event) => (
-                <EventItem key={event.id} event={event} />
-              ))}
-            </ul>
-          )}
-        </section>
-      </aside>
 
       {/* Add Task SlideOver */}
       <AddTaskSlideOver
@@ -222,64 +340,217 @@ export function CalendarPage() {
         defaultDate={selectedDate}
         onAddTask={addTask}
       />
+
+      {/* Add Event SlideOver */}
+      <AddEventSlideOver
+        open={isAddEventOpen}
+        onClose={() => setIsAddEventOpen(false)}
+        defaultDate={selectedDate}
+        onAddEvent={addEvent}
+      />
     </div>
   );
 }
 
-/**
- * Day cell component for calendar grid.
- */
-function DayCell({ date }: { date: Date }) {
-  const { tasks, events, currentMonth, selectedDate, setSelectedDate } =
-    useCalendarStore();
-
-  const isCurrentMonth = isSameMonth(date, currentMonth);
+function WeekDayPill({ date }: { date: Date }) {
+  const { tasks, events, selectedDate, setSelectedDate } = useCalendarStore();
   const isSelected = isSameDay(date, selectedDate);
   const isTodayDate = isToday(date);
-
-  // Filter tasks/events for this specific date
-  const dayTasks = tasks.filter((task) => isSameDay(task.dueDate, date));
-  const dayEvents = events.filter((event) => isSameDay(event.date, date));
-  const hasItems = dayTasks.length > 0 || dayEvents.length > 0;
+  const hasItems =
+    tasks.some((task) => isSameDay(task.dueDate, date)) ||
+    events.some((event) => isSameDay(event.date, date));
 
   return (
     <button
       type="button"
       onClick={() => setSelectedDate(date)}
       className={cn(
-        "relative p-2 rounded-lg text-sm transition-all duration-150",
-        "hover:bg-accent/50",
-        !isCurrentMonth && "text-muted-foreground/40",
-        isSelected && "bg-primary text-primary-foreground hover:bg-primary",
-        isTodayDate &&
-          !isSelected &&
-          "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        "relative flex min-w-[92px] flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-all",
+        "bg-background/80 hover:bg-accent/40",
+        isSelected &&
+          "bg-primary text-primary-foreground border-primary shadow-md hover:bg-primary",
+        isTodayDate && !isSelected && "ring-2 ring-primary/30",
       )}
     >
-      <span className="font-medium">{format(date, "d")}</span>
-
-      {/* Event/task indicators */}
+      <span className={cn("text-[11px] uppercase tracking-[0.2em]", isSelected ? "text-primary-foreground/70" : "text-muted-foreground")}>
+        {format(date, "EEE")}
+      </span>
+      <span className="text-lg font-semibold">{format(date, "d")}</span>
       {hasItems && !isSelected && (
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {dayTasks.length > 0 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-          )}
-          {dayEvents.length > 0 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          )}
-        </div>
+        <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-primary" />
       )}
     </button>
   );
 }
 
+function MiniMonthCard({ days }: { days: Date[] }) {
+  const { currentMonth, navigateMonth } = useCalendarStore();
+
+  return (
+    <section className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">
+          {formatDate(currentMonth, "MMMM yyyy")}
+        </h3>
+        <div className="flex items-center rounded-full border border-border bg-background/80 p-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigateMonth("prev")}
+            aria-label="Previous month"
+          >
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigateMonth("next")}
+            aria-label="Next month"
+          >
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-7 gap-1 text-[10px] text-muted-foreground">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+          <div key={day} className="text-center font-semibold">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-2 grid grid-cols-7 gap-1">
+        {days.map((day) => (
+          <MiniDayCell key={day.toISOString()} date={day} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MiniDayCell({ date }: { date: Date }) {
+  const { tasks, events, currentMonth, selectedDate, setSelectedDate } =
+    useCalendarStore();
+
+  const isCurrentMonth = isSameMonth(date, currentMonth);
+  const isSelected = isSameDay(date, selectedDate);
+  const isTodayDate = isToday(date);
+  const hasItems =
+    tasks.some((task) => isSameDay(task.dueDate, date)) ||
+    events.some((event) => isSameDay(event.date, date));
+
+  return (
+    <button
+      type="button"
+      onClick={() => setSelectedDate(date)}
+      className={cn(
+        "relative flex h-9 w-9 items-center justify-center rounded-lg text-xs font-medium transition-all",
+        "hover:bg-accent/40",
+        !isCurrentMonth && "text-muted-foreground/40",
+        isSelected && "bg-primary text-primary-foreground hover:bg-primary",
+        isTodayDate && !isSelected && "ring-1 ring-primary/40",
+      )}
+    >
+      {format(date, "d")}
+      {hasItems && !isSelected && (
+        <span className="absolute bottom-1 h-1.5 w-1.5 rounded-full bg-primary" />
+      )}
+    </button>
+  );
+}
+
+function AgendaEventItem({
+  event,
+  index,
+}: {
+  event: CalendarEvent;
+  index: number;
+}) {
+  const icon = typeIcons[event.type];
+  const timeLabel = event.startTime
+    ? event.endTime
+      ? `${event.startTime} - ${event.endTime}`
+      : event.startTime
+    : "Any time";
+
+  return (
+    <div
+      className={cn(
+        "flex items-start gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm",
+        "animate-fade-in-up",
+      )}
+      style={{ animationDelay: `${index * 40}ms` }}
+    >
+      <div className="flex flex-col items-center gap-1 pt-1">
+        <span
+          className={cn("h-2 w-2 rounded-full", typeDotStyles[event.type])}
+        />
+        <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          {timeLabel}
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground">{event.title}</p>
+      </div>
+      <Badge className={typeBadgeStyles[event.type]} variant="muted" size="sm">
+        <HugeiconsIcon icon={icon} size={12} className="mr-1" />
+        {event.type.replace("-", " ")}
+      </Badge>
+    </div>
+  );
+}
+
+function UpcomingCard({ events }: { events: CalendarEvent[] }) {
+  return (
+    <section className="rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Upcoming</h3>
+        <Badge variant="muted" size="sm">
+          Next {events.length || 0}
+        </Badge>
+      </div>
+
+      {events.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">
+          No upcoming events yet.
+        </p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {events.map((event) => (
+            <UpcomingEventItem key={event.id} event={event} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function UpcomingEventItem({ event }: { event: CalendarEvent }) {
+  return (
+    <li className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-background/70 px-3 py-2">
+      <div className="min-w-0">
+        <p className="text-sm font-medium truncate">{event.title}</p>
+        <p className="text-xs text-muted-foreground">
+          {formatDate(event.date, "MMM d")} · {event.startTime ?? "Any time"}
+        </p>
+      </div>
+      <Badge className={typeBadgeStyles[event.type]} variant="muted" size="sm">
+        {event.type.replace("-", " ")}
+      </Badge>
+    </li>
+  );
+}
+
 /**
- * Task item component for side panel.
+ * Task item component for agenda list.
  */
 function TaskItem({
   task,
+  index = 0,
 }: {
   task: ReturnType<typeof useCalendarStore.getState>["tasks"][0];
+  index?: number;
 }) {
   const { toggleTaskComplete } = useCalendarStore();
 
@@ -297,8 +568,10 @@ function TaskItem({
     <li
       className={cn(
         "flex items-start gap-3 p-3 rounded-lg border bg-card border-l-4",
+        "animate-fade-in-up",
         priorityStyles[task.priority],
       )}
+      style={{ animationDelay: `${index * 40}ms` }}
     >
       <button
         type="button"
@@ -343,56 +616,6 @@ function TaskItem({
           </p>
         )}
       </div>
-    </li>
-  );
-}
-
-/**
- * Event item component for side panel.
- */
-function EventItem({
-  event,
-}: {
-  event: ReturnType<typeof useCalendarStore.getState>["events"][0];
-}) {
-  const typeIcons: Record<string, IconSvgElement> = {
-    "study-session": BookOpen01Icon,
-    exam: AlertCircleIcon,
-    deadline: Clock01Icon,
-    review: CheckmarkCircle02Icon,
-  };
-
-  const typeColors = {
-    "study-session": "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    exam: "bg-destructive/10 text-destructive",
-    deadline: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    review: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  };
-
-  const icon = typeIcons[event.type];
-
-  return (
-    <li className="flex items-start gap-3 p-3 rounded-lg border bg-card">
-      <div
-        className={cn(
-          "h-8 w-8 rounded-lg flex items-center justify-center",
-          typeColors[event.type],
-        )}
-      >
-        <HugeiconsIcon icon={icon} size={16} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">{event.title}</p>
-        {event.startTime && (
-          <p className="text-xs text-muted-foreground">
-            {event.startTime}
-            {event.endTime && ` - ${event.endTime}`}
-          </p>
-        )}
-      </div>
-      <Badge variant="muted" size="sm">
-        {event.type.replace("-", " ")}
-      </Badge>
     </li>
   );
 }
@@ -554,6 +777,182 @@ function AddTaskSlideOver({
           </Button>
           <Button type="submit" className="flex-1">
             Save Task
+          </Button>
+        </SlideOverFooter>
+      </form>
+    </SlideOver>
+  );
+}
+
+/**
+ * AddEventSlideOver - Form to create new events.
+ */
+function AddEventSlideOver({
+  open,
+  onClose,
+  defaultDate,
+  onAddEvent,
+}: {
+  open: boolean;
+  onClose: () => void;
+  defaultDate: Date;
+  onAddEvent: (
+    event: Omit<CalendarEvent, "id" | "createdAt" | "updatedAt">,
+  ) => Promise<void>;
+}) {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [type, setType] = useState<CalendarEvent["type"]>("study-session");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setTitle("");
+      setDate(format(defaultDate, "yyyy-MM-dd"));
+      setStartTime("");
+      setEndTime("");
+      setType("study-session");
+      setError("");
+      setTimeout(() => {
+        document.getElementById("event-title")?.focus();
+      }, 100);
+    }
+  }, [open, defaultDate]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim()) {
+      setError("Title is required");
+      document.getElementById("event-title")?.focus();
+      return;
+    }
+
+    onAddEvent({
+      title: title.trim(),
+      date: new Date(date),
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+      type,
+      documentIds: [],
+      color: undefined,
+    });
+
+    onClose();
+  };
+
+  const typeOptions: { value: CalendarEvent["type"]; label: string }[] = [
+    { value: "study-session", label: "Study" },
+    { value: "exam", label: "Exam" },
+    { value: "deadline", label: "Deadline" },
+    { value: "review", label: "Review" },
+  ];
+
+  return (
+    <SlideOver open={open} onClose={onClose} side="right" size="md">
+      <SlideOverHeader onClose={onClose}>Add Event</SlideOverHeader>
+
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+        <SlideOverContent className="space-y-4">
+          <div className="space-y-1.5">
+            <label htmlFor="event-title" className="text-sm font-medium">
+              Title <span className="text-destructive">*</span>
+            </label>
+            <Input
+              id="event-title"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Enter event title"
+              className={cn(
+                error && "border-destructive focus:border-destructive",
+              )}
+            />
+            {error && <p className="text-xs text-destructive">{error}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="event-date" className="text-sm font-medium">
+              Date
+            </label>
+            <Input
+              id="event-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label htmlFor="event-start" className="text-sm font-medium">
+                Start time
+              </label>
+              <Input
+                id="event-start"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="event-end" className="text-sm font-medium">
+                End time
+              </label>
+              <Input
+                id="event-end"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <fieldset className="space-y-1.5">
+            <legend className="text-sm font-medium">Type</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {typeOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  type="button"
+                  variant={type === option.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setType(option.value)}
+                  className={cn(
+                    "justify-center",
+                    type === option.value &&
+                      option.value === "exam" &&
+                      "bg-destructive hover:bg-destructive/90",
+                    type === option.value &&
+                      option.value === "deadline" &&
+                      "bg-amber-500 text-white hover:bg-amber-500/90",
+                    type === option.value &&
+                      option.value === "review" &&
+                      "bg-emerald-500 text-white hover:bg-emerald-500/90",
+                  )}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+        </SlideOverContent>
+
+        <SlideOverFooter className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button type="submit" className="flex-1">
+            Save Event
           </Button>
         </SlideOverFooter>
       </form>
