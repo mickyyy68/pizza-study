@@ -110,8 +110,7 @@ export function CalendarPage() {
     () =>
       [...selectedEvents].sort(
         (a, b) =>
-          parseTimeToMinutes(a.startTime) -
-          parseTimeToMinutes(b.startTime),
+          parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
       ),
     [selectedEvents],
   );
@@ -234,11 +233,19 @@ export function CalendarPage() {
                     size="sm"
                     onClick={() => setIsAddEventOpen(true)}
                   >
-                    <HugeiconsIcon icon={Clock01Icon} size={14} className="mr-1" />
+                    <HugeiconsIcon
+                      icon={Clock01Icon}
+                      size={14}
+                      className="mr-1"
+                    />
                     Add Event
                   </Button>
                   <Button size="sm" onClick={() => setIsAddTaskOpen(true)}>
-                    <HugeiconsIcon icon={Add01Icon} size={14} className="mr-1" />
+                    <HugeiconsIcon
+                      icon={Add01Icon}
+                      size={14}
+                      className="mr-1"
+                    />
                     Add Task
                   </Button>
                 </div>
@@ -372,7 +379,12 @@ function WeekDayPill({ date }: { date: Date }) {
         isTodayDate && !isSelected && "ring-2 ring-primary/30",
       )}
     >
-      <span className={cn("text-[11px] uppercase tracking-[0.2em]", isSelected ? "text-primary-foreground/70" : "text-muted-foreground")}>
+      <span
+        className={cn(
+          "text-[11px] uppercase tracking-[0.2em]",
+          isSelected ? "text-primary-foreground/70" : "text-muted-foreground",
+        )}
+      >
         {format(date, "EEE")}
       </span>
       <span className="text-lg font-semibold">{format(date, "d")}</span>

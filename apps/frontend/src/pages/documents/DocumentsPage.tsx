@@ -389,9 +389,7 @@ export function DocumentsPage() {
 function StatPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-border/70 bg-card/80 px-4 py-3 shadow-sm">
-      <p className="text-sm font-medium text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-serif font-semibold text-foreground">
         {value}
       </p>
@@ -474,11 +472,7 @@ function DocumentCard({
       {tags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => onTagSelect(tag)}
-            >
+            <button key={tag} type="button" onClick={() => onTagSelect(tag)}>
               <Badge variant="outline" size="sm">
                 {tag}
               </Badge>
@@ -506,7 +500,11 @@ function DocumentRow({
   return (
     <div className="flex flex-wrap items-start gap-4 rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm">
       <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-        <HugeiconsIcon icon={File02Icon} size={20} className="text-muted-foreground" />
+        <HugeiconsIcon
+          icon={File02Icon}
+          size={20}
+          className="text-muted-foreground"
+        />
       </div>
       <div className="flex-1 min-w-[220px]">
         <p className="font-medium text-sm truncate">{document.title}</p>
@@ -603,7 +601,9 @@ function EmptyState({
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="max-w-lg rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm">
-      <h2 className="font-serif text-lg font-semibold">Unable to load documents</h2>
+      <h2 className="font-serif text-lg font-semibold">
+        Unable to load documents
+      </h2>
       <p className="text-sm text-muted-foreground mt-2">{message}</p>
       <p className="text-sm text-muted-foreground mt-4">
         Make sure the backend is running and the database is available.

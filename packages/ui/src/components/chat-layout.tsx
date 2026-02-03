@@ -15,10 +15,7 @@ export interface ChatLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export function ChatLayout({ className, children, ...props }: ChatLayoutProps) {
   return (
-    <div
-      className={cn("flex h-full min-h-0", className)}
-      {...props}
-    >
+    <div className={cn("flex h-full min-h-0", className)} {...props}>
       {children}
     </div>
   );
@@ -182,7 +179,10 @@ export const ChatLayoutMessages = React.forwardRef<
       {/* Inner scrollable container */}
       <div
         ref={ref}
-        className={cn("absolute inset-0 overflow-y-auto overflow-x-hidden px-4 py-6", className)}
+        className={cn(
+          "absolute inset-0 overflow-y-auto overflow-x-hidden px-4 py-6",
+          className,
+        )}
         {...props}
       >
         {/* Top scroll shadow */}

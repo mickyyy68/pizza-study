@@ -2,7 +2,6 @@ import { useChat } from "@ai-sdk/react";
 import {
   BookOpen01Icon,
   BulbIcon,
-  Delete01Icon,
   HelpCircleIcon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
@@ -23,7 +22,6 @@ import {
   ChatSidebarNewButton,
   ChatSidebarSearch,
   ChatSidebarSection,
-  Button,
   cn,
   DocumentList,
   type MentionedDocument,
@@ -61,7 +59,7 @@ export function ChatPage() {
   // Track new messages for FAB indicator
   const [newMessageCount, setNewMessageCount] = useState(0);
   const prevMessageCountRef = useRef(0);
-  const prevGroupIdRef = useRef<string | null>(null);
+  const _prevGroupIdRef = useRef<string | null>(null);
 
   // Chat store state
   const {
@@ -69,14 +67,14 @@ export function ChatPage() {
     sidebarMobileOpen,
     documentsSectionCollapsed,
     historySectionCollapsed,
-    groupsSectionCollapsed,
+    groupsSectionCollapsed: _groupsSectionCollapsed,
     documents,
     currentChatId,
     currentConversationId,
     historySearchQuery,
-    groups,
-    currentGroupId,
-    chatGroupMap,
+    groups: _groups,
+    currentGroupId: _currentGroupId,
+    chatGroupMap: _chatGroupMap,
     mentionedDocIds,
     attachments,
     toggleSidebar,
@@ -84,7 +82,7 @@ export function ChatPage() {
     closeMobileSidebar,
     toggleDocumentsSection,
     toggleHistorySection,
-    toggleGroupsSection,
+    toggleGroupsSection: _toggleGroupsSection,
     toggleDocumentSelection,
     setDocuments,
     setCurrentChat,
@@ -93,10 +91,10 @@ export function ChatPage() {
     getFilteredHistory,
     fetchConversations,
     deleteConversation,
-    createGroup,
-    deleteGroup,
-    setCurrentGroupId,
-    assignChatToGroup,
+    createGroup: _createGroup,
+    deleteGroup: _deleteGroup,
+    setCurrentGroupId: _setCurrentGroupId,
+    assignChatToGroup: _assignChatToGroup,
     addMentionedDoc,
     removeMentionedDoc,
     clearMentionedDocs,
@@ -288,7 +286,6 @@ export function ChatPage() {
       setTimeout(() => setChatError(null), 5000);
     }
   };
-
 
   // Handle function for deleting a conversation
   const handleDeleteChat = useCallback(

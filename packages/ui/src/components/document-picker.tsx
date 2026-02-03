@@ -200,7 +200,9 @@ export function DocumentPicker({
       </div>
 
       {/* Document list */}
-      <div className="overflow-y-auto max-h-56">{renderDocumentList(false)}</div>
+      <div className="overflow-y-auto max-h-56">
+        {renderDocumentList(false)}
+      </div>
     </div>
   );
 }

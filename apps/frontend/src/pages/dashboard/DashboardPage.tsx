@@ -8,7 +8,7 @@ import {
   FireIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import { Badge, Checkbox, cn, buttonVariants } from "@repo/ui";
+import { Badge, buttonVariants, Checkbox, cn } from "@repo/ui";
 import { Link } from "react-router";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import { useDocumentsStore } from "../../stores/documents-store";
@@ -36,138 +36,135 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8 lg:px-8">
-        {/* Hero */}
-        <header className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-serif font-bold text-foreground lg:text-5xl">
-                {greeting}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {formatDate(today, "EEEE, MMMM d, yyyy")}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Link
-                to="/calendar"
-                className={cn(buttonVariants({ variant: "default" }), "h-10")}
-              >
-                Plan the day
-              </Link>
-              <Link
-                to="/calendar"
-                className={cn(buttonVariants({ variant: "outline" }), "h-10")}
-              >
-                Open calendar
-              </Link>
-              <Link
-                to="/chat"
-                className={cn(buttonVariants({ variant: "ghost" }), "h-10")}
-              >
-                Ask for help
-              </Link>
-            </div>
-
-            <div className="rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                    Focus Mode
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Pick one thing to finish before lunch.
-                  </p>
-                </div>
-                <Link
-                  to="/calendar"
-                  className={cn(
-                    buttonVariants({ variant: "link" }),
-                    "text-xs",
-                  )}
-                >
-                  Open agenda
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
-                </Link>
-              </div>
-            </div>
+      {/* Hero */}
+      <header className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-serif font-bold text-foreground lg:text-5xl">
+              {greeting}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {formatDate(today, "EEEE, MMMM d, yyyy")}
+            </p>
           </div>
 
-          <FocusPanel />
-        </header>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/calendar"
+              className={cn(buttonVariants({ variant: "default" }), "h-10")}
+            >
+              Plan the day
+            </Link>
+            <Link
+              to="/calendar"
+              className={cn(buttonVariants({ variant: "outline" }), "h-10")}
+            >
+              Open calendar
+            </Link>
+            <Link
+              to="/chat"
+              className={cn(buttonVariants({ variant: "ghost" }), "h-10")}
+            >
+              Ask for help
+            </Link>
+          </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 className="text-xl font-serif font-semibold">
-                  Today's Tasks
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Focus on the work that moves you forward.
-                </p>
-              </div>
-              <Link
-                to="/calendar"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "h-8",
-                )}
-              >
-                View all
-              </Link>
-            </div>
-            <div className="mt-5">
-              <TodayTasksList />
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-serif font-semibold">Upcoming</h2>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                  Focus Mode
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Your next study blocks.
+                  Pick one thing to finish before lunch.
                 </p>
               </div>
               <Link
                 to="/calendar"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "h-8",
-                )}
+                className={cn(buttonVariants({ variant: "link" }), "text-xs")}
               >
-                Calendar
+                Open agenda
+                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
               </Link>
             </div>
-            <div className="mt-5">
-              <UpcomingEventsList />
-            </div>
-          </section>
+          </div>
         </div>
 
+        <FocusPanel />
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-xl font-serif font-semibold">Quick Access</h2>
+              <h2 className="text-xl font-serif font-semibold">
+                Today's Tasks
+              </h2>
               <p className="text-sm text-muted-foreground">
-                Jump back into your study workspace.
+                Focus on the work that moves you forward.
               </p>
             </div>
             <Link
-              to="/documents"
+              to="/calendar"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
                 "h-8",
               )}
             >
-              Browse library
+              View all
             </Link>
           </div>
           <div className="mt-5">
-            <QuickAccessGrid />
+            <TodayTasksList />
           </div>
         </section>
+
+        <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-serif font-semibold">Upcoming</h2>
+              <p className="text-sm text-muted-foreground">
+                Your next study blocks.
+              </p>
+            </div>
+            <Link
+              to="/calendar"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8",
+              )}
+            >
+              Calendar
+            </Link>
+          </div>
+          <div className="mt-5">
+            <UpcomingEventsList />
+          </div>
+        </section>
+      </div>
+
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-xl font-serif font-semibold">Quick Access</h2>
+            <p className="text-sm text-muted-foreground">
+              Jump back into your study workspace.
+            </p>
+          </div>
+          <Link
+            to="/documents"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "h-8",
+            )}
+          >
+            Browse library
+          </Link>
+        </div>
+        <div className="mt-5">
+          <QuickAccessGrid />
+        </div>
+      </section>
     </div>
   );
 }
@@ -207,16 +204,15 @@ function FocusPanel() {
         {nextEvent ? (
           <div className="mt-2 flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{nextEvent.title}</p>
+              <p className="text-sm font-semibold truncate">
+                {nextEvent.title}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {formatDate(nextEvent.date, "EEE, MMM d")} -{" "}
                 {nextEvent.startTime ?? "Any time"}
               </p>
             </div>
-            <Badge
-              variant={eventTypeVariants[nextEvent.type]}
-              size="sm"
-            >
+            <Badge variant={eventTypeVariants[nextEvent.type]} size="sm">
               {nextEvent.type.replace("-", " ")}
             </Badge>
           </div>
@@ -416,7 +412,8 @@ function UpcomingEventsList() {
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{event.title}</p>
             <p className="text-xs text-muted-foreground">
-              {formatDate(event.date, "MMM d")} - {event.startTime ?? "Any time"}
+              {formatDate(event.date, "MMM d")} -{" "}
+              {event.startTime ?? "Any time"}
             </p>
           </div>
           <Badge variant={eventTypeVariants[event.type]} size="sm">

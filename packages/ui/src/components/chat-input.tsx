@@ -306,7 +306,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           "transition-all duration-300 ease-out",
           // Drag state
           isDragging &&
-          "ring-2 ring-primary/40 border-primary/40 bg-primary/5 shadow-md",
+            "ring-2 ring-primary/40 border-primary/40 bg-primary/5 shadow-md",
           isDisabled && "opacity-50",
           className,
         )}
@@ -343,7 +343,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                   name={file.name}
                   status={file.status}
                   progress={file.progress}
-                  onRemove={onAttachmentRemove || (() => { })}
+                  onRemove={onAttachmentRemove || (() => {})}
                   onRetry={onAttachmentRetry}
                 />
               ))}
@@ -360,7 +360,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                   key={doc.id}
                   id={doc.id}
                   name={doc.name}
-                  onRemove={onMentionRemove || (() => { })}
+                  onRemove={onMentionRemove || (() => {})}
                 />
               ))}
             </ChipsContainer>
@@ -371,9 +371,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         <div className="flex items-end gap-3 px-4 py-4">
           {/* Model selector (optional slot) */}
           {modelSelector && (
-            <div className="shrink-0 self-center p-0.5">
-              {modelSelector}
-            </div>
+            <div className="shrink-0 self-center p-0.5">{modelSelector}</div>
           )}
 
           {/* Separator after model selector */}
