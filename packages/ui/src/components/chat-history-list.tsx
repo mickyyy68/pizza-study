@@ -1,4 +1,8 @@
-import { Chat01Icon, Delete01Icon } from "@hugeicons/core-free-icons";
+import {
+  Chat01Icon,
+  Delete01Icon,
+  PencilEdit01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type * as React from "react";
 import { cn } from "../lib/utils";
@@ -25,6 +29,7 @@ export interface ChatHistoryListProps
   onSelectChat: (chatId: string) => void;
   onDeleteChat?: (chatId: string) => void;
   onDragChat?: (chatId: string) => void;
+  onRenameChat?: (chatId: string, currentTitle: string) => void;
   emptyMessage?: string;
 }
 
@@ -38,6 +43,7 @@ export function ChatHistoryList({
   onSelectChat,
   onDeleteChat,
   onDragChat,
+  onRenameChat,
   emptyMessage = "No conversations yet",
   ...props
 }: ChatHistoryListProps) {
@@ -57,6 +63,7 @@ export function ChatHistoryList({
               onClick={() => onSelectChat(item.id)}
               onDelete={onDeleteChat}
               onDragStart={onDragChat}
+              onRename={onRenameChat}
             />
           ))}
         </div>
@@ -75,6 +82,7 @@ interface ChatHistoryItemProps {
   onClick: () => void;
   onDelete?: (chatId: string) => void;
   onDragStart?: (chatId: string) => void;
+  onRename?: (chatId: string, currentTitle: string) => void;
 }
 
 /**
@@ -86,6 +94,7 @@ function ChatHistoryItem({
   onClick,
   onDelete,
   onDragStart,
+  onRename,
 }: ChatHistoryItemProps) {
   return (
     <div
@@ -146,22 +155,43 @@ function ChatHistoryItem({
         </div>
       </button>
 
-      {onDelete ? (
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onDelete(item.id);
-          }}
-          className={cn(
-            "mt-1.5 rounded p-1.5 text-muted-foreground transition-colors",
-            "opacity-0 group-hover:opacity-100 focus:opacity-100",
-            "hover:text-destructive hover:bg-destructive/10",
-          )}
-          aria-label={`Delete ${item.preview || "conversation"}`}
-        >
-          <HugeiconsIcon icon={Delete01Icon} size={16} />
-        </button>
+      {onRename || onDelete ? (
+        <div className="mt-1.5 flex items-center gap-1">
+          {onRename ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onRename(item.id, item.preview || "New conversation");
+              }}
+              className={cn(
+                "rounded p-1.5 text-muted-foreground transition-colors",
+                "opacity-0 group-hover:opacity-100 focus:opacity-100",
+                "hover:text-foreground hover:bg-muted/60",
+              )}
+              aria-label={`Rename ${item.preview || "conversation"}`}
+            >
+              <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(item.id);
+              }}
+              className={cn(
+                "rounded p-1.5 text-muted-foreground transition-colors",
+                "opacity-0 group-hover:opacity-100 focus:opacity-100",
+                "hover:text-destructive hover:bg-destructive/10",
+              )}
+              aria-label={`Delete ${item.preview || "conversation"}`}
+            >
+              <HugeiconsIcon icon={Delete01Icon} size={16} />
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

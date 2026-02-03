@@ -1,3 +1,5 @@
+import { File02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
 import { cn } from "../lib/utils";
 import { type Citation, CitationSources, parseCitations } from "./citation";
@@ -22,6 +24,8 @@ export interface ChatMessageProps
   variant?: "user" | "assistant" | "system";
   /** Message content (plain text or markdown) */
   content: string;
+  /** Tagged documents for user messages */
+  taggedDocs?: Array<{ id: string; name: string }>;
   /** Optional timestamp */
   timestamp?: Date;
   /** Show streaming indicator */
@@ -43,6 +47,7 @@ export function ChatMessage({
   timestamp: _timestamp,
   isStreaming,
   citations = [],
+  taggedDocs = [],
   onEdit,
   onRegenerate,
   onCitationClick,
@@ -67,7 +72,39 @@ export function ChatMessage({
   // Render content with citations for assistant messages
   const renderContent = () => {
     if (isUser || isSystem) {
-      return <div className="whitespace-pre-wrap break-words">{content}</div>;
+      return (
+        <div className="space-y-2">
+          {taggedDocs.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {taggedDocs.map((doc) => (
+                <span
+                  key={doc.id}
+                  className={cn(
+                    "group inline-flex items-center gap-1.5",
+                    "rounded-md rounded-tr-sm px-2.5 py-1",
+                    "bg-gradient-to-br from-secondary/60 to-secondary/35",
+                    "border border-primary/20",
+                    "text-xs font-medium text-secondary-foreground",
+                    "shadow-sm shadow-primary/5",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex items-center justify-center rounded-sm",
+                      "bg-primary/10 text-primary",
+                      "size-5",
+                    )}
+                  >
+                    <HugeiconsIcon icon={File02Icon} size={12} />
+                  </span>
+                  <span className="truncate max-w-[220px]">{doc.name}</span>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="whitespace-pre-wrap break-words">{content}</div>
+        </div>
+      );
     }
 
     // Assistant messages: markdown with citations

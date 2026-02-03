@@ -91,10 +91,11 @@ export function ChatPage() {
     getFilteredHistory,
     fetchConversations,
     deleteConversation,
-    createGroup: _createGroup,
-    deleteGroup: _deleteGroup,
-    setCurrentGroupId: _setCurrentGroupId,
-    assignChatToGroup: _assignChatToGroup,
+    renameConversation,
+    createGroup,
+    deleteGroup,
+    setCurrentGroupId,
+    assignChatToGroup,
     addMentionedDoc,
     removeMentionedDoc,
     clearMentionedDocs,
@@ -149,9 +150,10 @@ export function ChatPage() {
     messages,
     input,
     handleInputChange,
-    handleSubmit,
+    append,
     isLoading,
     setMessages,
+    setInput,
     stop,
   } = useChat({
     api: `${API_URL}/api/chat`,
@@ -238,7 +240,27 @@ export function ChatPage() {
   const onSubmit = useCallback(() => {
     if (input.trim() || attachments.length > 0) {
       setIsThinking(true);
-      handleSubmit();
+      const mentionAnnotations =
+        mentionedDocs.length > 0
+          ? [
+              {
+                type: "mentioned-docs",
+                docs: mentionedDocs.map((doc) => ({
+                  id: doc.id,
+                  name: doc.name,
+                })),
+              },
+            ]
+          : undefined;
+      void append(
+        {
+          role: "user",
+          content: input.trim() ? input : "",
+          annotations: mentionAnnotations,
+        },
+        { allowEmptySubmit: true },
+      );
+      setInput("");
       // Clear mentions and attachments after send
       clearMentionedDocs();
       clearAttachments();
@@ -246,10 +268,34 @@ export function ChatPage() {
   }, [
     input,
     attachments.length,
-    handleSubmit,
+    append,
+    setInput,
+    mentionedDocs,
     clearMentionedDocs,
     clearAttachments,
   ]);
+
+  const getTaggedDocs = useCallback((message: { annotations?: unknown[] }) => {
+    if (!message.annotations) return [];
+    const taggedDocs: { id: string; name: string }[] = [];
+
+    for (const annotation of message.annotations) {
+      if (!annotation || typeof annotation !== "object") continue;
+      const typed = annotation as { type?: unknown; docs?: unknown };
+      if (typed.type !== "mentioned-docs" || !Array.isArray(typed.docs)) {
+        continue;
+      }
+      for (const doc of typed.docs) {
+        if (!doc || typeof doc !== "object") continue;
+        const docTyped = doc as { id?: unknown; name?: unknown };
+        if (typeof docTyped.id !== "string") continue;
+        if (typeof docTyped.name !== "string") continue;
+        taggedDocs.push({ id: docTyped.id, name: docTyped.name });
+      }
+    }
+
+    return taggedDocs;
+  }, []);
 
   const handleNewChat = () => {
     setCurrentChat(null);
@@ -304,6 +350,17 @@ export function ChatPage() {
       clearMentionedDocs,
       clearAttachments,
     ],
+  );
+
+  const handleRenameChat = useCallback(
+    async (chatId: string, currentTitle: string) => {
+      const nextTitle = window.prompt("Chat name", currentTitle);
+      if (!nextTitle) return;
+      const trimmed = nextTitle.trim();
+      if (!trimmed || trimmed === currentTitle) return;
+      await renameConversation(chatId, trimmed);
+    },
+    [renameConversation],
   );
 
   // Handle @ mention
@@ -421,6 +478,7 @@ export function ChatPage() {
                 currentChatId={currentChatId}
                 onSelectChat={handleSelectChat}
                 onDeleteChat={handleDeleteChat}
+                onRenameChat={handleRenameChat}
               />
             </div>
           </ChatSidebarSection>
