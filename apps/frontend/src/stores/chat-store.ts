@@ -32,6 +32,11 @@ export interface ChatHistoryItem {
   messageCount: number;
 }
 
+export interface ChatGroup {
+  id: string;
+  name: string;
+}
+
 export interface Attachment {
   id: string;
   file: File;
@@ -51,6 +56,7 @@ interface ChatState {
   sidebarMobileOpen: boolean;
   documentsSectionCollapsed: boolean;
   historySectionCollapsed: boolean;
+  groupsSectionCollapsed: boolean;
 
   // Documents for RAG context
   documents: ChatDocument[];
@@ -60,6 +66,9 @@ interface ChatState {
   currentChatId: string | null;
   currentConversationId: string | null;
   historySearchQuery: string;
+  groups: ChatGroup[];
+  currentGroupId: string;
+  chatGroupMap: Record<string, string>;
 
   // Input state
   mentionedDocIds: string[];
@@ -75,6 +84,7 @@ interface ChatState {
   closeMobileSidebar: () => void;
   toggleDocumentsSection: () => void;
   toggleHistorySection: () => void;
+  toggleGroupsSection: () => void;
 
   // Document actions
   setDocuments: (documents: ChatDocument[]) => void;
@@ -91,6 +101,11 @@ interface ChatState {
   getFilteredHistory: () => ChatHistoryItem[];
   fetchConversations: () => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
+  createGroup: (name: string) => string;
+  deleteGroup: (groupId: string) => void;
+  renameGroup: (groupId: string, name: string) => void;
+  setCurrentGroupId: (groupId: string) => void;
+  assignChatToGroup: (chatId: string, groupId: string) => void;
 
   // Input actions
   addMentionedDoc: (docId: string) => void;
@@ -109,6 +124,19 @@ interface ChatState {
   getSelectedDocumentIds: () => string[];
 }
 
+const DEFAULT_GROUP_ID = "ungrouped";
+const DEFAULT_GROUP: ChatGroup = {
+  id: DEFAULT_GROUP_ID,
+  name: "Ungrouped",
+};
+
+const createGroupId = () => {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `group-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
 /* =============================================================================
    Store Implementation
    ============================================================================= */
@@ -121,6 +149,7 @@ export const useChatStore = create<ChatState>()(
       sidebarMobileOpen: false,
       documentsSectionCollapsed: true,
       historySectionCollapsed: false,
+      groupsSectionCollapsed: false,
 
       // Initial data (will be populated from API)
       documents: [],
@@ -128,6 +157,9 @@ export const useChatStore = create<ChatState>()(
       currentChatId: null,
       currentConversationId: null,
       historySearchQuery: "",
+      groups: [DEFAULT_GROUP],
+      currentGroupId: DEFAULT_GROUP_ID,
+      chatGroupMap: {},
 
       // Initial input state
       mentionedDocIds: [],
@@ -149,6 +181,10 @@ export const useChatStore = create<ChatState>()(
       toggleHistorySection: () =>
         set((state) => ({
           historySectionCollapsed: !state.historySectionCollapsed,
+        })),
+      toggleGroupsSection: () =>
+        set((state) => ({
+          groupsSectionCollapsed: !state.groupsSectionCollapsed,
         })),
 
       // Document actions
@@ -198,28 +234,41 @@ export const useChatStore = create<ChatState>()(
           const response = await fetch(`${API_URL}/api/conversations`);
           if (!response.ok) throw new Error("Failed to fetch conversations");
           const convos = await response.json();
-          set({
-            history: convos.map(
-              (c: {
-                id: string;
-                title: string;
-                updatedAt: string;
-                messageCount: number;
-              }) => ({
+          const { chatGroupMap, currentGroupId, groups } = get();
+          const groupIds = new Set(groups.map((group) => group.id));
+          const defaultGroupId = groupIds.has(currentGroupId)
+            ? currentGroupId
+            : DEFAULT_GROUP_ID;
+          const updatedGroupMap = { ...chatGroupMap };
+          const history = convos.map(
+            (c: {
+              id: string;
+              title: string;
+              updatedAt: string;
+              messageCount: number;
+            }) => {
+              if (
+                !updatedGroupMap[c.id] ||
+                !groupIds.has(updatedGroupMap[c.id])
+              ) {
+                updatedGroupMap[c.id] = defaultGroupId;
+              }
+              return {
                 id: c.id,
                 preview: c.title,
                 timestamp: new Date(c.updatedAt),
                 messageCount: c.messageCount,
-              }),
-            ),
-          });
+              };
+            },
+          );
+          set({ history, chatGroupMap: updatedGroupMap });
         } catch (error) {
           console.error("Failed to fetch conversations:", error);
         }
       },
       deleteConversation: async (id) => {
         try {
-          const response = await fetch(`${API_URL}/api/conversations/${id}`, {
+          const response = await fetch(`${API_URL}/api/chat/${id}`, {
             method: "DELETE",
           });
           if (!response.ok) throw new Error("Failed to delete conversation");
@@ -232,11 +281,74 @@ export const useChatStore = create<ChatState>()(
               state.currentConversationId === id
                 ? null
                 : state.currentConversationId,
+            chatGroupMap: Object.fromEntries(
+              Object.entries(state.chatGroupMap).filter(
+                ([chatId]) => chatId !== id,
+              ),
+            ),
           }));
         } catch (error) {
           console.error("Failed to delete conversation:", error);
         }
       },
+      createGroup: (name) => {
+        const trimmed = name.trim();
+        if (!trimmed) return DEFAULT_GROUP_ID;
+        const id = createGroupId();
+        set((state) => ({
+          groups: [...state.groups, { id, name: trimmed }],
+        }));
+        return id;
+      },
+      deleteGroup: (groupId) => {
+        if (groupId === DEFAULT_GROUP_ID) return;
+        set((state) => {
+          const groups = state.groups.filter((group) => group.id !== groupId);
+          const chatGroupMap = Object.fromEntries(
+            Object.entries(state.chatGroupMap).map(([chatId, id]) => [
+              chatId,
+              id === groupId ? DEFAULT_GROUP_ID : id,
+            ]),
+          );
+          return {
+            groups,
+            chatGroupMap,
+            currentGroupId:
+              state.currentGroupId === groupId
+                ? DEFAULT_GROUP_ID
+                : state.currentGroupId,
+          };
+        });
+      },
+      renameGroup: (groupId, name) => {
+        const trimmed = name.trim();
+        if (!trimmed) return;
+        set((state) => ({
+          groups: state.groups.map((group) =>
+            group.id === groupId ? { ...group, name: trimmed } : group,
+          ),
+        }));
+      },
+      setCurrentGroupId: (groupId) =>
+        set((state) => ({
+          currentGroupId: state.groups.some((group) => group.id === groupId)
+            ? groupId
+            : DEFAULT_GROUP_ID,
+        })),
+      assignChatToGroup: (chatId, groupId) =>
+        set((state) => {
+          const targetGroupId = state.groups.some(
+            (group) => group.id === groupId,
+          )
+            ? groupId
+            : DEFAULT_GROUP_ID;
+          return {
+            chatGroupMap: {
+              ...state.chatGroupMap,
+              [chatId]: targetGroupId,
+            },
+          };
+        }),
 
       // Input actions
       addMentionedDoc: (docId) =>
@@ -279,13 +391,32 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: "chat-storage",
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        const groups = state.groups ?? [];
+        if (!groups.some((group) => group.id === DEFAULT_GROUP_ID)) {
+          state.groups = [DEFAULT_GROUP, ...groups];
+        }
+        if (
+          !state.currentGroupId ||
+          !state.groups.some((group) => group.id === state.currentGroupId)
+        ) {
+          state.currentGroupId = DEFAULT_GROUP_ID;
+        }
+        state.chatGroupMap = state.chatGroupMap ?? {};
+      },
       partialize: (state) => ({
         // Only persist UI preferences, not data
         sidebarCollapsed: state.sidebarCollapsed,
         documentsSectionCollapsed: state.documentsSectionCollapsed,
         historySectionCollapsed: state.historySectionCollapsed,
+        groupsSectionCollapsed: state.groupsSectionCollapsed,
         // Persist model selection
         selectedModelId: state.selectedModelId,
+        // Persist frontend chat organization
+        groups: state.groups,
+        currentGroupId: state.currentGroupId,
+        chatGroupMap: state.chatGroupMap,
       }),
     },
   ),

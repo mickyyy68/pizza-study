@@ -2,6 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import {
   BookOpen01Icon,
   BulbIcon,
+  Delete01Icon,
   HelpCircleIcon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
@@ -22,6 +23,7 @@ import {
   ChatSidebarNewButton,
   ChatSidebarSearch,
   ChatSidebarSection,
+  Button,
   cn,
   DocumentList,
   type MentionedDocument,
@@ -59,6 +61,7 @@ export function ChatPage() {
   // Track new messages for FAB indicator
   const [newMessageCount, setNewMessageCount] = useState(0);
   const prevMessageCountRef = useRef(0);
+  const prevGroupIdRef = useRef<string | null>(null);
 
   // Chat store state
   const {
@@ -66,10 +69,14 @@ export function ChatPage() {
     sidebarMobileOpen,
     documentsSectionCollapsed,
     historySectionCollapsed,
+    groupsSectionCollapsed,
     documents,
     currentChatId,
     currentConversationId,
     historySearchQuery,
+    groups,
+    currentGroupId,
+    chatGroupMap,
     mentionedDocIds,
     attachments,
     toggleSidebar,
@@ -77,6 +84,7 @@ export function ChatPage() {
     closeMobileSidebar,
     toggleDocumentsSection,
     toggleHistorySection,
+    toggleGroupsSection,
     toggleDocumentSelection,
     setDocuments,
     setCurrentChat,
@@ -84,6 +92,11 @@ export function ChatPage() {
     setHistorySearchQuery,
     getFilteredHistory,
     fetchConversations,
+    deleteConversation,
+    createGroup,
+    deleteGroup,
+    setCurrentGroupId,
+    assignChatToGroup,
     addMentionedDoc,
     removeMentionedDoc,
     clearMentionedDocs,
@@ -276,6 +289,26 @@ export function ChatPage() {
     }
   };
 
+
+  // Handle function for deleting a conversation
+  const handleDeleteChat = useCallback(
+    async (chatId: string) => {
+      await deleteConversation(chatId);
+      if (chatId === currentChatId) {
+        setMessages([]);
+        clearMentionedDocs();
+        clearAttachments();
+      }
+    },
+    [
+      deleteConversation,
+      currentChatId,
+      setMessages,
+      clearMentionedDocs,
+      clearAttachments,
+    ],
+  );
+
   // Handle @ mention
   const handleMentionAdd = useCallback(
     (doc: PickerDocument) => {
@@ -390,6 +423,7 @@ export function ChatPage() {
                 items={filteredHistory}
                 currentChatId={currentChatId}
                 onSelectChat={handleSelectChat}
+                onDeleteChat={handleDeleteChat}
               />
             </div>
           </ChatSidebarSection>
