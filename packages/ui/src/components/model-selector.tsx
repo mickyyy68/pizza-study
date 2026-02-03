@@ -1,6 +1,6 @@
 import {
-  ArrowDown01Icon,
   AiBrain01Icon,
+  ArrowDown01Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";

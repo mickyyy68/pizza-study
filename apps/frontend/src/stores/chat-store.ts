@@ -101,6 +101,7 @@ interface ChatState {
   getFilteredHistory: () => ChatHistoryItem[];
   fetchConversations: () => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
+  renameConversation: (id: string, title: string) => Promise<void>;
   createGroup: (name: string) => string;
   deleteGroup: (groupId: string) => void;
   renameGroup: (groupId: string, name: string) => void;
@@ -289,6 +290,25 @@ export const useChatStore = create<ChatState>()(
           }));
         } catch (error) {
           console.error("Failed to delete conversation:", error);
+        }
+      },
+      renameConversation: async (id, title) => {
+        try {
+          const response = await fetch(`${API_URL}/api/chat/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title }),
+          });
+          if (!response.ok) throw new Error("Failed to rename conversation");
+          set((state) => ({
+            history: state.history.map((item) =>
+              item.id === id
+                ? { ...item, preview: title, timestamp: new Date() }
+                : item,
+            ),
+          }));
+        } catch (error) {
+          console.error("Failed to rename conversation:", error);
         }
       },
       createGroup: (name) => {

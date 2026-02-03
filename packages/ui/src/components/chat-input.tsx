@@ -306,7 +306,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           "transition-all duration-300 ease-out",
           // Drag state
           isDragging &&
-          "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-lg",
+            "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-lg",
           isDisabled && "opacity-50",
           className,
         )}
@@ -343,7 +343,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                   name={file.name}
                   status={file.status}
                   progress={file.progress}
-                  onRemove={onAttachmentRemove || (() => { })}
+                  onRemove={onAttachmentRemove || (() => {})}
                   onRetry={onAttachmentRetry}
                 />
               ))}
@@ -360,7 +360,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                   key={doc.id}
                   id={doc.id}
                   name={doc.name}
-                  onRemove={onMentionRemove || (() => { })}
+                  onRemove={onMentionRemove || (() => {})}
                 />
               ))}
             </ChipsContainer>

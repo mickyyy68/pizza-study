@@ -11,6 +11,7 @@ import { retrieveContext } from "@repo/rag";
 import { streamText } from "ai";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { z } from "zod";
 
 /**
  * Extract the latest user message from the messages array.
@@ -46,6 +47,10 @@ ${ragContext}
 
 Use the above excerpts to answer the user's question when relevant. If the excerpts don't contain relevant information, you can still answer based on your general knowledge, but mention that the information isn't from the user's study materials.`;
 }
+
+const updateChatSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200),
+});
 
 const chat = new Hono()
   .post("/", zValidator("json", chatRequestSchema), async (c) => {
@@ -172,6 +177,23 @@ const chat = new Hono()
     response.headers.set("X-Conversation-Id", conversationId);
 
     return response;
+  })
+  // Update chat metadata (e.g., title)
+  .patch("/:id", zValidator("json", updateChatSchema), async (c) => {
+    const id = c.req.param("id");
+    const { title } = c.req.valid("json");
+
+    const [updated] = await db
+      .update(conversations)
+      .set({ title, updatedAt: new Date() })
+      .where(eq(conversations.id, id))
+      .returning({ id: conversations.id, title: conversations.title });
+
+    if (!updated) {
+      return c.json({ error: "Conversation not found" }, 404);
+    }
+
+    return c.json(updated);
   })
   // Delete chat conversation (messages cascade)
   .delete("/:id", async (c) => {

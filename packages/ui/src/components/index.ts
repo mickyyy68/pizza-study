@@ -1,8 +1,7 @@
 // Utilities
-export { cn } from "../lib/utils";
+
 export { useIsMobile } from "../hooks/use-mobile";
-// Layout - Bottom Sheet
-export { BottomSheet, type BottomSheetProps } from "./bottom-sheet";
+export { cn } from "../lib/utils";
 // Data Display
 export {
   Avatar,
@@ -12,6 +11,8 @@ export {
   avatarVariants,
 } from "./avatar";
 export { Badge, type BadgeProps, badgeVariants } from "./badge";
+// Layout - Bottom Sheet
+export { BottomSheet, type BottomSheetProps } from "./bottom-sheet";
 // Buttons & Actions
 export { Button, type ButtonProps, buttonVariants } from "./button";
 // Cards & Containers
