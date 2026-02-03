@@ -148,7 +148,7 @@ export const useChatStore = create<ChatState>()(
       // Initial sidebar state
       sidebarCollapsed: false,
       sidebarMobileOpen: false,
-      documentsSectionCollapsed: false,
+      documentsSectionCollapsed: true,
       historySectionCollapsed: false,
       groupsSectionCollapsed: false,
 

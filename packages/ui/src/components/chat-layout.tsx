@@ -235,7 +235,7 @@ export function ChatLayoutFooter({
   return (
     <div
       className={cn(
-        "relative z-10 border-t border-border bg-background px-4 py-4",
+        "relative z-10 border-t border-border bg-background px-4 py-3",
         className,
       )}
       {...props}

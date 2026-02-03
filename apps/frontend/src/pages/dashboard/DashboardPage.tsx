@@ -8,108 +8,163 @@ import {
   FireIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Checkbox,
-  cn,
-} from "@repo/ui";
+import { Badge, buttonVariants, Checkbox, cn } from "@repo/ui";
 import { Link } from "react-router";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import { useDocumentsStore } from "../../stores/documents-store";
+
+const eventTypeVariants = {
+  "study-session": "secondary",
+  exam: "destructive",
+  deadline: "warning",
+  review: "success",
+} as const;
 
 /**
  * DashboardPage - Home view for Pizza Study.
  *
  * Shows:
  * - Greeting with current date
+ * - Daily focus snapshot
  * - Today's tasks
  * - Upcoming events
- * - Progress stats
- * - Quick access cards
+ * - Quick access shortcuts
  */
 export function DashboardPage() {
   const today = new Date();
   const greeting = getGreeting();
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <header className="space-y-1">
-        <h1 className="text-3xl font-serif font-bold text-foreground">
-          {greeting} 👋
-        </h1>
-        <p className="text-muted-foreground">
-          {formatDate(today, "EEEE, MMMM d, yyyy")}
-        </p>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8 lg:px-8">
+      {/* Hero */}
+      <header className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-serif font-bold text-foreground lg:text-5xl">
+              {greeting}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {formatDate(today, "EEEE, MMMM d, yyyy")}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/calendar"
+              className={cn(buttonVariants({ variant: "default" }), "h-10")}
+            >
+              Plan the day
+            </Link>
+            <Link
+              to="/calendar"
+              className={cn(buttonVariants({ variant: "outline" }), "h-10")}
+            >
+              Open calendar
+            </Link>
+            <Link
+              to="/chat"
+              className={cn(buttonVariants({ variant: "ghost" }), "h-10")}
+            >
+              Ask for help
+            </Link>
+          </div>
+
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                  Focus Mode
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Pick one thing to finish before lunch.
+                </p>
+              </div>
+              <Link
+                to="/calendar"
+                className={cn(buttonVariants({ variant: "link" }), "text-xs")}
+              >
+                Open agenda
+                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <FocusPanel />
       </header>
 
-      {/* Main grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Today's Tasks - spans 2 columns on large screens */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-lg">Today's Tasks</CardTitle>
-              <CardDescription>Focus on what matters</CardDescription>
+              <h2 className="text-xl font-serif font-semibold">
+                Today's Tasks
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Focus on the work that moves you forward.
+              </p>
             </div>
             <Link
               to="/calendar"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8",
+              )}
             >
-              View all <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+              View all
             </Link>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="mt-5">
             <TodayTasksList />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        {/* Progress Stats */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Progress</CardTitle>
-            <CardDescription>Keep the momentum going</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProgressStats />
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Events */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Upcoming</CardTitle>
-              <CardDescription>Next on your schedule</CardDescription>
+              <h2 className="text-xl font-serif font-semibold">Upcoming</h2>
+              <p className="text-sm text-muted-foreground">
+                Your next study blocks.
+              </p>
             </div>
             <Link
               to="/calendar"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8",
+              )}
             >
-              Calendar <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+              Calendar
             </Link>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="mt-5">
             <UpcomingEventsList />
-          </CardContent>
-        </Card>
-
-        {/* Quick Access Cards */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Quick Access</CardTitle>
-            <CardDescription>Jump right in</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <QuickAccessGrid />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
+
+      <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-xl font-serif font-semibold">Quick Access</h2>
+            <p className="text-sm text-muted-foreground">
+              Jump back into your study workspace.
+            </p>
+          </div>
+          <Link
+            to="/documents"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "h-8",
+            )}
+          >
+            Browse library
+          </Link>
+        </div>
+        <div className="mt-5">
+          <QuickAccessGrid />
+        </div>
+      </section>
     </div>
   );
 }
@@ -124,6 +179,57 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+function FocusPanel() {
+  const { getUpcomingEvents } = useCalendarStore();
+  const nextEvent = getUpcomingEvents(1)[0];
+
+  return (
+    <section className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+            Daily Pulse
+          </p>
+          <h2 className="text-xl font-serif font-semibold">Focus Snapshot</h2>
+        </div>
+        <Badge variant="muted" size="sm">
+          Today
+        </Badge>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-border/70 bg-background/70 p-4">
+        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+          Next up
+        </p>
+        {nextEvent ? (
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">
+                {nextEvent.title}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {formatDate(nextEvent.date, "EEE, MMM d")} -{" "}
+                {nextEvent.startTime ?? "Any time"}
+              </p>
+            </div>
+            <Badge variant={eventTypeVariants[nextEvent.type]} size="sm">
+              {nextEvent.type.replace("-", " ")}
+            </Badge>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">
+            You are clear for now. Schedule a new session when ready.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-5">
+        <ProgressStats />
+      </div>
+    </section>
+  );
+}
+
 /**
  * Today's tasks list component.
  */
@@ -133,13 +239,13 @@ function TodayTasksList() {
 
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-center text-muted-foreground">
         <HugeiconsIcon
           icon={CheckmarkCircle02Icon}
-          size={48}
-          className="mx-auto mb-3 opacity-30"
+          size={40}
+          className="mx-auto mb-3 opacity-40"
         />
-        <p>No tasks for today. Enjoy your free time! 🎉</p>
+        <p>No tasks for today. Enjoy the quiet momentum.</p>
       </div>
     );
   }
@@ -150,7 +256,8 @@ function TodayTasksList() {
         <li
           key={task.id}
           className={cn(
-            "flex items-start gap-3 p-3 rounded-lg border bg-card",
+            "flex items-start gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm transition-all",
+            "hover:-translate-y-0.5 hover:shadow-md",
             task.priority === "high" && "border-l-4 border-l-destructive",
             task.priority === "medium" && "border-l-4 border-l-accent",
             task.priority === "low" &&
@@ -233,41 +340,34 @@ function ProgressStats() {
 
   if (statsLoading) {
     return (
-      <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-4 animate-pulse">
-            <div className="h-10 w-10 rounded-lg bg-muted" />
-            <div className="space-y-2">
-              <div className="h-6 w-16 bg-muted rounded" />
-              <div className="h-3 w-20 bg-muted rounded" />
-            </div>
-          </div>
+          <div
+            key={i}
+            className="h-20 rounded-xl border border-border/60 bg-muted/40 animate-pulse"
+          />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 sm:grid-cols-3">
       {statItems.map((stat) => (
-        <div key={stat.label} className="flex items-center gap-4">
-          <div
-            className={cn(
-              "h-10 w-10 rounded-lg bg-muted flex items-center justify-center",
-              stat.color,
-            )}
-          >
-            <HugeiconsIcon icon={stat.icon} size={20} />
+        <div
+          key={stat.label}
+          className="rounded-xl border border-border/60 bg-background/70 p-3"
+        >
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{stat.label}</span>
+            <HugeiconsIcon icon={stat.icon} size={14} className={stat.color} />
           </div>
-          <div>
-            <p className="text-2xl font-serif font-bold">
-              {stat.value}
-              <span className="text-sm font-sans font-normal text-muted-foreground ml-1">
-                {stat.unit}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
-          </div>
+          <p className="mt-2 text-2xl font-serif font-bold text-foreground">
+            {stat.value}
+            <span className="ml-1 text-xs font-sans font-normal text-muted-foreground">
+              {stat.unit}
+            </span>
+          </p>
         </div>
       ))}
     </div>
@@ -283,44 +383,40 @@ function UpcomingEventsList() {
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-center text-muted-foreground">
         <HugeiconsIcon
           icon={Calendar03Icon}
-          size={48}
-          className="mx-auto mb-3 opacity-30"
+          size={40}
+          className="mx-auto mb-3 opacity-40"
         />
-        <p>No upcoming events</p>
+        <p>No upcoming events yet.</p>
       </div>
     );
   }
 
-  const eventTypeColors = {
-    "study-session": "secondary",
-    exam: "destructive",
-    deadline: "accent",
-    review: "muted",
-  } as const;
-
   return (
     <ul className="space-y-3">
       {events.map((event) => (
-        <li key={event.id} className="flex items-start gap-3">
+        <li
+          key={event.id}
+          className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/70 p-3 shadow-sm"
+        >
           <div className="text-center min-w-[3rem]">
-            <p className="text-xs text-muted-foreground uppercase">
+            <p className="text-[10px] uppercase text-muted-foreground">
               {formatDate(event.date, "EEE")}
             </p>
-            <p className="text-lg font-bold">{formatDate(event.date, "d")}</p>
+            <p className="text-lg font-serif font-bold">
+              {formatDate(event.date, "d")}
+            </p>
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{event.title}</p>
-            {event.startTime && (
-              <p className="text-xs text-muted-foreground">
-                {event.startTime}
-                {event.endTime && ` - ${event.endTime}`}
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              {formatDate(event.date, "MMM d")} -{" "}
+              {event.startTime ?? "Any time"}
+            </p>
           </div>
-          <Badge variant={eventTypeColors[event.type]} size="sm">
+          <Badge variant={eventTypeVariants[event.type]} size="sm">
             {event.type.replace("-", " ")}
           </Badge>
         </li>
@@ -347,21 +443,21 @@ function QuickAccessGrid() {
       icon: File02Icon,
       label: "Documents",
       description: `${documents.length} files`,
-      color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      color: "bg-blue-500/10 text-blue-600 dark:text-blue-300",
     },
     {
       to: "/calendar",
       icon: Calendar03Icon,
       label: "Calendar",
       description: "Plan your week",
-      color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+      color: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
     },
     {
       to: "/chat",
       icon: Chat01Icon,
       label: "Start Chat",
       description: "Ask anything",
-      color: "bg-primary/10 text-primary",
+      color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
     },
   ];
 
@@ -371,17 +467,22 @@ function QuickAccessGrid() {
         <Link
           key={card.to}
           to={card.to}
-          className="group p-4 rounded-xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          className="group rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
         >
-          <div
-            className={cn(
-              "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-              card.color,
-            )}
-          >
-            <HugeiconsIcon icon={card.icon} size={20} />
+          <div className="flex items-center justify-between">
+            <div
+              className={cn(
+                "h-10 w-10 rounded-xl flex items-center justify-center",
+                card.color,
+              )}
+            >
+              <HugeiconsIcon icon={card.icon} size={20} />
+            </div>
+            <Badge variant="outline" size="sm">
+              Open
+            </Badge>
           </div>
-          <p className="font-medium text-sm group-hover:text-primary transition-colors">
+          <p className="mt-3 font-medium text-sm group-hover:text-primary transition-colors">
             {card.label}
           </p>
           <p className="text-xs text-muted-foreground">{card.description}</p>

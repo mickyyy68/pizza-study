@@ -298,15 +298,15 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           // Writing desk effect with gradient border on focus
           "writing-desk",
           // Floating effect with warm shadow
-          "bg-gradient-to-b from-card to-background",
-          "border border-border/60 rounded-xl",
+          "bg-background/70 backdrop-blur-sm",
+          "border border-border/50 rounded-2xl",
           // Hide regular border on focus (gradient border takes over)
           "focus-within:border-transparent",
-          "shadow-md hover:shadow-lg",
+          "shadow-sm hover:shadow-md",
           "transition-all duration-300 ease-out",
           // Drag state
           isDragging &&
-            "ring-2 ring-primary border-primary/50 bg-primary/5 shadow-lg",
+            "ring-2 ring-primary/40 border-primary/40 bg-primary/5 shadow-md",
           isDisabled && "opacity-50",
           className,
         )}
@@ -334,7 +334,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
 
         {/* Attachment chips (above the input bar) */}
         {hasAttachments && (
-          <div className="px-3 pt-2 pb-1">
+          <div className="px-4 pt-2 pb-1">
             <ChipsContainer>
               {attachments.map((file) => (
                 <AttachmentChip
@@ -353,7 +353,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
 
         {/* Document chips row (shown above input when present) */}
         {hasDocTags && (
-          <div className="px-3 pt-2.5 pb-1">
+          <div className="px-4 pt-2 pb-1">
             <ChipsContainer>
               {mentionedDocs.map((doc) => (
                 <DocumentChip
@@ -368,16 +368,16 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         )}
 
         {/* Main input row */}
-        <div className="flex items-end gap-2 px-3 pb-2.5 pt-3">
+        <div className="flex items-end gap-3 px-4 py-4">
           {/* Model selector (optional slot) */}
           {modelSelector && (
-            <div className="shrink-0 self-center p-1">{modelSelector}</div>
+            <div className="shrink-0 self-center p-0.5">{modelSelector}</div>
           )}
 
           {/* Separator after model selector */}
           {modelSelector && (
             <div className="shrink-0 self-stretch flex items-center py-1">
-              <div className="w-px h-5 bg-border/40" />
+              <div className="w-px h-6 bg-border/30" />
             </div>
           )}
 
@@ -393,8 +393,8 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
             className={cn(
               "flex-1 resize-none bg-transparent min-w-0",
               // Typography - slightly larger, more presence
-              "text-sm leading-relaxed",
-              "text-foreground placeholder:text-muted-foreground/60",
+              "text-[15px] leading-6",
+              "text-foreground placeholder:text-muted-foreground/70",
               // Themed caret
               "caret-primary",
               // Reset ALL browser styling
@@ -408,7 +408,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               "focus-visible:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:shadow-none",
               "disabled:cursor-not-allowed",
               // More generous padding
-              "py-2.5",
+              "py-1.5",
               "max-h-36 overflow-y-auto",
             )}
             style={{
@@ -416,6 +416,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               border: "none",
               outline: "none",
               boxShadow: "none",
+              resize: "none",
               WebkitAppearance: "none",
             }}
             aria-label="Message input"
@@ -432,8 +433,8 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 className={cn(
                   "shrink-0 size-9 rounded-lg",
                   "flex items-center justify-center",
-                  "text-muted-foreground/60 hover:text-foreground",
-                  "hover:bg-muted/60",
+                  "text-muted-foreground/70 hover:text-foreground",
+                  "bg-muted/30 hover:bg-muted/50",
                   "transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",

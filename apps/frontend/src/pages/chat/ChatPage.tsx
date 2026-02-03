@@ -2,7 +2,6 @@ import { useChat } from "@ai-sdk/react";
 import {
   BookOpen01Icon,
   BulbIcon,
-  Delete01Icon,
   HelpCircleIcon,
   SparklesIcon,
 } from "@hugeicons/core-free-icons";
@@ -40,7 +39,7 @@ import {
   useState,
 } from "react";
 import { useAutoScroll } from "../../hooks/useAutoScroll";
-import type { Attachment, ChatDocument } from "../../stores/chat-store";
+import type { Attachment } from "../../stores/chat-store";
 import { useChatStore } from "../../stores/chat-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -60,7 +59,7 @@ export function ChatPage() {
   // Track new messages for FAB indicator
   const [newMessageCount, setNewMessageCount] = useState(0);
   const prevMessageCountRef = useRef(0);
-  const prevGroupIdRef = useRef<string | null>(null);
+  const _prevGroupIdRef = useRef<string | null>(null);
 
   // Chat store state
   const {
@@ -68,15 +67,14 @@ export function ChatPage() {
     sidebarMobileOpen,
     documentsSectionCollapsed,
     historySectionCollapsed,
-    groupsSectionCollapsed,
+    groupsSectionCollapsed: _groupsSectionCollapsed,
     documents,
-    history,
     currentChatId,
     currentConversationId,
     historySearchQuery,
-    groups,
-    currentGroupId,
-    chatGroupMap,
+    groups: _groups,
+    currentGroupId: _currentGroupId,
+    chatGroupMap: _chatGroupMap,
     mentionedDocIds,
     attachments,
     toggleSidebar,
@@ -84,7 +82,7 @@ export function ChatPage() {
     closeMobileSidebar,
     toggleDocumentsSection,
     toggleHistorySection,
-    toggleGroupsSection,
+    toggleGroupsSection: _toggleGroupsSection,
     toggleDocumentSelection,
     setDocuments,
     setCurrentChat,
@@ -424,18 +422,20 @@ export function ChatPage() {
   const filteredHistory = getFilteredHistory();
 
   return (
-    <ChatLayout className="absolute inset-0">
+    <ChatLayout className="bg-background">
       {/* Sidebar */}
       <ChatLayoutSidebar
         collapsed={sidebarCollapsed}
         mobileOpen={sidebarMobileOpen}
         onMobileClose={closeMobileSidebar}
+        className="bg-card/70"
       >
         <ChatSidebarHeader
           collapsed={sidebarCollapsed}
           onToggleCollapse={toggleSidebar}
           onMobileClose={closeMobileSidebar}
           showMobileClose={sidebarMobileOpen}
+          className="bg-background/80 backdrop-blur"
         >
           <HugeiconsIcon
             icon={SparklesIcon}
@@ -486,55 +486,67 @@ export function ChatPage() {
       </ChatLayoutSidebar>
 
       {/* Main content */}
-      <ChatLayoutMain>
-        <div className="flex items-center gap-2 border-b border-border px-4 py-2 md:hidden">
-          <MobileSidebarTrigger onClick={openMobileSidebar} />
-          <span className="font-medium">Chat</span>
+      <ChatLayoutMain className="bg-muted/20">
+        <div className="flex items-center justify-between border-b border-border/60 bg-background/95 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <MobileSidebarTrigger onClick={openMobileSidebar} />
+            <p className="text-sm font-medium">Study Chat</p>
+          </div>
+          {sidebarCollapsed && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleSidebar}
+              className="hidden h-8 md:inline-flex"
+            >
+              Show sidebar
+            </Button>
+          )}
         </div>
 
         <ChatLayoutMessages
           ref={messagesContainerRef}
           showTopShadow={canScrollUp}
           showBottomShadow={canScrollDown && !isAtBottom}
+          className="bg-background/40"
         >
-          {messages.length === 0 ? (
-            <WelcomeScreen onSuggestionClick={handleInputChange} />
-          ) : (
-            <div className="flex flex-col">
-              {messages.map((message, index) => {
-                const isLastMessage = index === messages.length - 1;
-                const isStreamingMessage =
-                  isLastMessage &&
-                  message.role === "assistant" &&
-                  isLoading &&
-                  !isThinking;
-                const taggedDocs =
-                  message.role === "user" ? getTaggedDocs(message) : [];
+          <div className="space-y-6">
+            {messages.length === 0 ? (
+              <WelcomeScreen onSuggestionClick={handleInputChange} />
+            ) : (
+              <div className="flex flex-col">
+                {messages.map((message, index) => {
+                  const isLastMessage = index === messages.length - 1;
+                  const isStreamingMessage =
+                    isLastMessage &&
+                    message.role === "assistant" &&
+                    isLoading &&
+                    !isThinking;
 
-                return (
-                  <ChatMessage
-                    key={message.id}
-                    variant={message.role as "user" | "assistant"}
-                    content={message.content}
-                    taggedDocs={taggedDocs}
-                    isStreaming={isStreamingMessage}
-                  />
-                );
-              })}
+                  return (
+                    <ChatMessage
+                      key={message.id}
+                      variant={message.role as "user" | "assistant"}
+                      content={message.content}
+                      isStreaming={isStreamingMessage}
+                    />
+                  );
+                })}
 
-              {/* Thinking indicator (before first token) */}
-              {isThinking && <ThinkingIndicator />}
+                {/* Thinking indicator (before first token) */}
+                {isThinking && <ThinkingIndicator />}
 
-              {/* Error indicator */}
-              {chatError && (
-                <div className="flex justify-center">
-                  <div className="bg-destructive/10 text-destructive text-sm px-4 py-2 rounded-lg animate-in fade-in-0 slide-in-from-bottom-2">
-                    {chatError}
+                {/* Error indicator */}
+                {chatError && (
+                  <div className="flex justify-center">
+                    <div className="bg-destructive/10 text-destructive text-sm px-4 py-2 rounded-lg animate-in fade-in-0 slide-in-from-bottom-2">
+                      {chatError}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Scroll to bottom FAB */}
           <ScrollToBottom
@@ -545,7 +557,7 @@ export function ChatPage() {
           />
         </ChatLayoutMessages>
 
-        <ChatLayoutFooter>
+        <ChatLayoutFooter className="border-border/60 bg-background/95 backdrop-blur">
           <ChatInput
             value={input}
             onChange={(value) =>
@@ -555,7 +567,7 @@ export function ChatPage() {
             }
             onSubmit={onSubmit}
             onStop={stop}
-            placeholder="Ask anything... Use @ to mention documents"
+            placeholder="Ask anything or mention documents"
             isLoading={isLoading}
             modelSelector={
               <ModelSelector
@@ -574,18 +586,6 @@ export function ChatPage() {
             onAttach={handleAttach}
             onAttachmentRemove={removeAttachment}
           />
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">@</kbd>{" "}
-            mention docs ·{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
-              Enter
-            </kbd>{" "}
-            send ·{" "}
-            <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono">
-              Shift+Enter
-            </kbd>{" "}
-            new line
-          </p>
         </ChatLayoutFooter>
       </ChatLayoutMain>
     </ChatLayout>
@@ -634,43 +634,48 @@ function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center text-center px-4 py-10">
-      <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-        <HugeiconsIcon icon={SparklesIcon} size={40} className="text-primary" />
-      </div>
+    <div className="my-6 rounded-3xl border border-border/70 bg-card/80 p-8 shadow-sm md:my-10 md:p-10">
+      <div className="space-y-5 pt-2">
+        <div>
+          <h1 className="font-serif text-3xl font-bold text-foreground">
+            How can I help you study?
+          </h1>
+          <p className="text-muted-foreground mt-2 max-w-md">
+            Ask me questions, request explanations, or build study plans using
+            your saved documents.
+          </p>
+        </div>
 
-      <h1 className="font-serif text-3xl font-bold mb-2">
-        How can I help you study?
-      </h1>
-      <p className="text-muted-foreground max-w-md mb-8">
-        Ask me questions, request explanations, get quizzed on topics, or
-        explore concepts from your documents.
-      </p>
-
-      <div className="grid gap-4 sm:grid-cols-3 max-w-3xl w-full">
-        {suggestions.map((suggestion) => (
-          <button
-            type="button"
-            key={suggestion.title}
-            onClick={() => handleSuggestionClick(suggestion.prompt)}
-            className="group p-4 rounded-xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left"
-          >
-            <div
-              className={cn(
-                "h-10 w-10 rounded-lg flex items-center justify-center mb-3",
-                suggestion.color,
-              )}
-            >
-              <HugeiconsIcon icon={suggestion.icon} size={20} />
-            </div>
-            <p className="font-medium text-sm group-hover:text-primary transition-colors">
-              {suggestion.title}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-              "{suggestion.prompt}"
-            </p>
-          </button>
-        ))}
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-3">
+            Start with
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {suggestions.map((suggestion) => (
+              <button
+                type="button"
+                key={suggestion.title}
+                onClick={() => handleSuggestionClick(suggestion.prompt)}
+                className="group rounded-2xl border border-border/70 bg-background/70 p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div
+                  className={cn(
+                    "h-10 w-10 rounded-xl flex items-center justify-center mb-3",
+                    suggestion.color,
+                  )}
+                >
+                  <HugeiconsIcon icon={suggestion.icon} size={20} />
+                </div>
+                <p className="font-medium text-sm group-hover:text-primary transition-colors">
+                  {suggestion.title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  "{suggestion.prompt}"
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

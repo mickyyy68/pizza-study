@@ -233,7 +233,7 @@ export function MobileSidebarTrigger({
       variant="ghost"
       size="sm"
       onClick={onClick}
-      className={cn("lg:hidden", className)}
+      className={cn("md:hidden", className)}
       aria-label="Open sidebar"
     >
       <HugeiconsIcon icon={Menu02Icon} size={20} />
