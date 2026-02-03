@@ -522,12 +522,15 @@ export function ChatPage() {
                     message.role === "assistant" &&
                     isLoading &&
                     !isThinking;
+                  const taggedDocs =
+                    message.role === "user" ? getTaggedDocs(message) : [];
 
                   return (
                     <ChatMessage
                       key={message.id}
                       variant={message.role as "user" | "assistant"}
                       content={message.content}
+                      taggedDocs={taggedDocs}
                       isStreaming={isStreamingMessage}
                     />
                   );
