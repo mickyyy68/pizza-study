@@ -119,7 +119,7 @@ export const useChatStore = create<ChatState>()(
       // Initial sidebar state
       sidebarCollapsed: false,
       sidebarMobileOpen: false,
-      documentsSectionCollapsed: false,
+      documentsSectionCollapsed: true,
       historySectionCollapsed: false,
 
       // Initial data (will be populated from API)
