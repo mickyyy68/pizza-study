@@ -2,7 +2,11 @@ import { File02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
 import { cn } from "../lib/utils";
-import { type Citation, CitationSources, parseCitations } from "./citation";
+import {
+  type Citation,
+  CitationPreview,
+  CitationSources,
+} from "./citation";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { MessageActions } from "./message-actions";
 import { MessageErrorBoundary } from "./message-error-boundary";
@@ -57,17 +61,47 @@ export function ChatMessage({
     string | null
   >(null);
 
+  // Hover preview state
+  const [hoveredCitation, setHoveredCitation] = React.useState<{
+    id: string;
+    position: { x: number; y: number };
+  } | null>(null);
+
   const isUser = variant === "user";
   const isAssistant = variant === "assistant";
   const isSystem = variant === "system";
 
-  // Handle citation badge click - scroll to sources (not yet wired up)
-  const _handleCitationClick = (citationId: string) => {
+  // Handle citation badge click - scroll to sources list
+  const handleCitationClick = React.useCallback((citationId: string) => {
     setHighlightedCitation(citationId);
     const sourceEl = document.getElementById(`source-${citationId}`);
     sourceEl?.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(() => setHighlightedCitation(null), 2000);
-  };
+  }, []);
+
+  // Handle citation badge hover - show preview tooltip
+  const handleCitationHover = React.useCallback(
+    (citationId: string, event: React.MouseEvent) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setHoveredCitation({
+        id: citationId,
+        position: {
+          x: rect.left + rect.width / 2,
+          y: rect.bottom + 8,
+        },
+      });
+    },
+    [],
+  );
+
+  const handleCitationLeave = React.useCallback(() => {
+    setHoveredCitation(null);
+  }, []);
+
+  // Find the hovered citation data
+  const hoveredCitationData = hoveredCitation
+    ? citations.find((c) => c.id === hoveredCitation.id)
+    : null;
 
   // Render content with citations for assistant messages
   const renderContent = () => {
@@ -108,30 +142,39 @@ export function ChatMessage({
     }
 
     // Assistant messages: markdown with citations
-    const citationMatches = parseCitations(content);
-    let processedContent = content;
-
-    citationMatches.forEach((match, i) => {
-      processedContent = processedContent.replace(
-        `[[cite:${match.id}]]`,
-        `‹CITE:${match.id}:${i}›`,
-      );
-    });
+    // Convert [[cite:N]] markers to markdown links [N](#cite-N) for rendering
+    // Using anchor format (#cite-N) because ReactMarkdown sanitizes custom protocols like cite:
+    const processedContent = content.replace(
+      /\[\[cite:(\d+)\]\]/g,
+      (_, num) => `[${num}](#cite-${num})`,
+    );
 
     return (
       <MessageErrorBoundary fallbackContent={content}>
-        <div className="space-y-3">
-          <MarkdownRenderer content={processedContent} />
-          {citations.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-border/50">
+        <>
+          <div className="space-y-3">
+            <MarkdownRenderer
+              content={processedContent}
+              onCitationClick={handleCitationClick}
+              onCitationHover={handleCitationHover}
+              onCitationLeave={handleCitationLeave}
+            />
+            {citations.length > 0 && (
               <CitationSources
                 citations={citations}
                 highlightedId={highlightedCitation || undefined}
                 onSourceClick={onCitationClick}
               />
-            </div>
+            )}
+          </div>
+          {/* Citation hover preview tooltip - outside relative container for proper fixed positioning */}
+          {hoveredCitationData && hoveredCitation && (
+            <CitationPreview
+              citation={hoveredCitationData}
+              position={hoveredCitation.position}
+            />
           )}
-        </div>
+        </>
       </MessageErrorBoundary>
     );
   };

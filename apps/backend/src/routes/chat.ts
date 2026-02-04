@@ -6,9 +6,14 @@ import {
   SYSTEM_PROMPT,
 } from "@repo/ai";
 import { chatRequestSchema } from "@repo/contracts";
-import { conversations, db, messages } from "@repo/database";
-import { retrieveContext } from "@repo/rag";
-import { streamText } from "ai";
+import {
+  conversations,
+  db,
+  type MessageCitation,
+  messages,
+} from "@repo/database";
+import { type RetrievalCitation, retrieveContext } from "@repo/rag";
+import { StreamData, streamText } from "ai";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -29,7 +34,63 @@ function getLatestUserMessage(
 }
 
 /**
- * Build system prompt with optional RAG context.
+ * Parse [[cite:N]] markers from model output.
+ * Returns unique citation numbers that are valid (within maxCitations range).
+ * Invalid or out-of-range markers are silently ignored.
+ */
+function parseCiteMarkers(text: string, maxCitations: number): number[] {
+  const regex = /\[\[cite:(\d+)\]\]/g;
+  const cited = new Set<number>();
+
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    const num = parseInt(match[1], 10);
+    // Only include valid citation numbers (1-indexed, within range)
+    if (num >= 1 && num <= maxCitations) {
+      cited.add(num);
+    }
+  }
+
+  return Array.from(cited).sort((a, b) => a - b);
+}
+
+/** Maximum length for quote preview in citations */
+const MAX_QUOTE_LENGTH = 200;
+
+/**
+ * Build MessageCitation objects from retrieval citations based on cited numbers.
+ * Only includes citations that were actually referenced in the response.
+ */
+function buildMessageCitations(
+  citedNumbers: number[],
+  retrievalCitations: RetrievalCitation[],
+): MessageCitation[] {
+  return citedNumbers
+    .map((num) => {
+      // Citation numbers are 1-indexed, array is 0-indexed
+      const citation = retrievalCitations[num - 1];
+      if (!citation) return null;
+
+      // Trim quote to preview length
+      const quote =
+        citation.chunk.length > MAX_QUOTE_LENGTH
+          ? citation.chunk.slice(0, MAX_QUOTE_LENGTH) + "..."
+          : citation.chunk;
+
+      return {
+        id: citation.id,
+        documentId: citation.documentId,
+        documentName: citation.documentName,
+        quote,
+        locationLabel: `Excerpt ${num}`,
+        chunkIndex: citation.chunkIndex,
+      };
+    })
+    .filter((c): c is MessageCitation => c !== null);
+}
+
+/**
+ * Build system prompt with optional RAG context and citation instructions.
  */
 function buildSystemPrompt(
   basePrompt: string,
@@ -45,7 +106,18 @@ function buildSystemPrompt(
 
 ${ragContext}
 
-Use the above excerpts to answer the user's question when relevant. If the excerpts don't contain relevant information, you can still answer based on your general knowledge, but mention that the information isn't from the user's study materials.`;
+## Citation Instructions
+
+When answering, follow these rules:
+
+1. **Cite your sources**: When you use information from the excerpts above, add a citation marker immediately after the statement using the format \`[[cite:N]]\` where N is the excerpt number shown in brackets (e.g., [1], [2]).
+
+2. **Be accurate**: Only cite an excerpt if you actually used information from it. Do not cite excerpts you didn't reference.
+
+3. **Disclaim general knowledge**: If you answer using your general knowledge (not from the excerpts), briefly note that the information is not from the user's study materials.
+
+Example response with citations:
+"The mitochondria is responsible for producing ATP through cellular respiration [[cite:1]]. This process is essential for providing energy to cells [[cite:2]]."`;
 }
 
 const updateChatSchema = z.object({
@@ -66,7 +138,6 @@ const chat = new Hono()
         ? requestedModel
         : DEFAULT_MODEL_ID;
     const selectedModel = openrouter(modelId);
-    console.log("[Chat] Using model:", modelId);
 
     // Get or create conversation
     let conversationId = providedConvoId;
@@ -80,19 +151,14 @@ const chat = new Hono()
         .values({ title })
         .returning();
       conversationId = newConvo.id;
-      console.log("[Chat] Created new conversation:", conversationId);
     }
 
     // Extract the latest user message for RAG and persistence
     const userMessage = getLatestUserMessage(chatMessages);
     let ragContext: string | null = null;
+    let ragCitations: RetrievalCitation[] = [];
 
     if (userMessage) {
-      console.log(
-        "[Chat] Processing message:",
-        userMessage.slice(0, 100) + (userMessage.length > 100 ? "..." : ""),
-      );
-
       // Save user message to database
       await db.insert(messages).values({
         conversationId,
@@ -101,7 +167,6 @@ const chat = new Hono()
       });
 
       try {
-        console.log("[Chat] Retrieving context...");
         const retrievalResult = await retrieveContext(userMessage, {
           limit: 5,
           threshold: 0.8,
@@ -109,74 +174,93 @@ const chat = new Hono()
 
         if (retrievalResult.hasContext) {
           ragContext = retrievalResult.context;
-          console.log(
-            `[Chat] ✓ Found ${retrievalResult.sources.length} source(s):`,
-            retrievalResult.sources.map((s) => s.title).join(", "),
-          );
-        } else {
-          console.log("[Chat] No relevant context found");
+          ragCitations = retrievalResult.citations;
         }
       } catch (error) {
-        // Log the error but continue without RAG context
         console.error(
-          "[Chat] ✗ RAG retrieval failed:",
+          "[Chat] RAG retrieval failed:",
           error instanceof Error ? error.message : error,
         );
       }
-    } else {
-      console.log("[Chat] No user message found, skipping RAG");
     }
 
     // Build system prompt with optional RAG context
     const systemPrompt = buildSystemPrompt(SYSTEM_PROMPT, ragContext);
 
-    const result = streamText({
-      model: selectedModel,
-      system: systemPrompt,
-      messages: chatMessages,
-      maxRetries: 0,
-      onFinish: async ({ text }) => {
-        // Save assistant message after streaming completes
-        if (text && conversationId) {
-          await db.insert(messages).values({
-            conversationId,
-            role: "assistant",
-            content: text,
-          });
+    // Create stream data for sending citations as message annotations
+    const data = new StreamData();
 
-          // Update conversation timestamp
-          await db
-            .update(conversations)
-            .set({ updatedAt: new Date() })
-            .where(eq(conversations.id, conversationId));
+    try {
+      const result = streamText({
+        model: selectedModel,
+        system: systemPrompt,
+        messages: chatMessages,
+        maxRetries: 0,
+        onError: (error) => {
+          console.error("[Chat] Stream error:", error);
+        },
+        onFinish: async ({ text }) => {
+          try {
+            // Save assistant message after streaming completes
+            if (text && conversationId) {
+              // Parse citation markers and build citation objects
+              const citedNumbers = parseCiteMarkers(text, ragCitations.length);
+              const citations = buildMessageCitations(citedNumbers, ragCitations);
 
-          console.log(
-            "[Chat] Saved assistant response to conversation:",
-            conversationId,
-          );
-        }
-      },
-    });
+              if (citations.length > 0) {
+                // Stream citations to client as message annotation
+                // Use JSON round-trip to create plain object compatible with JSONValue
+                const annotationData = JSON.parse(
+                  JSON.stringify({ type: "citations", citations }),
+                );
+                data.appendMessageAnnotation(annotationData);
+              }
 
-    // Create response with conversation ID header
-    const response = result.toDataStreamResponse({
-      getErrorMessage: (error) => {
-        console.error("AI chat error:", error);
-        if (error instanceof Error) {
-          return error.message;
-        }
-        try {
-          return JSON.stringify(error);
-        } catch {
-          return "Unknown error";
-        }
-      },
-    });
+              await db.insert(messages).values({
+                conversationId,
+                role: "assistant",
+                content: text,
+                citations: citations.length > 0 ? citations : undefined,
+              });
 
-    // Add conversation ID header
-    response.headers.set("X-Conversation-Id", conversationId);
+              // Update conversation timestamp
+              await db
+                .update(conversations)
+                .set({ updatedAt: new Date() })
+                .where(eq(conversations.id, conversationId));
+            }
+          } catch (error) {
+            console.error("[Chat] Error saving message:", error);
+          } finally {
+            data.close();
+          }
+        },
+      });
 
-    return response;
+      // Create response with conversation ID header and stream data for citations
+      const response = result.toDataStreamResponse({
+        data,
+        getErrorMessage: (error) => {
+          if (error instanceof Error) {
+            return error.message;
+          }
+          try {
+            return JSON.stringify(error);
+          } catch {
+            return "Unknown error";
+          }
+        },
+      });
+
+      // Add conversation ID header
+      response.headers.set("X-Conversation-Id", conversationId);
+
+      return response;
+    } catch (error) {
+      // Ensure StreamData is closed if an error occurs before streaming starts
+      data.close();
+      throw error;
+    }
   })
   // Update chat metadata (e.g., title)
   .patch("/:id", zValidator("json", updateChatSchema), async (c) => {

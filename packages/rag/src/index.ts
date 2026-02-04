@@ -6,6 +6,7 @@ export {
 } from "./embeddings";
 export {
   hasDocuments,
+  type RetrievalCitation,
   type RetrievalOptions,
   type RetrievalResult,
   retrieve,
