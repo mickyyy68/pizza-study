@@ -1,13 +1,21 @@
 import { Cancel01Icon, Menu02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "@repo/ui";
-import { useEffect } from "react";
-import { Outlet, useLocation } from "react-router";
+import { cn, type SidebarConversation, type SidebarDocument } from "@repo/ui";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { ChatSlideOver } from "../components/chat/ChatSlideOver";
+import { ConfirmDialog } from "../components/dialogs/ConfirmDialog";
+import { PromptDialog } from "../components/dialogs/PromptDialog";
 import { useInitialize } from "../hooks/useInitialize";
 import { useTheme } from "../hooks/useTheme";
+import { useChatStore } from "../stores/chat-store";
 import { useUIStore } from "../stores/ui-store";
 import { AppSidebar } from "./AppSidebar";
+
+type DialogState =
+  | { type: "none" }
+  | { type: "rename"; conversation: SidebarConversation }
+  | { type: "delete"; conversation: SidebarConversation };
 
 /**
  * RootLayout - Main application layout for Pizza Study.
@@ -27,6 +35,112 @@ export function RootLayout() {
     toggleMobileMenu,
   } = useUIStore();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Chat store state (for sidebar when on /chat)
+  const {
+    documents: chatDocuments,
+    history: chatHistory,
+    historySearchQuery,
+    setHistorySearchQuery,
+    setCurrentChat,
+    setCurrentConversationId,
+    toggleDocumentSelection,
+    deleteConversation,
+    renameConversation,
+  } = useChatStore();
+
+  // Dialog state for rename/delete confirmations
+  const [dialogState, setDialogState] = useState<DialogState>({ type: "none" });
+
+  // Check if we're on the chat route
+  const isChatRoute = location.pathname === "/chat";
+
+  // Convert chat documents to sidebar format
+  const sidebarDocuments: SidebarDocument[] = useMemo(
+    () =>
+      chatDocuments.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        pageCount: doc.pageCount,
+        type: "pdf" as const,
+      })),
+    [chatDocuments],
+  );
+
+  // Convert chat history to sidebar conversations format
+  const sidebarConversations: SidebarConversation[] = useMemo(
+    () =>
+      chatHistory.map((item) => ({
+        id: item.id,
+        title: item.preview || "New conversation",
+        messageCount: item.messageCount || 0,
+        lastMessageAt: item.timestamp,
+      })),
+    [chatHistory],
+  );
+
+  // Chat sidebar callbacks
+  const handleNewChat = useCallback(() => {
+    setCurrentChat(null);
+    setCurrentConversationId(null);
+    // Navigate to chat if not already there
+    if (!isChatRoute) {
+      navigate("/chat");
+    }
+  }, [setCurrentChat, setCurrentConversationId, isChatRoute, navigate]);
+
+  const handleSelectDocument = useCallback(
+    (doc: SidebarDocument) => {
+      toggleDocumentSelection(doc.id);
+    },
+    [toggleDocumentSelection],
+  );
+
+  const handleUploadDocument = useCallback(() => {
+    navigate("/documents/upload");
+  }, [navigate]);
+
+  const handleSelectConversation = useCallback(
+    (conv: SidebarConversation) => {
+      setCurrentChat(conv.id);
+      setCurrentConversationId(conv.id);
+      // Navigate to chat if not already there
+      if (!isChatRoute) {
+        navigate("/chat");
+      }
+    },
+    [setCurrentChat, setCurrentConversationId, isChatRoute, navigate],
+  );
+
+  const handleEditConversation = useCallback((conv: SidebarConversation) => {
+    setDialogState({ type: "rename", conversation: conv });
+  }, []);
+
+  const handleDeleteConversation = useCallback((conv: SidebarConversation) => {
+    setDialogState({ type: "delete", conversation: conv });
+  }, []);
+
+  const handleDialogClose = useCallback(() => {
+    setDialogState({ type: "none" });
+  }, []);
+
+  const handleRenameSubmit = useCallback(
+    async (newTitle: string) => {
+      if (dialogState.type === "rename") {
+        await renameConversation(dialogState.conversation.id, newTitle);
+      }
+      setDialogState({ type: "none" });
+    },
+    [dialogState, renameConversation],
+  );
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (dialogState.type === "delete") {
+      await deleteConversation(dialogState.conversation.id);
+    }
+    setDialogState({ type: "none" });
+  }, [dialogState, deleteConversation]);
 
   // Initialize app data (tasks, events, stats)
   useInitialize();
@@ -76,7 +190,20 @@ export function RootLayout() {
             : "-translate-x-full md:translate-x-0",
         )}
       >
-        <AppSidebar onMobileClose={closeMobileMenu} />
+        <AppSidebar
+          onMobileClose={closeMobileMenu}
+          showChatSections={isChatRoute}
+          documents={sidebarDocuments}
+          conversations={sidebarConversations}
+          historySearchQuery={historySearchQuery}
+          onHistorySearchChange={setHistorySearchQuery}
+          onNewChat={handleNewChat}
+          onSelectDocument={handleSelectDocument}
+          onUploadDocument={handleUploadDocument}
+          onSelectConversation={handleSelectConversation}
+          onEditConversation={handleEditConversation}
+          onDeleteConversation={handleDeleteConversation}
+        />
       </div>
 
       {/* Main content */}
@@ -107,6 +234,34 @@ export function RootLayout() {
 
       {/* Chat slide-over */}
       <ChatSlideOver />
+
+      {/* Rename dialog */}
+      <PromptDialog
+        open={dialogState.type === "rename"}
+        title="Rename chat"
+        defaultValue={
+          dialogState.type === "rename" ? dialogState.conversation.title : ""
+        }
+        placeholder="Enter a new name"
+        submitLabel="Rename"
+        onSubmit={handleRenameSubmit}
+        onCancel={handleDialogClose}
+      />
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={dialogState.type === "delete"}
+        title="Delete chat"
+        message={
+          dialogState.type === "delete"
+            ? `Delete "${dialogState.conversation.title}"? This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDialogClose}
+      />
     </div>
   );
 }

@@ -41,6 +41,7 @@ export {
   type ChatInputProps,
   type MentionedDocument,
 } from "./chat-input";
+export { ChatInputGlow, type ChatInputGlowProps } from "./chat-input-glow";
 // Chat Layout
 export {
   ChatLayout,
@@ -54,6 +55,11 @@ export {
   ChatLayoutSidebar,
   type ChatLayoutSidebarProps,
 } from "./chat-layout";
+// Chat sidebar types
+export {
+  type SidebarConversation,
+  type SidebarDocument,
+} from "./chat-sidebar-types";
 // Chat
 export {
   ChatMessage,
@@ -72,6 +78,11 @@ export {
   MobileSidebarTrigger,
   type MobileSidebarTriggerProps,
 } from "./chat-sidebar";
+export {
+  ChatWelcome,
+  type ChatWelcomeProps,
+  type SuggestionCard,
+} from "./chat-welcome";
 export { Checkbox, type CheckboxProps } from "./checkbox";
 export {
   type Citation,
