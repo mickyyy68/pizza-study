@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { RootLayout } from "./layouts/RootLayout";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
-import { ChatPage } from "./pages/chat/ChatPage";
+import { ChatPageNew } from "./pages/chat/ChatPageNew";
 import { DashboardPage } from "./pages/dashboard/DashboardPage";
 import { DocumentsPage } from "./pages/documents/DocumentsPage";
 import { UploadDocumentPage } from "./pages/documents/UploadDocumentPage";
@@ -10,7 +10,7 @@ import { UploadDocumentPage } from "./pages/documents/UploadDocumentPage";
  * Route definitions for Pizza Study.
  *
  * All routes are wrapped in RootLayout which provides:
- * - Sidebar navigation
+ * - Unified sidebar navigation (with conditional chat sections on /chat)
  * - Chat slide-over panel
  * - Global keyboard shortcuts
  */
@@ -44,10 +44,10 @@ export const router = createBrowserRouter([
         path: "calendar",
         element: <CalendarPage />,
       },
-      // Chat - full page chat
+      // Chat - full page chat (uses unified sidebar with chat sections)
       {
         path: "chat",
-        element: <ChatPage />,
+        element: <ChatPageNew />,
       },
     ],
   },

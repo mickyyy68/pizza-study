@@ -1,11 +1,12 @@
 import { Cancel01Icon, Menu02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "@repo/ui";
-import { useEffect } from "react";
-import { Outlet, useLocation } from "react-router";
+import { cn, type SidebarConversation, type SidebarDocument } from "@repo/ui";
+import { useCallback, useEffect, useMemo } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { ChatSlideOver } from "../components/chat/ChatSlideOver";
 import { useInitialize } from "../hooks/useInitialize";
 import { useTheme } from "../hooks/useTheme";
+import { useChatStore } from "../stores/chat-store";
 import { useUIStore } from "../stores/ui-store";
 import { AppSidebar } from "./AppSidebar";
 
@@ -27,6 +28,102 @@ export function RootLayout() {
     toggleMobileMenu,
   } = useUIStore();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Chat store state (for sidebar when on /chat)
+  const {
+    documents: chatDocuments,
+    history: chatHistory,
+    historySearchQuery,
+    setHistorySearchQuery,
+    setCurrentChat,
+    setCurrentConversationId,
+    toggleDocumentSelection,
+    deleteConversation,
+    renameConversation,
+  } = useChatStore();
+
+  // Check if we're on the chat route
+  const isChatRoute = location.pathname === "/chat";
+
+  // Convert chat documents to sidebar format
+  const sidebarDocuments: SidebarDocument[] = useMemo(
+    () =>
+      chatDocuments.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        pageCount: doc.pageCount,
+        type: "pdf" as const,
+      })),
+    [chatDocuments],
+  );
+
+  // Convert chat history to sidebar conversations format
+  const sidebarConversations: SidebarConversation[] = useMemo(
+    () =>
+      chatHistory.map((item) => ({
+        id: item.id,
+        title: item.preview || "New conversation",
+        messageCount: item.messageCount || 0,
+        lastMessageAt: item.timestamp,
+      })),
+    [chatHistory],
+  );
+
+  // Chat sidebar callbacks
+  const handleNewChat = useCallback(() => {
+    setCurrentChat(null);
+    setCurrentConversationId(null);
+    // Navigate to chat if not already there
+    if (!isChatRoute) {
+      navigate("/chat");
+    }
+  }, [setCurrentChat, setCurrentConversationId, isChatRoute, navigate]);
+
+  const handleSelectDocument = useCallback(
+    (doc: SidebarDocument) => {
+      toggleDocumentSelection(doc.id);
+    },
+    [toggleDocumentSelection],
+  );
+
+  const handleUploadDocument = useCallback(() => {
+    navigate("/documents/upload");
+  }, [navigate]);
+
+  const handleSelectConversation = useCallback(
+    (conv: SidebarConversation) => {
+      setCurrentChat(conv.id);
+      setCurrentConversationId(conv.id);
+      // Navigate to chat if not already there
+      if (!isChatRoute) {
+        navigate("/chat");
+      }
+    },
+    [setCurrentChat, setCurrentConversationId, isChatRoute, navigate],
+  );
+
+  const handleEditConversation = useCallback(
+    async (conv: SidebarConversation) => {
+      const newTitle = window.prompt("Chat name", conv.title);
+      if (!newTitle) return;
+      const trimmed = newTitle.trim();
+      if (!trimmed || trimmed === conv.title) return;
+      await renameConversation(conv.id, trimmed);
+    },
+    [renameConversation],
+  );
+
+  const handleDeleteConversation = useCallback(
+    async (conv: SidebarConversation) => {
+      const confirmed = window.confirm(
+        `Delete "${conv.title}"? This cannot be undone.`,
+      );
+      if (!confirmed) return;
+      await deleteConversation(conv.id);
+    },
+    [deleteConversation],
+  );
 
   // Initialize app data (tasks, events, stats)
   useInitialize();
@@ -76,7 +173,20 @@ export function RootLayout() {
             : "-translate-x-full md:translate-x-0",
         )}
       >
-        <AppSidebar onMobileClose={closeMobileMenu} />
+        <AppSidebar
+          onMobileClose={closeMobileMenu}
+          showChatSections={isChatRoute}
+          documents={sidebarDocuments}
+          conversations={sidebarConversations}
+          historySearchQuery={historySearchQuery}
+          onHistorySearchChange={setHistorySearchQuery}
+          onNewChat={handleNewChat}
+          onSelectDocument={handleSelectDocument}
+          onUploadDocument={handleUploadDocument}
+          onSelectConversation={handleSelectConversation}
+          onEditConversation={handleEditConversation}
+          onDeleteConversation={handleDeleteConversation}
+        />
       </div>
 
       {/* Main content */}
