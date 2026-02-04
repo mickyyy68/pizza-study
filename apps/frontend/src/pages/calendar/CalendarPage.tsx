@@ -145,8 +145,6 @@ export function CalendarPage() {
 
   return (
     <div className="relative flex h-full overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,244,235,0.9),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(219,239,255,0.7),transparent_45%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(46,30,24,0.7),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(20,30,48,0.8),transparent_45%)]" />
-
       {/* Error Banner */}
       {error && (
         <div className="absolute top-0 left-0 right-0 z-50 border-b border-destructive/20 bg-destructive/10 p-3 flex items-center justify-between">
