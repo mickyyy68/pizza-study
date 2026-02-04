@@ -1,12 +1,19 @@
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CitationBadge } from "./citation";
 import { cn } from "../lib/utils";
 import { CodeBlock, InlineCode } from "./code-block";
 
 export interface MarkdownRendererProps {
   content: string;
   className?: string;
+  /** Callback when a citation badge is clicked */
+  onCitationClick?: (citationId: string) => void;
+  /** Callback when mouse enters a citation badge */
+  onCitationHover?: (citationId: string, event: React.MouseEvent) => void;
+  /** Callback when mouse leaves a citation badge */
+  onCitationLeave?: () => void;
 }
 
 /**
@@ -16,6 +23,9 @@ export interface MarkdownRendererProps {
 export function MarkdownRenderer({
   content,
   className,
+  onCitationClick,
+  onCitationHover,
+  onCitationLeave,
 }: MarkdownRendererProps) {
   return (
     <div className={cn("prose-custom", className)}>
@@ -79,17 +89,34 @@ export function MarkdownRenderer({
             </blockquote>
           ),
 
-          // Links
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              {children}
-            </a>
-          ),
+          // Links - special handling for #cite-N citation links
+          a: ({ href, children }) => {
+            // Check if this is a citation link (#cite-N format)
+            const citationMatch = href?.match(/^#cite-(\d+)$/);
+            if (citationMatch) {
+              const citationId = citationMatch[1];
+              return (
+                <CitationBadge
+                  number={parseInt(citationId, 10)}
+                  onClick={() => onCitationClick?.(citationId)}
+                  onMouseEnter={(e) => onCitationHover?.(citationId, e)}
+                  onMouseLeave={onCitationLeave}
+                />
+              );
+            }
+
+            // Regular external link
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                {children}
+              </a>
+            );
+          },
 
           // Bold and italic
           strong: ({ children }) => (

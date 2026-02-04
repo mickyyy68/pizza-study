@@ -8,11 +8,30 @@ export interface RetrievalOptions extends SearchOptions {
   maxContextLength?: number;
 }
 
+/**
+ * Structured citation data for a retrieved chunk.
+ * Used by the backend to build MessageCitation objects.
+ */
+export interface RetrievalCitation {
+  /** Citation number as string ("1", "2", etc.) matching the [N] in context */
+  id: string;
+  /** UUID of the source document */
+  documentId: string;
+  /** Document title for display */
+  documentName: string;
+  /** Full chunk text */
+  chunk: string;
+  /** Position in retrieval results (0-indexed) */
+  chunkIndex: number;
+}
+
 export interface RetrievalResult {
   /** Formatted context string for the prompt */
   context: string;
-  /** Source documents for attribution */
+  /** Source documents for attribution (legacy) */
   sources: { title: string; documentId: string }[];
+  /** Structured citations for each numbered excerpt */
+  citations: RetrievalCitation[];
   /** Whether any relevant context was found */
   hasContext: boolean;
   /** Raw search results */
@@ -35,22 +54,33 @@ export async function hasDocuments(): Promise<boolean> {
 
 /**
  * Format search results into context for the LLM prompt.
+ *
+ * Excerpts are numbered [1], [2], etc. so the LLM can reference them
+ * using [[cite:N]] markers in its response.
  */
 function formatContext(
   results: SearchResult[],
   maxLength: number,
-): { context: string; sources: { title: string; documentId: string }[] } {
+): {
+  context: string;
+  sources: { title: string; documentId: string }[];
+  citations: RetrievalCitation[];
+} {
   if (results.length === 0) {
-    return { context: "", sources: [] };
+    return { context: "", sources: [], citations: [] };
   }
 
   const sources: { title: string; documentId: string }[] = [];
+  const citations: RetrievalCitation[] = [];
   const seenDocIds = new Set<string>();
   const chunks: string[] = [];
   let totalLength = 0;
 
-  for (const result of results) {
-    // Track unique sources
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    const citationNumber = i + 1; // 1-indexed for human readability
+
+    // Track unique sources (legacy)
     if (!seenDocIds.has(result.documentId)) {
       seenDocIds.add(result.documentId);
       sources.push({
@@ -59,9 +89,9 @@ function formatContext(
       });
     }
 
-    // Format chunk with document title
+    // Format chunk with numbered reference: [N] From "Title":
     const title = result.document?.title ?? "Untitled Document";
-    const formattedChunk = `---\nFrom "${title}":\n${result.chunk}\n`;
+    const formattedChunk = `---\n[${citationNumber}] From "${title}":\n${result.chunk}\n`;
 
     // Check if adding this chunk would exceed max length
     if (totalLength + formattedChunk.length > maxLength) {
@@ -73,14 +103,23 @@ function formatContext(
 
     chunks.push(formattedChunk);
     totalLength += formattedChunk.length;
+
+    // Build citation for this chunk
+    citations.push({
+      id: String(citationNumber),
+      documentId: result.documentId,
+      documentName: title,
+      chunk: result.chunk,
+      chunkIndex: i,
+    });
   }
 
   const context =
     chunks.length > 0
-      ? `The following excerpts from the user's study materials may be relevant:\n\n${chunks.join("\n")}---`
+      ? `The following numbered excerpts from the user's study materials may be relevant:\n\n${chunks.join("\n")}---`
       : "";
 
-  return { context, sources };
+  return { context, sources, citations };
 }
 
 /**
@@ -103,6 +142,7 @@ export async function retrieve(
     return {
       context: "",
       sources: [],
+      citations: [],
       hasContext: false,
       results: [],
     };
@@ -124,18 +164,20 @@ export async function retrieve(
   });
   console.log(`[RAG] Found ${results.length} relevant chunks`);
 
-  // Format context for LLM
+  // Format context for LLM with numbered excerpts [1], [2], etc.
+  // LLM should use [[cite:N]] markers to reference these excerpts
   const maxLength = options.maxContextLength ?? 4000;
-  const { context, sources } = formatContext(results, maxLength);
+  const { context, sources, citations } = formatContext(results, maxLength);
 
   const duration = Date.now() - startTime;
   console.log(
-    `[RAG] Retrieval complete in ${duration}ms (hasContext: ${results.length > 0})`,
+    `[RAG] Retrieval complete in ${duration}ms (chunks: ${citations.length}, hasContext: ${results.length > 0})`,
   );
 
   return {
     context,
     sources,
+    citations,
     hasContext: results.length > 0,
     results,
   };

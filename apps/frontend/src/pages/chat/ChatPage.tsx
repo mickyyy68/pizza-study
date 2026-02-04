@@ -22,6 +22,7 @@ import {
   ChatSidebarNewButton,
   ChatSidebarSearch,
   ChatSidebarSection,
+  type Citation,
   cn,
   DocumentList,
   type MentionedDocument,
@@ -297,6 +298,57 @@ export function ChatPage() {
     return taggedDocs;
   }, []);
 
+  /**
+   * Extract citations from assistant message annotations.
+   * Citations are streamed via StreamData and appear in message.annotations.
+   */
+  const getCitations = useCallback((message: { annotations?: unknown[] }) => {
+    if (!message.annotations) return [];
+    const citations: Citation[] = [];
+
+    for (const annotation of message.annotations) {
+      if (!annotation || typeof annotation !== "object") continue;
+      const typed = annotation as { type?: unknown; citations?: unknown };
+      if (typed.type !== "citations" || !Array.isArray(typed.citations)) {
+        continue;
+      }
+      for (const cite of typed.citations) {
+        if (!cite || typeof cite !== "object") continue;
+        const citeTyped = cite as {
+          id?: unknown;
+          documentId?: unknown;
+          documentName?: unknown;
+          quote?: unknown;
+          locationLabel?: unknown;
+          chunkIndex?: unknown;
+          pageNumber?: unknown;
+        };
+        // Validate required fields
+        if (typeof citeTyped.id !== "string") continue;
+        if (typeof citeTyped.documentId !== "string") continue;
+        if (typeof citeTyped.documentName !== "string") continue;
+
+        citations.push({
+          id: citeTyped.id,
+          documentId: citeTyped.documentId,
+          documentName: citeTyped.documentName,
+          locationLabel:
+            typeof citeTyped.locationLabel === "string"
+              ? citeTyped.locationLabel
+              : undefined,
+          pageNumber:
+            typeof citeTyped.pageNumber === "number"
+              ? citeTyped.pageNumber
+              : undefined,
+          quote:
+            typeof citeTyped.quote === "string" ? citeTyped.quote : undefined,
+        });
+      }
+    }
+
+    return citations;
+  }, []);
+
   const handleNewChat = () => {
     setCurrentChat(null);
     setCurrentConversationId(null);
@@ -316,13 +368,23 @@ export function ChatPage() {
       if (!response.ok) throw new Error("Failed to load conversation");
       const conversation = await response.json();
 
-      // Convert to useChat message format
+      // Convert to useChat message format, mapping persisted citations to annotations
       setMessages(
         conversation.messages.map(
-          (msg: { id: string; role: string; content: string }) => ({
+          (msg: {
+            id: string;
+            role: string;
+            content: string;
+            citations?: unknown[];
+          }) => ({
             id: msg.id,
             role: msg.role,
             content: msg.content,
+            // Map persisted citations to annotations format for consistent rendering
+            annotations:
+              msg.citations && msg.citations.length > 0
+                ? [{ type: "citations", citations: msg.citations }]
+                : undefined,
           }),
         ),
       );
@@ -524,6 +586,9 @@ export function ChatPage() {
                     !isThinking;
                   const taggedDocs =
                     message.role === "user" ? getTaggedDocs(message) : [];
+                  // Extract citations for assistant messages only
+                  const citations =
+                    message.role === "assistant" ? getCitations(message) : [];
 
                   return (
                     <ChatMessage
@@ -531,6 +596,7 @@ export function ChatPage() {
                       variant={message.role as "user" | "assistant"}
                       content={message.content}
                       taggedDocs={taggedDocs}
+                      citations={citations}
                       isStreaming={isStreamingMessage}
                     />
                   );

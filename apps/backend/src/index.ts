@@ -20,4 +20,6 @@ console.log(`Server running on http://localhost:${port}`);
 export default {
   port,
   fetch: server.fetch,
+  // Increase idle timeout for AI streaming responses (default is 10s)
+  idleTimeout: 120, // 2 minutes
 };
