@@ -92,7 +92,7 @@ export function CitationPreview({
 }: CitationPreviewProps) {
   // Calculate position that stays within viewport
   const tooltipWidth = 288; // w-72 = 18rem = 288px
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
   const padding = 8;
 
   let left = position ? position.x - tooltipWidth / 2 : 0;
