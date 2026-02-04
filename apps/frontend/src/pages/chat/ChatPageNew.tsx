@@ -13,7 +13,13 @@ import {
   ScrollToBottom,
   ThinkingIndicator,
 } from "@repo/ui";
-import { type ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useAutoScroll } from "../../hooks/useAutoScroll";
 import type { Attachment } from "../../stores/chat-store";
 import { useChatStore } from "../../stores/chat-store";
@@ -202,7 +208,13 @@ export function ChatPageNew() {
           content: input.trim() ? input : "",
           annotations: mentionAnnotations,
         },
-        { allowEmptySubmit: true },
+        {
+          allowEmptySubmit: true,
+          body: {
+            conversationId: currentConversationId,
+            model: activeModelId,
+          },
+        },
       );
       setInput("");
       clearMentionedDocs();
@@ -216,6 +228,8 @@ export function ChatPageNew() {
     mentionedDocs,
     clearMentionedDocs,
     clearAttachments,
+    currentConversationId,
+    activeModelId,
   ]);
 
   const getTaggedDocs = useCallback((message: { annotations?: unknown[] }) => {
@@ -350,7 +364,12 @@ export function ChatPageNew() {
     return () => {
       abortController.abort();
     };
-  }, [currentConversationId, setMessages, clearMentionedDocs, clearAttachments]);
+  }, [
+    currentConversationId,
+    setMessages,
+    clearMentionedDocs,
+    clearAttachments,
+  ]);
 
   const handleMentionAdd = useCallback(
     (doc: PickerDocument) => {
