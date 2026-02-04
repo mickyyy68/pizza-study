@@ -89,13 +89,8 @@ export function PromptDialog({
   }, [open]);
 
   const handleSubmit = useCallback(() => {
-    const trimmed = value.trim();
-    if (trimmed && trimmed !== defaultValue) {
-      onSubmit(trimmed);
-    } else {
-      onCancel();
-    }
-  }, [value, defaultValue, onSubmit, onCancel]);
+    onSubmit(value.trim());
+  }, [value, onSubmit]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
