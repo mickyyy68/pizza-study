@@ -2,11 +2,7 @@ import { File02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
 import { cn } from "../lib/utils";
-import {
-  type Citation,
-  CitationPreview,
-  CitationSources,
-} from "./citation";
+import { type Citation, CitationPreview, CitationSources } from "./citation";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { MessageActions } from "./message-actions";
 import { MessageErrorBoundary } from "./message-error-boundary";
