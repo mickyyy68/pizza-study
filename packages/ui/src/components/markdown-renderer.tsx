@@ -1,8 +1,8 @@
-import * as React from "react";
+import type * as React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { CitationBadge } from "./citation";
 import { cn } from "../lib/utils";
+import { CitationBadge } from "./citation";
 import { CodeBlock, InlineCode } from "./code-block";
 
 export interface MarkdownRendererProps {

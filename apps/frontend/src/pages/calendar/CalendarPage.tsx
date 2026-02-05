@@ -31,6 +31,7 @@ import {
   subWeeks,
 } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { formatDate, useCalendarStore } from "../../stores/calendar-store";
 import type { CalendarEvent, Task } from "../../types";
 
@@ -72,11 +73,12 @@ function parseTimeToMinutes(time?: string | null) {
  * CalendarPage - Agenda-first planning view for Pizza Study.
  */
 export function CalendarPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     tasks,
     events,
     selectedDate,
-    navigateMonth,
     goToToday,
     getCalendarDays,
     addTask,
@@ -91,6 +93,22 @@ export function CalendarPage() {
 
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("addTask") !== "1") return;
+
+    setIsAddTaskOpen(true);
+    params.delete("addTask");
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : "",
+      },
+      { replace: true },
+    );
+  }, [location.pathname, location.search, navigate]);
 
   const days = getCalendarDays();
   const weekStart = startOfWeek(selectedDate);

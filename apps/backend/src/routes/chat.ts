@@ -205,7 +205,10 @@ const chat = new Hono()
             if (text && conversationId) {
               // Parse citation markers and build citation objects
               const citedNumbers = parseCiteMarkers(text, ragCitations.length);
-              const citations = buildMessageCitations(citedNumbers, ragCitations);
+              const citations = buildMessageCitations(
+                citedNumbers,
+                ragCitations,
+              );
 
               if (citations.length > 0) {
                 // Stream citations to client as message annotation

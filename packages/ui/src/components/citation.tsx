@@ -1,6 +1,6 @@
 import { File02Icon, LinkSquare02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import * as React from "react";
+import type * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../lib/utils";
 
@@ -92,12 +92,16 @@ export function CitationPreview({
 }: CitationPreviewProps) {
   // Calculate position that stays within viewport
   const tooltipWidth = 288; // w-72 = 18rem = 288px
-  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
+  const viewportWidth =
+    typeof window !== "undefined" ? window.innerWidth : 1200;
   const padding = 8;
 
   let left = position ? position.x - tooltipWidth / 2 : 0;
   // Clamp to viewport
-  left = Math.max(padding, Math.min(left, viewportWidth - tooltipWidth - padding));
+  left = Math.max(
+    padding,
+    Math.min(left, viewportWidth - tooltipWidth - padding),
+  );
 
   // Use portal to render at document body level, avoiding any parent overflow/z-index issues
   const content = (
@@ -137,7 +141,7 @@ export function CitationPreview({
   );
 
   // Render via portal to document body to avoid overflow/stacking context issues
-  if (typeof document !== 'undefined') {
+  if (typeof document !== "undefined") {
     return createPortal(content, document.body);
   }
   return content;

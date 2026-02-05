@@ -3,6 +3,6 @@ export { conversations } from "./conversations";
 export { documents } from "./documents";
 export { embeddings } from "./embeddings";
 export { folders } from "./folders";
-export { messages, type MessageCitation } from "./messages";
+export { type MessageCitation, messages } from "./messages";
 export { tasks } from "./tasks";
 export { users } from "./users";
