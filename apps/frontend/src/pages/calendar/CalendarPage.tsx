@@ -181,7 +181,7 @@ export function CalendarPage() {
         </div>
       )}
 
-      <div className="relative z-10 flex h-full w-full flex-col gap-6 p-6">
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
         {/* Header */}
         <header className="flex flex-col gap-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -230,7 +230,7 @@ export function CalendarPage() {
           </div>
         </header>
 
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 min-h-0">
+        <div className="flex-1 grid min-h-0 grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main className="flex flex-col gap-4 min-h-0">
             {/* Agenda Card */}
             <section className="rounded-2xl border border-border/70 bg-card/80 backdrop-blur p-6 shadow-sm">

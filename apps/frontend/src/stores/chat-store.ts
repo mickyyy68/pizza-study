@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
  * Chat Store for the redesigned chat interface.
  *
  * Manages:
- * - Sidebar state (collapsed, mobile overlay)
+ * - Chat sidebar state (mobile overlay)
  * - Document selection for RAG context
  * - Chat history navigation
  * - Input state (mentioned docs, attachments)
@@ -52,7 +52,6 @@ export interface Attachment {
 
 interface ChatState {
   // Sidebar
-  sidebarCollapsed: boolean;
   sidebarMobileOpen: boolean;
   documentsSectionCollapsed: boolean;
   historySectionCollapsed: boolean;
@@ -78,8 +77,6 @@ interface ChatState {
   selectedModelId: string | null;
 
   // Sidebar actions
-  toggleSidebar: () => void;
-  setSidebarCollapsed: (collapsed: boolean) => void;
   openMobileSidebar: () => void;
   closeMobileSidebar: () => void;
   toggleDocumentsSection: () => void;
@@ -146,7 +143,6 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       // Initial sidebar state
-      sidebarCollapsed: false,
       sidebarMobileOpen: false,
       documentsSectionCollapsed: true,
       historySectionCollapsed: false,
@@ -170,9 +166,6 @@ export const useChatStore = create<ChatState>()(
       selectedModelId: null,
 
       // Sidebar actions
-      toggleSidebar: () =>
-        set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
       openMobileSidebar: () => set({ sidebarMobileOpen: true }),
       closeMobileSidebar: () => set({ sidebarMobileOpen: false }),
       toggleDocumentsSection: () =>
@@ -427,7 +420,6 @@ export const useChatStore = create<ChatState>()(
       },
       partialize: (state) => ({
         // Only persist UI preferences, not data
-        sidebarCollapsed: state.sidebarCollapsed,
         documentsSectionCollapsed: state.documentsSectionCollapsed,
         historySectionCollapsed: state.historySectionCollapsed,
         groupsSectionCollapsed: state.groupsSectionCollapsed,
@@ -448,10 +440,7 @@ export const useChatStore = create<ChatState>()(
 
 export const useSidebar = () =>
   useChatStore((state) => ({
-    collapsed: state.sidebarCollapsed,
     mobileOpen: state.sidebarMobileOpen,
-    toggle: state.toggleSidebar,
-    setCollapsed: state.setSidebarCollapsed,
     openMobile: state.openMobileSidebar,
     closeMobile: state.closeMobileSidebar,
   }));

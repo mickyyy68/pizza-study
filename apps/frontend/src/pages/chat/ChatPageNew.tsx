@@ -1,4 +1,6 @@
 import { useChat } from "@ai-sdk/react";
+import { Menu02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { AVAILABLE_MODELS, DEFAULT_MODEL_ID } from "@repo/ai/models";
 import {
   type AttachedFile,
@@ -11,49 +13,65 @@ import {
   ModelSelector,
   type PickerDocument,
   ScrollToBottom,
+  type SidebarConversation,
+  type SidebarDocument,
   ThinkingIndicator,
 } from "@repo/ui";
 import {
   type ChangeEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
+import { useNavigate } from "react-router";
+import { ChatSidebarPanel } from "../../components/chat/ChatSidebarPanel";
+import { ConfirmDialog } from "../../components/dialogs/ConfirmDialog";
+import { PromptDialog } from "../../components/dialogs/PromptDialog";
 import { useAutoScroll } from "../../hooks/useAutoScroll";
 import type { Attachment } from "../../stores/chat-store";
 import { useChatStore } from "../../stores/chat-store";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+type DialogState =
+  | { type: "none" }
+  | { type: "rename"; conversation: SidebarConversation }
+  | { type: "delete"; conversation: SidebarConversation };
+
 /**
- * ChatPageNew - Redesigned full-page chat content.
- *
- * Features:
- * - Welcome state with suggestion cards
- * - Glowing input card effect
- * - @ mentions to reference documents
- * - File attachments with drag-drop
- * - Rich markdown message rendering
- *
- * Note: Sidebar is now provided by RootLayout's AppSidebar with chat sections.
+ * ChatPageNew - Full-page chat workspace with chat-only sidebar.
  */
 export function ChatPageNew() {
+  const navigate = useNavigate();
+
   // Track new messages for FAB indicator
   const [newMessageCount, setNewMessageCount] = useState(0);
   const prevMessageCountRef = useRef(0);
 
+  // Dialog state for rename/delete confirmations
+  const [dialogState, setDialogState] = useState<DialogState>({ type: "none" });
+
   // Chat store state
   const {
     documents,
-    currentChatId,
+    history,
     currentConversationId,
+    historySearchQuery,
     mentionedDocIds,
     attachments,
+    sidebarMobileOpen,
     setDocuments,
     setCurrentChat,
     setCurrentConversationId,
+    setHistorySearchQuery,
     fetchConversations,
+    deleteConversation,
+    renameConversation,
+    toggleDocumentSelection,
+    openMobileSidebar,
+    closeMobileSidebar,
     addMentionedDoc,
     removeMentionedDoc,
     clearMentionedDocs,
@@ -95,6 +113,7 @@ export function ChatPageNew() {
         console.error("Failed to load documents:", error);
       }
     };
+
     fetchDocumentsData();
     fetchConversations();
   }, [setDocuments, fetchConversations]);
@@ -148,12 +167,10 @@ export function ChatPageNew() {
 
   // Track new message indicator for FAB
   useEffect(() => {
-    if (messages.length > prevMessageCountRef.current) {
-      if (!isAtBottom) {
-        setNewMessageCount(
-          (prev) => prev + (messages.length - prevMessageCountRef.current),
-        );
-      }
+    if (messages.length > prevMessageCountRef.current && !isAtBottom) {
+      setNewMessageCount(
+        (prev) => prev + (messages.length - prevMessageCountRef.current),
+      );
     }
     prevMessageCountRef.current = messages.length;
   }, [messages.length, isAtBottom]);
@@ -163,6 +180,28 @@ export function ChatPageNew() {
       setNewMessageCount(0);
     }
   }, [isAtBottom]);
+
+  const sidebarDocuments: SidebarDocument[] = useMemo(
+    () =>
+      documents.map((doc) => ({
+        id: doc.id,
+        name: doc.name,
+        pageCount: doc.pageCount,
+        type: "pdf" as const,
+      })),
+    [documents],
+  );
+
+  const sidebarConversations: SidebarConversation[] = useMemo(
+    () =>
+      history.map((item) => ({
+        id: item.id,
+        title: item.preview || "New conversation",
+        messageCount: item.messageCount || 0,
+        lastMessageAt: item.timestamp,
+      })),
+    [history],
+  );
 
   // Convert store documents to picker format
   const pickerDocuments: PickerDocument[] = documents.map((doc) => ({
@@ -423,7 +462,6 @@ export function ChatPageNew() {
     [addAttachment, updateAttachment],
   );
 
-  // Handle welcome prompt selection
   const handleSelectPrompt = useCallback(
     (prompt: string) => {
       handleInputChange({
@@ -433,103 +471,246 @@ export function ChatPageNew() {
     [handleInputChange],
   );
 
+  const handleNewChat = useCallback(() => {
+    setCurrentChat(null);
+    setCurrentConversationId(null);
+    setMessages([]);
+    clearMentionedDocs();
+    clearAttachments();
+    closeMobileSidebar();
+  }, [
+    setCurrentChat,
+    setCurrentConversationId,
+    setMessages,
+    clearMentionedDocs,
+    clearAttachments,
+    closeMobileSidebar,
+  ]);
+
+  const handleSelectDocument = useCallback(
+    (doc: SidebarDocument) => {
+      toggleDocumentSelection(doc.id);
+    },
+    [toggleDocumentSelection],
+  );
+
+  const handleUploadDocument = useCallback(() => {
+    closeMobileSidebar();
+    navigate("/documents/upload");
+  }, [closeMobileSidebar, navigate]);
+
+  const handleSelectConversation = useCallback(
+    (conv: SidebarConversation) => {
+      setCurrentChat(conv.id);
+      setCurrentConversationId(conv.id);
+      closeMobileSidebar();
+    },
+    [setCurrentChat, setCurrentConversationId, closeMobileSidebar],
+  );
+
+  const handleEditConversation = useCallback((conv: SidebarConversation) => {
+    setDialogState({ type: "rename", conversation: conv });
+  }, []);
+
+  const handleDeleteConversation = useCallback((conv: SidebarConversation) => {
+    setDialogState({ type: "delete", conversation: conv });
+  }, []);
+
+  const handleDialogClose = useCallback(() => {
+    setDialogState({ type: "none" });
+  }, []);
+
+  const handleRenameSubmit = useCallback(
+    async (newTitle: string) => {
+      if (dialogState.type === "rename") {
+        await renameConversation(dialogState.conversation.id, newTitle);
+      }
+      setDialogState({ type: "none" });
+    },
+    [dialogState, renameConversation],
+  );
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (dialogState.type === "delete") {
+      await deleteConversation(dialogState.conversation.id);
+    }
+    setDialogState({ type: "none" });
+  }, [dialogState, deleteConversation]);
+
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Messages Area */}
+    <div className="flex h-full bg-background">
+      {sidebarMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={closeMobileSidebar}
+          aria-hidden="true"
+        />
+      )}
+
       <div
-        ref={messagesContainerRef}
         className={cn(
-          "flex-1 overflow-y-auto",
-          // Scroll shadows
-          canScrollUp && "scroll-shadow-top",
-          canScrollDown && !isAtBottom && "scroll-shadow-bottom",
+          "fixed inset-y-0 left-0 z-50 w-[320px] max-w-[88vw] transform transition-transform duration-300 ease-in-out lg:hidden",
+          sidebarMobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex flex-col items-center justify-center min-h-full p-6">
-          {messages.length === 0 ? (
-            /* Welcome State */
-            <ChatWelcome onSelectPrompt={handleSelectPrompt} />
-          ) : (
-            /* Messages */
-            <div className="w-full max-w-4xl mx-auto space-y-6">
-              {messages.map((message, index) => {
-                const isLastMessage = index === messages.length - 1;
-                const isStreamingMessage =
-                  isLastMessage &&
-                  message.role === "assistant" &&
-                  isLoading &&
-                  !isThinking;
-                const taggedDocs =
-                  message.role === "user" ? getTaggedDocs(message) : [];
-                const citations =
-                  message.role === "assistant" ? getCitations(message) : [];
+        <ChatSidebarPanel
+          documents={sidebarDocuments}
+          conversations={sidebarConversations}
+          historySearchQuery={historySearchQuery}
+          onHistorySearchChange={setHistorySearchQuery}
+          onNewChat={handleNewChat}
+          onSelectDocument={handleSelectDocument}
+          onUploadDocument={handleUploadDocument}
+          onSelectConversation={handleSelectConversation}
+          onEditConversation={handleEditConversation}
+          onDeleteConversation={handleDeleteConversation}
+          onMobileClose={closeMobileSidebar}
+        />
+      </div>
 
-                return (
-                  <ChatMessage
-                    key={message.id}
-                    variant={message.role as "user" | "assistant"}
-                    content={message.content}
-                    taggedDocs={taggedDocs}
-                    citations={citations}
-                    isStreaming={isStreamingMessage}
-                  />
-                );
-              })}
+      <aside className="hidden h-full w-[320px] shrink-0 lg:block">
+        <ChatSidebarPanel
+          documents={sidebarDocuments}
+          conversations={sidebarConversations}
+          historySearchQuery={historySearchQuery}
+          onHistorySearchChange={setHistorySearchQuery}
+          onNewChat={handleNewChat}
+          onSelectDocument={handleSelectDocument}
+          onUploadDocument={handleUploadDocument}
+          onSelectConversation={handleSelectConversation}
+          onEditConversation={handleEditConversation}
+          onDeleteConversation={handleDeleteConversation}
+        />
+      </aside>
 
-              {/* Thinking indicator */}
-              {isThinking && <ThinkingIndicator />}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="border-b border-border px-4 py-3 lg:hidden">
+          <button
+            type="button"
+            onClick={openMobileSidebar}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            <HugeiconsIcon icon={Menu02Icon} size={16} />
+            Chat Sidebar
+          </button>
+        </div>
 
-              {/* Error indicator */}
-              {chatError && (
-                <div className="flex justify-center">
-                  <div className="bg-destructive/10 text-destructive text-sm px-4 py-2 rounded-lg animate-in fade-in-0 slide-in-from-bottom-2">
-                    {chatError}
-                  </div>
+        <div className="flex h-full min-h-0 flex-col">
+          <div
+            ref={messagesContainerRef}
+            className={cn(
+              "flex-1 overflow-y-auto",
+              canScrollUp && "scroll-shadow-top",
+              canScrollDown && !isAtBottom && "scroll-shadow-bottom",
+            )}
+          >
+            <div className="flex min-h-full flex-col items-center justify-center p-6">
+              {messages.length === 0 ? (
+                <ChatWelcome onSelectPrompt={handleSelectPrompt} />
+              ) : (
+                <div className="mx-auto w-full max-w-4xl space-y-6">
+                  {messages.map((message, index) => {
+                    const isLastMessage = index === messages.length - 1;
+                    const isStreamingMessage =
+                      isLastMessage &&
+                      message.role === "assistant" &&
+                      isLoading &&
+                      !isThinking;
+                    const taggedDocs =
+                      message.role === "user" ? getTaggedDocs(message) : [];
+                    const citations =
+                      message.role === "assistant" ? getCitations(message) : [];
+
+                    return (
+                      <ChatMessage
+                        key={message.id}
+                        variant={message.role as "user" | "assistant"}
+                        content={message.content}
+                        taggedDocs={taggedDocs}
+                        citations={citations}
+                        isStreaming={isStreamingMessage}
+                      />
+                    );
+                  })}
+
+                  {isThinking && <ThinkingIndicator />}
+
+                  {chatError && (
+                    <div className="flex justify-center">
+                      <div className="animate-in fade-in-0 slide-in-from-bottom-2 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                        {chatError}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Scroll to bottom FAB */}
-        <ScrollToBottom
-          visible={!isAtBottom && messages.length > 0}
-          onClick={scrollToBottom}
-          hasNewMessages={newMessageCount > 0}
-          newMessageCount={newMessageCount}
-        />
-      </div>
-
-      {/* Input Area */}
-      <div className="w-full p-6 pb-8">
-        <ChatInputGlow
-          value={input}
-          onChange={(value: string) =>
-            handleInputChange({
-              target: { value },
-            } as ChangeEvent<HTMLTextAreaElement>)
-          }
-          onSubmit={onSubmit}
-          onStop={stop}
-          placeholder="Ask anything or mention documents..."
-          isLoading={isLoading}
-          modelSelector={
-            <ModelSelector
-              models={AVAILABLE_MODELS}
-              selectedModelId={activeModelId}
-              onSelectModel={setSelectedModelId}
+            <ScrollToBottom
+              visible={!isAtBottom && messages.length > 0}
+              onClick={scrollToBottom}
+              hasNewMessages={newMessageCount > 0}
+              newMessageCount={newMessageCount}
             />
-          }
-          documents={pickerDocuments}
-          mentionedDocs={mentionedDocs}
-          onMentionAdd={handleMentionAdd}
-          onMentionRemove={removeMentionedDoc}
-          attachments={inputAttachments}
-          onAttach={handleAttach}
-          onAttachmentRemove={removeAttachment}
-          showDisclaimer={true}
-        />
+          </div>
+
+          <div className="w-full p-6 pb-8">
+            <ChatInputGlow
+              value={input}
+              onChange={(value: string) =>
+                handleInputChange({
+                  target: { value },
+                } as ChangeEvent<HTMLTextAreaElement>)
+              }
+              onSubmit={onSubmit}
+              onStop={stop}
+              placeholder="Ask anything or mention documents..."
+              isLoading={isLoading}
+              modelSelector={
+                <ModelSelector
+                  models={AVAILABLE_MODELS}
+                  selectedModelId={activeModelId}
+                  onSelectModel={setSelectedModelId}
+                />
+              }
+              documents={pickerDocuments}
+              mentionedDocs={mentionedDocs}
+              onMentionAdd={handleMentionAdd}
+              onMentionRemove={removeMentionedDoc}
+              attachments={inputAttachments}
+              onAttach={handleAttach}
+              onAttachmentRemove={removeAttachment}
+              showDisclaimer={true}
+            />
+          </div>
+        </div>
       </div>
+
+      <PromptDialog
+        open={dialogState.type === "rename"}
+        title="Rename chat"
+        defaultValue={
+          dialogState.type === "rename" ? dialogState.conversation.title : ""
+        }
+        placeholder="Enter a new name"
+        submitLabel="Rename"
+        onSubmit={handleRenameSubmit}
+        onCancel={handleDialogClose}
+      />
+
+      <ConfirmDialog
+        open={dialogState.type === "delete"}
+        title="Delete chat"
+        message={
+          dialogState.type === "delete"
+            ? `Delete "${dialogState.conversation.title}"? This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDialogClose}
+      />
     </div>
   );
 }

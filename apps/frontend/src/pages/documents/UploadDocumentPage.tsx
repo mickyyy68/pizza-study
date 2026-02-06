@@ -16,7 +16,6 @@ import {
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { useUploadQueue } from "../../hooks/useUploadQueue";
-import { useUIStore } from "../../stores/ui-store";
 
 /**
  * UploadDocumentPage - Drag-and-drop document upload with queue display.
@@ -29,7 +28,6 @@ import { useUIStore } from "../../stores/ui-store";
  * - Supports text files (.txt, .md, .csv, .json) and PDFs
  */
 export function UploadDocumentPage() {
-  const { openChatSlideOver } = useUIStore();
   const {
     items,
     addFiles,
@@ -141,10 +139,10 @@ export function UploadDocumentPage() {
         >
           View documents
         </Link>
-        <Button onClick={openChatSlideOver} variant="outline">
+        <Link to="/chat" className={cn(buttonVariants({ variant: "outline" }))}>
           <HugeiconsIcon icon={Chat01Icon} size={16} className="mr-2" />
           Ask questions
-        </Button>
+        </Link>
       </div>
     </div>
   );

@@ -4,26 +4,13 @@ import { create } from "zustand";
  * UI Store for global UI state in Pizza Study.
  *
  * Manages:
- * - Sidebar collapsed state
- * - Chat slide-over visibility
  * - Theme (light/dark/system)
- * - Mobile menu state
+ * - Mobile navbar menu state
  */
 
 type Theme = "light" | "dark" | "system";
 
 interface UIState {
-  // Sidebar
-  sidebarCollapsed: boolean;
-  toggleSidebar: () => void;
-  setSidebarCollapsed: (collapsed: boolean) => void;
-
-  // Chat SlideOver
-  chatSlideOverOpen: boolean;
-  openChatSlideOver: () => void;
-  closeChatSlideOver: () => void;
-  toggleChatSlideOver: () => void;
-
   // Theme
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -49,19 +36,6 @@ function getInitialTheme(): Theme {
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  // Sidebar
-  sidebarCollapsed: false,
-  toggleSidebar: () =>
-    set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-
-  // Chat SlideOver
-  chatSlideOverOpen: false,
-  openChatSlideOver: () => set({ chatSlideOverOpen: true }),
-  closeChatSlideOver: () => set({ chatSlideOverOpen: false }),
-  toggleChatSlideOver: () =>
-    set((state) => ({ chatSlideOverOpen: !state.chatSlideOverOpen })),
-
   // Theme
   theme: getInitialTheme(),
   setTheme: (theme) => set({ theme }),

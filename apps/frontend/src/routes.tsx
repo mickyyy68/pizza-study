@@ -10,9 +10,8 @@ import { UploadDocumentPage } from "./pages/documents/UploadDocumentPage";
  * Route definitions for Pizza Study.
  *
  * All routes are wrapped in RootLayout which provides:
- * - Unified sidebar navigation (with conditional chat sections on /chat)
- * - Chat slide-over panel
- * - Global keyboard shortcuts
+ * - Sticky top navbar navigation
+ * - Shared application shell
  */
 export const router = createBrowserRouter([
   {
@@ -44,7 +43,7 @@ export const router = createBrowserRouter([
         path: "calendar",
         element: <CalendarPage />,
       },
-      // Chat - full page chat (uses unified sidebar with chat sections)
+      // Chat - full page chat (with chat-only sidebar workspace)
       {
         path: "chat",
         element: <ChatPageNew />,
