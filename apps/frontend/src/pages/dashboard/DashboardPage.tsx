@@ -60,7 +60,7 @@ export function DashboardPage() {
   const { cycleTheme, resolvedTheme } = useTheme();
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-1.25rem)] w-full max-w-[1160px] flex-col gap-3 overflow-hidden px-4 py-3 lg:px-5">
+    <div className="flex h-full w-full flex-col gap-3 overflow-hidden p-4 lg:p-5">
       <header className="flex items-center justify-end">
         <button
           type="button"
