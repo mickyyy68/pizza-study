@@ -54,6 +54,14 @@ function sanitizeFilename(filename: string): string {
 }
 
 /**
+ * Sanitize document content to avoid invalid UTF-8 sequences.
+ * Removes NULL bytes that can come from PDF extraction.
+ */
+function sanitizeContent(content: string): string {
+  return content.split("\u0000").join("");
+}
+
+/**
  * Extract text content from a PDF file buffer.
  * Uses dynamic import to avoid loading pdf-parse unless needed.
  */
@@ -101,13 +109,18 @@ const documentsRoute = new Hono()
       }
 
       const { title, content, metadata } = parsed.data;
+      const sanitizedContent = sanitizeContent(content);
 
       console.log("[Documents] Creating document via JSON...");
       console.log("[Documents] Title:", title);
       console.log("[Documents] Content length:", content.length, "chars");
 
       try {
-        const id = await createDocumentWithEmbeddings(title, content, metadata);
+        const id = await createDocumentWithEmbeddings(
+          title,
+          sanitizedContent,
+          metadata,
+        );
         console.log("[Documents] ✓ Document created:", id);
         return c.json({ id }, 201);
       } catch (error) {
@@ -176,6 +189,8 @@ const documentsRoute = new Hono()
       }
 
       // Validate content is not empty
+      content = sanitizeContent(content);
+
       if (!content.trim()) {
         return c.json({ error: "File content is empty" }, 400);
       }
