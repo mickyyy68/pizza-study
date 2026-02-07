@@ -83,8 +83,6 @@ export function CalendarPage() {
     getCalendarDays,
     addTask,
     addEvent,
-    error,
-    clearError,
     fetchTasks,
     fetchEvents,
     setSelectedDate,
@@ -147,12 +145,6 @@ export function CalendarPage() {
   const upcomingEvents = getUpcomingEvents(4);
   const hasAgenda = sortedEvents.length > 0 || sortedTasks.length > 0;
 
-  const handleRetry = () => {
-    clearError();
-    fetchTasks();
-    fetchEvents();
-  };
-
   const handleWeekChange = (direction: "prev" | "next") => {
     setSelectedDate(
       direction === "prev"
@@ -163,24 +155,6 @@ export function CalendarPage() {
 
   return (
     <div className="relative flex h-full overflow-hidden">
-      {/* Error Banner */}
-      {error && (
-        <div className="absolute top-0 left-0 right-0 z-50 border-b border-destructive/20 bg-destructive/10 p-3 flex items-center justify-between">
-          <p className="text-sm text-destructive flex items-center gap-2">
-            <HugeiconsIcon icon={AlertCircleIcon} size={16} />
-            {error}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={clearError}>
-              Dismiss
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleRetry}>
-              Retry
-            </Button>
-          </div>
-        </div>
-      )}
-
       <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
         {/* Header */}
         <header className="flex flex-col gap-4">

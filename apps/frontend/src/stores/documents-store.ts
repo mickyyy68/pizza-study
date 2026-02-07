@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { create } from "zustand";
 import type { Document, Folder } from "../types";
 
@@ -101,6 +102,7 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
       set({ documents: docs.map(parseDocumentFromApi) });
     } catch (error) {
       console.error("Failed to fetch documents:", error);
+      toast.error("Failed to load documents");
     } finally {
       set({ isLoading: false });
     }
@@ -114,6 +116,7 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
       set({ folders });
     } catch (error) {
       console.error("Failed to fetch folders:", error);
+      toast.error("Failed to load folders");
     }
   },
 

@@ -9,6 +9,7 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import { toast } from "sonner";
 import { create } from "zustand";
 import { client } from "../lib/api";
 import { parseEventFromApi, parseTaskFromApi } from "../lib/parse";
@@ -101,10 +102,9 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       );
       set({ tasks, tasksLoading: false });
     } catch (e) {
-      set({
-        error: e instanceof Error ? e.message : "Failed to fetch tasks",
-        tasksLoading: false,
-      });
+      const message = e instanceof Error ? e.message : "Failed to fetch tasks";
+      set({ error: message, tasksLoading: false });
+      toast.error("Failed to load tasks");
     }
   },
 
@@ -121,10 +121,9 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       );
       set({ events, eventsLoading: false });
     } catch (e) {
-      set({
-        error: e instanceof Error ? e.message : "Failed to fetch events",
-        eventsLoading: false,
-      });
+      const message = e instanceof Error ? e.message : "Failed to fetch events";
+      set({ error: message, eventsLoading: false });
+      toast.error("Failed to load events");
     }
   },
 
@@ -166,6 +165,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       set((state) => ({ tasks: [...state.tasks, created] }));
     } catch (e) {
       set({ error: e instanceof Error ? e.message : "Failed to create task" });
+      toast.error("Failed to create task");
     }
   },
 
@@ -199,6 +199,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         ),
         error: e instanceof Error ? e.message : "Failed to update task",
       }));
+      toast.error("Failed to update task");
     }
   },
 
@@ -225,6 +226,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         tasks: [...state.tasks, task],
         error: e instanceof Error ? e.message : "Failed to delete task",
       }));
+      toast.error("Failed to delete task");
     }
   },
 
@@ -251,6 +253,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       set((state) => ({ events: [...state.events, created] }));
     } catch (e) {
       set({ error: e instanceof Error ? e.message : "Failed to create event" });
+      toast.error("Failed to create event");
     }
   },
 
@@ -277,6 +280,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         events: [...state.events, event],
         error: e instanceof Error ? e.message : "Failed to delete event",
       }));
+      toast.error("Failed to delete event");
     }
   },
 

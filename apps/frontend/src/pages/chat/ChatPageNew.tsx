@@ -1,6 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { Menu02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { toast } from "sonner";
 import { AVAILABLE_MODELS, DEFAULT_MODEL_ID } from "@repo/ai/models";
 import {
   type AttachedFile,
@@ -83,9 +84,8 @@ export function ChatPageNew() {
     setSelectedModelId,
   } = useChatStore();
 
-  // Local state for thinking indicator and errors
+  // Local state for thinking indicator
   const [isThinking, setIsThinking] = useState(false);
-  const [chatError, setChatError] = useState<string | null>(null);
 
   // Fetch documents and conversations from API on mount
   useEffect(() => {
@@ -111,6 +111,7 @@ export function ChatPageNew() {
         );
       } catch (error) {
         console.error("Failed to load documents:", error);
+        toast.error("Failed to load documents");
       }
     };
 
@@ -138,7 +139,6 @@ export function ChatPageNew() {
     },
     onResponse: (response) => {
       setIsThinking(false);
-      setChatError(null);
 
       const newConvoId = response.headers.get("X-Conversation-Id");
       if (newConvoId && !currentConversationId) {
@@ -149,10 +149,7 @@ export function ChatPageNew() {
     },
     onError: (error) => {
       setIsThinking(false);
-      setChatError(
-        error.message || "Failed to send message. Please try again.",
-      );
-      setTimeout(() => setChatError(null), 5000);
+      toast.error(error.message || "Failed to send message. Please try again.");
     },
   });
 
@@ -379,8 +376,7 @@ export function ChatPageNew() {
           return;
         }
         console.error("Failed to load conversation:", error);
-        setChatError("Failed to load conversation. Please try again.");
-        setTimeout(() => setChatError(null), 5000);
+        toast.error("Failed to load conversation. Please try again.");
       }
     };
 
@@ -456,6 +452,7 @@ export function ChatPageNew() {
         } catch (error) {
           console.error("File upload error:", error);
           updateAttachment(id, { status: "error", progress: 0 });
+          toast.error(`Failed to upload ${file.name}`);
         }
       }
     },
@@ -634,14 +631,6 @@ export function ChatPageNew() {
                   })}
 
                   {isThinking && <ThinkingIndicator />}
-
-                  {chatError && (
-                    <div className="flex justify-center">
-                      <div className="animate-in fade-in-0 slide-in-from-bottom-2 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
-                        {chatError}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
