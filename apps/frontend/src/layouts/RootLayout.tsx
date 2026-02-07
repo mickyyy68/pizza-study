@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
+import { Toaster } from "sonner";
 import { useInitialize } from "../hooks/useInitialize";
 import { useTheme } from "../hooks/useTheme";
 import { useUIStore } from "../stores/ui-store";
@@ -21,7 +22,7 @@ export function RootLayout() {
   useInitialize();
 
   // Initialize theme system
-  useTheme();
+  const { resolvedTheme } = useTheme();
 
   // Close mobile menu on route change
   // biome-ignore lint/correctness/useExhaustiveDependencies: location.pathname triggers menu close on navigation
@@ -35,6 +36,7 @@ export function RootLayout() {
       <main className="flex-1 min-h-0 overflow-auto">
         <Outlet />
       </main>
+      <Toaster position="bottom-right" theme={resolvedTheme} richColors />
     </div>
   );
 }

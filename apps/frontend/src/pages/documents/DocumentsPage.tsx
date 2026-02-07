@@ -8,6 +8,7 @@ import {
   Refresh01Icon,
   Search01Icon,
 } from "@hugeicons/core-free-icons";
+import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Badge,
@@ -113,6 +114,7 @@ export function DocumentsPage() {
       setDeleteTarget(null);
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Failed to delete document");
       // Keep dialog open so user can retry
     } finally {
       setIsDeleting(false);

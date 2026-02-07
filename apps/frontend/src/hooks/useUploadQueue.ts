@@ -1,5 +1,6 @@
 import { getFileNameWithoutExtension, validateFile } from "@repo/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import type { UploadItem, UploadStatus } from "../types";
 
 /** Maximum number of concurrent uploads */
@@ -274,9 +275,11 @@ export function useUploadQueue(): UseUploadQueueReturn {
       setItems((prev) => [...prev, ...newItems]);
     }
 
-    // Log validation errors (could be shown as toasts in UI)
     if (validationErrors.length > 0) {
       console.warn("Some files were rejected:", validationErrors);
+      for (const error of validationErrors) {
+        toast.error(error);
+      }
     }
   }, []);
 

@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -258,6 +259,7 @@ export const useChatStore = create<ChatState>()(
           set({ history, chatGroupMap: updatedGroupMap });
         } catch (error) {
           console.error("Failed to fetch conversations:", error);
+          toast.error("Failed to load conversations");
         }
       },
       deleteConversation: async (id) => {
@@ -283,6 +285,7 @@ export const useChatStore = create<ChatState>()(
           }));
         } catch (error) {
           console.error("Failed to delete conversation:", error);
+          toast.error("Failed to delete conversation");
         }
       },
       renameConversation: async (id, title) => {
@@ -302,6 +305,7 @@ export const useChatStore = create<ChatState>()(
           }));
         } catch (error) {
           console.error("Failed to rename conversation:", error);
+          toast.error("Failed to rename conversation");
         }
       },
       createGroup: (name) => {
